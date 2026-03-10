@@ -120,5 +120,23 @@ namespace pbl3_web_api.Controllers
             }
             return Ok(new { message = "Product deleted successfully" });
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditProduct(int id, EditProductRequest request)
+        {
+            try
+            {
+                var res = await _service.EditProduct(id, request);
+                if (!res)
+                {
+                    return NotFound(new { message = "Product not found" });
+                }
+                return Ok(new { message = "Product updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

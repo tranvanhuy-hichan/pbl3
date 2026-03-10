@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
 using pbl3_web_api.Entities;
@@ -110,6 +111,33 @@ namespace pbl3_web_api.Service
 
             return true;
         }
+
+        public async Task<bool> EditProduct(int id, EditProductRequest request)
+        {
+            if (request.Price < 0 || request.StockQuantity < 0)
+            {
+                throw new Exception();
+            }
+
+            var product = await _productRepo.GetProductById(id);
+
+            if (product == null)
+                return false;
+
+
+            product.ProductName = request.ProductName;
+            product.CategoryId = request.CategoryId;
+            product.BrandId = request.BrandId;
+            product.Description = request.Description;
+            product.Price = request.Price;
+            product.StockQuantity = request.StockQuantity;
+            product.ImageUrl = request.ImageURL;
+            product.Specifications = request.Specifications;
+
+            await _productRepo.Save();
+            return true;
+        } 
+
 
     }
 }
