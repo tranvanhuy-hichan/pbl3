@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
+using pbl3_web_api.Entities;
+using pbl3_web_api.RequestDTO;
+using pbl3_web_api.Service;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using pbl3_web_api.Entities;
-using pbl3_web_api.Service;
 
 namespace pbl3_web_api.Controllers
 {
@@ -65,9 +67,6 @@ namespace pbl3_web_api.Controllers
             decimal? minPrice = null,
             decimal? maxPrice = null)
         {
-            if (page <= 0) page = 1;
-            if (pageSize <= 0) pageSize = 12;
-
             var result = await _service.GetProducts(
                 page, pageSize, search, categoryId, brandId, minPrice, maxPrice);
 
@@ -93,6 +92,33 @@ namespace pbl3_web_api.Controllers
             });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddProduct(AddProductRequest request)
+        {
+            try
+            {
+                var productId = await _service.AddProduct(request);
+                return StatusCode(201, new
+                {
+                    message = "Product created successfully",
+                    productId = productId
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var res = await _service.DeleteProduct(id);
+            if (!res)
+            {
+                return NotFound(new { message = "Product not found" });
+            }
+            return Ok(new { message = "Product deleted successfully" });
+        }
     }
 }
