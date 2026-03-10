@@ -1,4 +1,5 @@
 ﻿using pbl3_web_api.Entities;
+using pbl3_web_api.RequestDTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace pbl3_web_api.Repository
@@ -20,6 +21,17 @@ namespace pbl3_web_api.Repository
         public async Task<Product?> GetProductById(int id)
         {
             return await _context.Products.FirstOrDefaultAsync(p => p.ProductId == id);
+        }
+
+        public async Task Add(Product product)
+        {
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task Save()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

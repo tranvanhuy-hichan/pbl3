@@ -1,5 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Core.Types;
 using pbl3_web_api.Entities;
+using pbl3_web_api.Repository;
+using pbl3_web_api.RequestDTO;
 
 namespace pbl3_web_api.Service
 {
@@ -21,6 +25,9 @@ namespace pbl3_web_api.Service
             decimal? minPrice,
             decimal? maxPrice)
         {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 12;
+
             var query = _productRepo.GetProductsQuery();
 
             if (!string.IsNullOrEmpty(search))
@@ -64,6 +71,44 @@ namespace pbl3_web_api.Service
         public async Task<Product?> GetProductById(int id)
         {
             return await _productRepo.GetProductById(id);
+        }
+
+        public async Task<int> AddProduct(AddProductRequest request)
+        {
+            if (request.Price < 0 || request.StockQuantity < 0)
+            {
+                throw new Exception();
+            }
+
+            var newProduct = new Product
+            {
+                ProductName = request.ProductName,
+                ProductCode = request.ProductCode,
+                CategoryId = request.CategoryId,
+                BrandId = request.BrandId,
+                Description = request.Description,
+                Price = request.Price,
+                StockQuantity = request.StockQuantity,
+                ImageUrl = request.ImageURL,
+                Specifications = request.Specifications
+            };
+
+            await _productRepo.Add(newProduct);
+            return newProduct.ProductId;
+        }
+
+        public async Task<bool> DeleteProduct(int id)
+        {
+            var product = await _productRepo.GetProductById(id);
+
+            if (product == null)
+                return false;
+
+            product.IsActive = false;
+
+            await _productRepo.Save();
+
+            return true;
         }
 
     }
