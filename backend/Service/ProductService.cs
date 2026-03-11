@@ -81,9 +81,35 @@ namespace pbl3_web_api.Service
         }
 
 
-        public async Task<Product?> GetProductById(int id)
+        public async Task<ProductDetailResponse?> GetProductById(int id)
         {
-            return await _productRepo.GetProductById(id);
+            var product = await _productRepo.GetProductById(id);
+            if (product == null)
+                return null;
+
+            return new ProductDetailResponse
+            {
+                ProductId = product.ProductId,
+                ProductName = product.ProductName,
+                ProductCode = product.ProductCode,
+                Description = product.Description,
+                Price = product.Price,
+                StockQuantity = product.StockQuantity,
+                ImageURL = product.ImageUrl,
+                Specifications = product.Specifications,
+
+                Category = new CategoryProductResponse
+                {
+                    Id = product.Category!.CategoryId,
+                    Name = product.Category.CategoryName
+                },
+
+                Brand = new BrandProductResponse
+                {
+                    Id = product.Brand!.BrandId,
+                    Name = product.Brand.BrandName
+                }
+            };
         }
 
         public async Task<int> AddProduct(AddProductRequest request)
@@ -113,14 +139,12 @@ namespace pbl3_web_api.Service
         public async Task<bool> DeleteProduct(int id)
         {
             var product = await _productRepo.GetProductById(id);
-
             if (product == null)
                 return false;
 
             product.IsActive = false;
 
             await _productRepo.Save();
-
             return true;
         }
 
