@@ -17,7 +17,7 @@ namespace pbl3_web_api.Service
             _productRepo = productRepo;
         }
 
-        public async Task<(IEnumerable<Product> products, int totalCount)> GetProducts(
+        public async Task<(IEnumerable<ProductsResponse> products, int totalCount)> GetProducts(
             int page,
             int pageSize,
             string? search,
@@ -63,6 +63,18 @@ namespace pbl3_web_api.Service
                 .Include(p => p.Brand)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .Select(p => new ProductsResponse
+                {
+                    productId = p.ProductId,
+                    productName = p.ProductName,
+                    productCode = p.ProductCode,
+                    price = p.Price,
+                    stockQuantity = p.StockQuantity,
+                    imageURL = p.ImageUrl,
+                    categoryName = p.Category!.CategoryName,
+                    brandName = p.Brand!.BrandName,
+                    isActive = p.IsActive
+                })
                 .ToListAsync();
 
             return (products, totalCount);
