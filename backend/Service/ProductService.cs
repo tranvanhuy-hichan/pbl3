@@ -89,47 +89,47 @@ namespace pbl3_web_api.Service
 
             return new ProductDetailResponse
             {
-                ProductId = product.ProductId,
-                ProductName = product.ProductName,
-                ProductCode = product.ProductCode,
-                Description = product.Description,
-                Price = product.Price,
-                StockQuantity = product.StockQuantity,
-                ImageURL = product.ImageUrl,
-                Specifications = product.Specifications,
+                productId = product.ProductId,
+                productName = product.ProductName,
+                productCode = product.ProductCode,
+                description = product.Description,
+                price = product.Price,
+                stockQuantity = product.StockQuantity,
+                imageURL = product.ImageUrl,
+                specifications = product.Specifications,
 
-                Category = new CategoryProductResponse
+                category = new CategoryProductResponse
                 {
-                    Id = product.Category!.CategoryId,
-                    Name = product.Category.CategoryName
+                    id = product.Category!.CategoryId,
+                    name = product.Category.CategoryName
                 },
 
-                Brand = new BrandProductResponse
+                brand = new BrandProductResponse
                 {
-                    Id = product.Brand!.BrandId,
-                    Name = product.Brand.BrandName
+                    id = product.Brand!.BrandId,
+                    name = product.Brand.BrandName
                 }
             };
         }
 
         public async Task<int> AddProduct(AddProductRequest request)
         {
-            if (request.Price < 0 || request.StockQuantity < 0)
+            if (request.price < 0 || request.stockQuantity < 0)
             {
                 throw new Exception();
             }
 
             var newProduct = new Product
             {
-                ProductName = request.ProductName,
-                ProductCode = request.ProductCode,
-                CategoryId = request.CategoryId,
-                BrandId = request.BrandId,
-                Description = request.Description,
-                Price = request.Price,
-                StockQuantity = request.StockQuantity,
-                ImageUrl = request.ImageURL,
-                Specifications = request.Specifications,
+                ProductName = request.productName,
+                ProductCode = request.productCode,
+                CategoryId = request.categoryId,
+                BrandId = request.brandId,
+                Description = request.description,
+                Price = request.price,
+                StockQuantity = request.stockQuantity,
+                ImageUrl = request.imageURL,
+                Specifications = request.specifications,
                 IsActive = true,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
@@ -153,7 +153,7 @@ namespace pbl3_web_api.Service
 
         public async Task<bool> EditProduct(int id, EditProductRequest request)
         {
-            if (request.Price < 0 || request.StockQuantity < 0)
+            if (request.price < 0 || request.stockQuantity < 0)
             {
                 throw new Exception();
             }
@@ -163,15 +163,15 @@ namespace pbl3_web_api.Service
             if (product == null)
                 return false;
 
-            product.ProductName = request.ProductName ?? product.ProductName;
-            product.CategoryId = request.CategoryId ?? product.CategoryId;
-            product.BrandId = request.BrandId ?? product.BrandId;
-            product.Description = request.Description ?? product.Description;
-            product.Price = request.Price ?? product.Price;
-            product.StockQuantity = request.StockQuantity ?? product.StockQuantity;
-            product.ImageUrl = request.ImageURL ?? product.ImageUrl;
-            product.Specifications = request.Specifications ?? product.Specifications;
-            product.IsActive = request.IsActive ?? product.IsActive;
+            product.ProductName = request.productName ?? product.ProductName;
+            product.CategoryId = request.categoryId ?? product.CategoryId;
+            product.BrandId = request.brandId ?? product.BrandId;
+            product.Description = request.description ?? product.Description;
+            product.Price = request.price ?? product.Price;
+            product.StockQuantity = request.stockQuantity ?? product.StockQuantity;
+            product.ImageUrl = request.imageURL ?? product.ImageUrl;
+            product.Specifications = request.specifications ?? product.Specifications;
+            product.IsActive = request.isActive ?? product.IsActive;
             product.UpdatedAt = DateTime.Now;
 
             await _productRepo.Save();
