@@ -26,7 +26,7 @@ namespace pbl3_web_api.Repository
         public async Task Add(Product product)
         {
             _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            await Save();
         }
 
         public async Task Save()

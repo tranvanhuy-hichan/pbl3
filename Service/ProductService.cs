@@ -129,7 +129,10 @@ namespace pbl3_web_api.Service
                 Price = request.Price,
                 StockQuantity = request.StockQuantity,
                 ImageUrl = request.ImageURL,
-                Specifications = request.Specifications
+                Specifications = request.Specifications,
+                IsActive = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             };
 
             await _productRepo.Add(newProduct);
@@ -160,15 +163,16 @@ namespace pbl3_web_api.Service
             if (product == null)
                 return false;
 
-
-            product.ProductName = request.ProductName;
-            product.CategoryId = request.CategoryId;
-            product.BrandId = request.BrandId;
-            product.Description = request.Description;
-            product.Price = request.Price;
-            product.StockQuantity = request.StockQuantity;
-            product.ImageUrl = request.ImageURL;
-            product.Specifications = request.Specifications;
+            product.ProductName = request.ProductName ?? product.ProductName;
+            product.CategoryId = request.CategoryId ?? product.CategoryId;
+            product.BrandId = request.BrandId ?? product.BrandId;
+            product.Description = request.Description ?? product.Description;
+            product.Price = request.Price ?? product.Price;
+            product.StockQuantity = request.StockQuantity ?? product.StockQuantity;
+            product.ImageUrl = request.ImageURL ?? product.ImageUrl;
+            product.Specifications = request.Specifications ?? product.Specifications;
+            product.IsActive = request.IsActive ?? product.IsActive;
+            product.UpdatedAt = DateTime.Now;
 
             await _productRepo.Save();
             return true;
