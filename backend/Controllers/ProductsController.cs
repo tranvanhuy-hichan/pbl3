@@ -67,21 +67,9 @@ namespace pbl3_web_api.Controllers
             decimal? minPrice = null,
             decimal? maxPrice = null)
         {
-            var result = await _service.GetProducts(
-                page, pageSize, search, categoryId, brandId, minPrice, maxPrice);
+            var result = await _service.GetProducts(page, pageSize, search, categoryId, brandId, minPrice, maxPrice);
 
-            var data = result.products.Select(product => new
-            {
-                productId = product.ProductId,
-                productName = product.ProductName,
-                productCode = product.ProductCode,
-                price = product.Price,
-                stockQuantity = product.StockQuantity,
-                imageURL = product.ImageUrl,
-                categoryName = product.Category?.CategoryName,
-                brandName = product.Brand?.BrandName,
-                isActive = product.IsActive
-            }).ToList();
+            var data = result.products;
 
             return Ok(new
             {
