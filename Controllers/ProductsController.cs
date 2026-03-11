@@ -31,29 +31,7 @@ namespace pbl3_web_api.Controllers
             {
                 return NotFound();
             }
-            return new
-            {
-                productId = product.ProductId,
-                productName = product.ProductName,
-                productCode = product.ProductCode,
-                description = product.Description,
-                price = product.Price,
-                stockQuantity = product.StockQuantity,
-                imageURL = product.ImageUrl,
-                specifications = product.Specifications,
-
-                category = new
-                {
-                    id = product.Category.CategoryId,
-                    name = product.Category.CategoryName
-                },
-
-                brand = new
-                {
-                    id = product.Brand.BrandId,
-                    name = product.Brand.BrandName
-                }
-            };
+            return product;
         }
 
 
@@ -86,11 +64,8 @@ namespace pbl3_web_api.Controllers
             try
             {
                 var productId = await _service.AddProduct(request);
-                return StatusCode(201, new
-                {
-                    message = "Product created successfully",
-                    productId = productId
-                });
+
+                return Created("", new { message = "Product created successfully", productId = productId });
             }
             catch (Exception ex)
             {
