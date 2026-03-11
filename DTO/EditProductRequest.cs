@@ -2,19 +2,19 @@
 {
     public class EditProductRequest
     {
-        public string? ProductName { get; set; }
+        public string? productName { get; set; }
 
-        public int? CategoryId { get; set; }
-        public int? BrandId { get; set; }
+        public int? categoryId { get; set; }
+        public int? brandId { get; set; }
 
-        public string? Description { get; set; }
+        public string? description { get; set; }
 
-        public decimal? Price { get; set; }
-        public int? StockQuantity { get; set; }
+        public decimal? price { get; set; }
+        public int? stockQuantity { get; set; }
 
-        public string? ImageURL { get; set; }
-        public string? Specifications { get; set; }
+        public string? imageURL { get; set; }
+        public string? specifications { get; set; }
 
-        public bool? IsActive { get; set; }
+        public bool? isActive { get; set; }
     }
 }

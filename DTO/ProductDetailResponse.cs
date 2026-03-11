@@ -2,28 +2,28 @@
 {
     public class ProductDetailResponse
     {
-        public int ProductId { get; set; }
-        public string ProductName { get; set; } = null!;
-        public string ProductCode { get; set; } = null!;
-        public string? Description { get; set; }
-        public decimal Price { get; set; }
-        public int StockQuantity { get; set; }
-        public string? ImageURL { get; set; }
-        public string? Specifications { get; set; }
+        public int productId { get; set; }
+        public string productName { get; set; } = null!;
+        public string productCode { get; set; } = null!;
+        public string? description { get; set; }
+        public decimal price { get; set; }
+        public int stockQuantity { get; set; }
+        public string? imageURL { get; set; }
+        public string? specifications { get; set; }
 
-        public CategoryProductResponse? Category { get; set; }
-        public BrandProductResponse? Brand { get; set; }
+        public CategoryProductResponse? category { get; set; }
+        public BrandProductResponse? brand { get; set; }
     }
     public class CategoryProductResponse
     {
-        public int Id { get; set; }
-        public string Name { get; set; } = null!;
+        public int id { get; set; }
+        public string name { get; set; } = null!;
     }
 
     public class BrandProductResponse
     {
-        public int Id { get; set; }
-        public string Name { get; set; } = null!;
+        public int id { get; set; }
+        public string name { get; set; } = null!;
     }
 }
 
