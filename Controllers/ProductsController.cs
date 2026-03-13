@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace pbl3_web_api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/products")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
