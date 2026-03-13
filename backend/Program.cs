@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.Entities;
+using pbl3_web_api.Repository;
+using pbl3_web_api.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ShopPbl3Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<ProductRepo>();
 
 var app = builder.Build();
 
