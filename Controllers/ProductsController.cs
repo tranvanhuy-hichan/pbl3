@@ -26,12 +26,23 @@ namespace pbl3_web_api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<object>> GetProduct(int id)
         {
-            var product = await _service.GetProductById(id);
-            if (product == null)
+            try
             {
-                return NotFound();
+                var product = await _service.GetProductById(id);
+                return Ok(product);
             }
-            return product;
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
 
@@ -45,17 +56,24 @@ namespace pbl3_web_api.Controllers
             decimal? minPrice = null,
             decimal? maxPrice = null)
         {
-            var result = await _service.GetProducts(page, pageSize, search, categoryId, brandId, minPrice, maxPrice);
-
-            var data = result.products;
-
-            return Ok(new
+            try
             {
-                data,
-                totalCount = result.totalCount,
-                page,
-                pageSize
-            });
+                var result = await _service.GetProducts(page, pageSize, search, categoryId, brandId, minPrice, maxPrice);
+
+                var data = result.products;
+
+                return Ok(new
+                {
+                    data,
+                    totalCount = result.totalCount,
+                    page,
+                    pageSize
+                });
+            }
+            catch (Exception ex)
+            {
+                return  StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPost]
@@ -64,24 +82,38 @@ namespace pbl3_web_api.Controllers
             try
             {
                 var productId = await _service.AddProduct(request);
-
                 return Created("", new { message = "Product created successfully", productId = productId });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new {message = ex.Message});
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var res = await _service.DeleteProduct(id);
-            if (!res)
+            try
             {
-                return NotFound(new { message = "Product not found" });
+                await _service.DeleteProduct(id);
+                return Ok(new { message = "Product deleted successfully" });
             }
-            return Ok(new { message = "Product deleted successfully" });
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new {message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message }); 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
@@ -89,16 +121,20 @@ namespace pbl3_web_api.Controllers
         {
             try
             {
-                var res = await _service.EditProduct(id, request);
-                if (!res)
-                {
-                    return NotFound(new { message = "Product not found" });
-                }
+                await _service.EditProduct(id, request);
                 return Ok(new { message = "Product updated successfully" });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
     }

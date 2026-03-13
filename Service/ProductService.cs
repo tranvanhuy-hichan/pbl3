@@ -83,9 +83,16 @@ namespace pbl3_web_api.Service
 
         public async Task<ProductDetailResponse?> GetProductById(int id)
         {
+            if (id < 0)
+            {
+                throw new ArgumentException("Invalid product id");
+            }
+
             var product = await _productRepo.GetProductById(id);
             if (product == null)
-                return null;
+            {
+                throw new KeyNotFoundException("Product Not Found");
+            }
 
             return new ProductDetailResponse
             {
@@ -114,9 +121,21 @@ namespace pbl3_web_api.Service
 
         public async Task<int> AddProduct(AddProductRequest request)
         {
-            if (request.price < 0 || request.stockQuantity < 0)
+            if (request == null)
             {
-                throw new Exception();
+                throw new ArgumentNullException(nameof(request));
+            }
+            if (! await _productRepo.CheckCategoryAndBrandExist(request.categoryId, request.brandId))
+            {
+                throw new ArgumentException("Category or Brand does not exist");
+            }
+            if (request.price < 0)
+            {
+                throw new ArgumentException("Price cannot be negative");
+            }
+            if (request.stockQuantity < 0)
+            {
+                throw new ArgumentException("StockQuantity cannot be negative");
             }
 
             var newProduct = new Product
@@ -139,29 +158,44 @@ namespace pbl3_web_api.Service
             return newProduct.ProductId;
         }
 
-        public async Task<bool> DeleteProduct(int id)
+        public async Task DeleteProduct(int id)
         {
+            if (id <= 0)
+            {
+                throw new ArgumentException("Invalid product id");
+            }
             var product = await _productRepo.GetProductById(id);
             if (product == null)
-                return false;
-
+            {
+                throw new KeyNotFoundException("Product Not Found");
+            }
             product.IsActive = false;
-
             await _productRepo.Save();
-            return true;
         }
 
-        public async Task<bool> EditProduct(int id, EditProductRequest request)
+        public async Task EditProduct(int id, EditProductRequest request)
         {
-            if (request.price < 0 || request.stockQuantity < 0)
+            if (request == null)
             {
-                throw new Exception();
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (request.price.HasValue && request.price < 0)
+            {
+                throw new ArgumentException("Price cannot be negative");
+            }
+
+            if (request.stockQuantity.HasValue && request.stockQuantity < 0)
+            {
+                throw new ArgumentException("StockQuantity cannot be negative");
             }
 
             var product = await _productRepo.GetProductById(id);
 
             if (product == null)
-                return false;
+            {
+                throw new KeyNotFoundException("Product Not Found");
+            }
 
             product.ProductName = request.productName ?? product.ProductName;
             product.CategoryId = request.categoryId ?? product.CategoryId;
@@ -175,9 +209,7 @@ namespace pbl3_web_api.Service
             product.UpdatedAt = DateTime.Now;
 
             await _productRepo.Save();
-            return true;
         } 
-
 
     }
 }
