@@ -59,8 +59,6 @@ namespace pbl3_web_api.Service
             var totalCount = await query.CountAsync();
 
             var products = await query
-                .Include(p => p.Category)
-                .Include(p => p.Brand)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(p => new ProductsResponse
