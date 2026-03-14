@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
+using pbl3_web_api.DTO.Product;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
-using pbl3_web_api.RequestDTO;
 
 namespace pbl3_web_api.Service
 {
@@ -32,29 +32,19 @@ namespace pbl3_web_api.Service
             var query = _productRepo.GetProductsQuery();
 
             if (!string.IsNullOrEmpty(search))
-            {
                 query = query.Where(p => p.ProductName.Contains(search));
-            }
 
             if (categoryId.HasValue)
-            {
                 query = query.Where(p => p.CategoryId == categoryId);
-            }
 
             if (brandId.HasValue)
-            {
                 query = query.Where(p => p.BrandId == brandId);
-            }
 
             if (minPrice.HasValue)
-            {
                 query = query.Where(p => p.Price >= minPrice);
-            }
 
             if (maxPrice.HasValue)
-            {
                 query = query.Where(p => p.Price <= maxPrice);
-            }
 
             var totalCount = await query.CountAsync();
 
@@ -82,15 +72,12 @@ namespace pbl3_web_api.Service
         public async Task<ProductDetailResponse?> GetProductById(int id)
         {
             if (id < 0)
-            {
                 throw new ArgumentException("Invalid product id");
-            }
 
             var product = await _productRepo.GetProductById(id);
+
             if (product == null)
-            {
                 throw new KeyNotFoundException("Product Not Found");
-            }
 
             return new ProductDetailResponse
             {
@@ -120,21 +107,16 @@ namespace pbl3_web_api.Service
         public async Task<int> AddProduct(AddProductRequest request)
         {
             if (request == null)
-            {
                 throw new ArgumentNullException(nameof(request));
-            }
+
             if (! await _productRepo.CheckCategoryAndBrandExist(request.categoryId, request.brandId))
-            {
                 throw new ArgumentException("Category or Brand does not exist");
-            }
+
             if (request.price < 0)
-            {
                 throw new ArgumentException("Price cannot be negative");
-            }
+
             if (request.stockQuantity < 0)
-            {
                 throw new ArgumentException("StockQuantity cannot be negative");
-            }
 
             var newProduct = new Product
             {
@@ -159,14 +141,13 @@ namespace pbl3_web_api.Service
         public async Task DeleteProduct(int id)
         {
             if (id <= 0)
-            {
                 throw new ArgumentException("Invalid product id");
-            }
+
             var product = await _productRepo.GetProductById(id);
+
             if (product == null)
-            {
                 throw new KeyNotFoundException("Product Not Found");
-            }
+
             product.IsActive = false;
             await _productRepo.Save();
         }
@@ -174,26 +155,18 @@ namespace pbl3_web_api.Service
         public async Task EditProduct(int id, EditProductRequest request)
         {
             if (request == null)
-            {
                 throw new ArgumentNullException(nameof(request));
-            }
 
             if (request.price.HasValue && request.price < 0)
-            {
                 throw new ArgumentException("Price cannot be negative");
-            }
 
             if (request.stockQuantity.HasValue && request.stockQuantity < 0)
-            {
                 throw new ArgumentException("StockQuantity cannot be negative");
-            }
 
             var product = await _productRepo.GetProductById(id);
 
             if (product == null)
-            {
                 throw new KeyNotFoundException("Product Not Found");
-            }
 
             product.ProductName = request.productName ?? product.ProductName;
             product.CategoryId = request.categoryId ?? product.CategoryId;

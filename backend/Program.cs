@@ -16,6 +16,8 @@ builder.Services.AddDbContext<ShopPbl3Context>(options =>
 
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductRepo>();
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<OrderRepo>();
 
 var app = builder.Build();
 

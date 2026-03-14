@@ -1,4 +1,4 @@
-﻿namespace pbl3_web_api.RequestDTO
+﻿namespace pbl3_web_api.DTO.Product
 {
     public class AddProductRequest
     {

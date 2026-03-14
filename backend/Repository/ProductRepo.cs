@@ -1,5 +1,5 @@
 ﻿using pbl3_web_api.Entities;
-using pbl3_web_api.RequestDTO;
+using pbl3_web_api.DTO.Product;
 using Microsoft.EntityFrameworkCore;
 
 namespace pbl3_web_api.Repository
