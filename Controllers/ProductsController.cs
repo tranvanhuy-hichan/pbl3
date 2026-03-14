@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using pbl3_web_api.DTO.Product;
 using pbl3_web_api.Entities;
-using pbl3_web_api.RequestDTO;
 using pbl3_web_api.Service;
 using System;
 using System.Collections.Generic;
