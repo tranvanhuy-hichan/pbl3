@@ -1,107 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using pbl3_web_api.Entities;
+using pbl3_web_api.DTO;
+using pbl3_web_api.Service;
 
 namespace pbl3_web_api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/brands")]
     [ApiController]
     public class BrandsController : ControllerBase
     {
-        private readonly ShopPbl3Context _context;
+        private readonly IBrandService _brandService;
 
-        public BrandsController(ShopPbl3Context context)
+        public BrandsController(IBrandService brandService)
         {
-            _context = context;
+            _brandService = brandService;
         }
 
-        // GET: api/Brands
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Brand>>> GetBrands()
+        public async Task<IActionResult> GetAllBrands()
         {
-            return await _context.Brands.ToListAsync();
+            var result = await _brandService.GetAllBrandsAsync();
+            return Ok(result);
         }
 
-        // GET: api/Brands/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Brand>> GetBrand(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var brand = await _context.Brands.FindAsync(id);
-
-            if (brand == null)
+            var result = await _brandService.GetBrandByIdAsync(id);
+            if (result == null)
             {
-                return NotFound();
+                return NotFound(new { message = $"Không tìm thấy thương hiệu với ID = {id}" });
             }
-
-            return brand;
+            return Ok(result);
         }
 
-        // PUT: api/Brands/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutBrand(int id, Brand brand)
-        {
-            if (id != brand.BrandId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(brand).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BrandExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Brands
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Brand>> PostBrand(Brand brand)
+        public async Task<IActionResult> AddBrand([FromBody] AddBrandRequest request)
         {
-            _context.Brands.Add(brand);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetBrand", new { id = brand.BrandId }, brand);
-        }
-
-        // DELETE: api/Brands/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBrand(int id)
-        {
-            var brand = await _context.Brands.FindAsync(id);
-            if (brand == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
-            _context.Brands.Remove(brand);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            var brandId = await _brandService.AddBrandAsync(request);
+            return StatusCode(201, new { message = "Thêm thương hiệu mới thành công", brandId = brandId });
         }
 
-        private bool BrandExists(int id)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateBrandRequest request)
         {
-            return _context.Brands.Any(e => e.BrandId == id);
+            var isSuccess = await _brandService.UpdateBrandAsync(id, request);
+            if (!isSuccess)
+            {
+                return NotFound(new { message = $"Không tìm thấy thương hiệu với ID = {id} để cập nhật" });
+            }
+            return Ok(new { message = "Cập nhật thương hiệu thành công" });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var isSuccess = await _brandService.DeleteBrandAsync(id);
+            if (!isSuccess)
+            {
+                return NotFound(new { message = $"Không tìm thấy thương hiệu với ID = {id} để xoá" });
+            }
+            return Ok(new { message = "Xoá thương hiệu thành công" });
         }
     }
 }
