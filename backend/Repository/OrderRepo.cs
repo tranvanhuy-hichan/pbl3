@@ -6,19 +6,12 @@ namespace pbl3_web_api.Repository
     public interface IOrderRepo
     {
         Task<List<Order>> GetOrderByUserId(int id);
-
         Task<Order?> GetOrderById(int id);
-
         Task<Order?> GetOrderByIdAndUserId(int userId, int orderId);
-
         IQueryable<Order> GetOrdersQuery();
-
         Task Add(Order order);
-
         Task<IEnumerable<Cart>> GetCartItemsByUserId(int userId);
-
         Task AddOrderDetail(OrderDetail orderDetail);
-
         Task Save();
     }
 

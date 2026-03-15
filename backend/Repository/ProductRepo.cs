@@ -7,13 +7,9 @@ namespace pbl3_web_api.Repository
     public interface IProductRepo
     {
         IQueryable<Product> GetProductsQuery();
-
         Task<Product?> GetProductById(int id);
-
         Task Add(Product product);
-
         Task<bool> CheckCategoryAndBrandExist(int categoryId, int brandId);
-
         Task Save();
     }
 

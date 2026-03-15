@@ -25,12 +25,12 @@ namespace pbl3_web_api.Controllers
 
         [HttpGet]
         public async Task<IActionResult> Get(
-            int page,
-            int pageSize,
-            string? status,
-            int? userId,
-            DateTime? fromDate,
-            DateTime? toDate)
+            int page = 1,
+            int pageSize = 20,
+            string? status = null,
+            int? userId = null,
+            DateTime? fromDate = null,
+            DateTime? toDate = null)
         {
             try
             {
@@ -90,9 +90,9 @@ namespace pbl3_web_api.Controllers
 
         [HttpGet("my")]
         public async Task<ActionResult> GetMyOrders(
-            int page,
-            int pageSize,
-            string? status
+            int page = 1,
+            int pageSize = 10,
+            string? status = "Pending"
             )
         {
             try

@@ -14,10 +14,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ShopPbl3Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<ProductService>();
-builder.Services.AddScoped<ProductRepo>();
-builder.Services.AddScoped<OrderService>();
-builder.Services.AddScoped<OrderRepo>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductRepo, ProductRepo>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderRepo, OrderRepo>();
 
 var app = builder.Build();
 
