@@ -17,6 +17,12 @@ namespace pbl3_web_api.Service
             DateTime? toDate);
         Task<AdminOrderDetailResponse> GetOrderDetail(int orderId);
         Task UpdateOrderStatus(int orderId, string newStatus);
+        Task<(IEnumerable<HistoryOrderResponse> order, int totalCount)> GetHistoryOrders(
+            int userId,
+            int page,
+            int pageSize,
+            string? status);
+        Task<MyOrderDetailResponse> GetMyOrderDetail(int userId, int orderId);
         Task CancelOrder(int userId, int orderId);
         Task<CreateOrderResponse> CreateOrder(int userId, CreateOrderRequest request);
     }
