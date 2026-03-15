@@ -43,50 +43,23 @@ namespace pbl3_web_api.Service
             DateTime? fromDate,
             DateTime? toDate)
         {
-            if (page <= 0) page = 1;
-            if (pageSize <= 0) pageSize = 12;
+            var ordersQuery = _repo.GetOrdersQuery();
 
-            var querys = _repo.GetOrdersQuery();
-
-            if (!string.IsNullOrEmpty(status))
-                querys = querys.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
-
-            if (userId.HasValue)
-                querys = querys.Where(o => o.UserId == userId.Value);
-
-            if (fromDate.HasValue)
-                querys = querys.Where(o => o.OrderDate >= fromDate.Value);
-
-            if (toDate.HasValue)
-                querys = querys.Where(o => o.OrderDate <= toDate.Value);
+            var querys = ApplyFilters(ordersQuery, status, userId, fromDate, toDate);
 
             var totalCount = await querys.CountAsync();
 
-            var data = await querys
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(o => new AdminOrdersResponse
-                {
-                    orderId = o.OrderId,
-                    userId = o.UserId,
-                    userName = o.User.Username,
-                    orderDate = o.OrderDate,
-                    totalAmount = o.TotalAmount,
-                    status = o.Status,
-                })
-                .ToListAsync();
+            var data = await GetPageOrders(querys, page, pageSize);
+
             return (data, totalCount);
         }
 
         public async Task<AdminOrderDetailResponse> GetOrderDetail(int orderId)
         {
-            if (orderId < 0)
-                throw new ArgumentException("OderId must be a non-negative integer.");
+            ValidateId(orderId, "OrderId");
 
-            var order = await _repo.GetOrderById(orderId);
-
-            if (order == null)
-                throw new KeyNotFoundException("Order not found.");
+            var order = await _repo.GetOrderById(orderId)
+                ?? throw new KeyNotFoundException("Order not found.");
 
             List<OrderDetailItem> items = new List<OrderDetailItem>();
             foreach (OrderDetail i in order.OrderDetails)
@@ -122,13 +95,10 @@ namespace pbl3_web_api.Service
 
         public async Task UpdateOrderStatus(int orderId, string newStatus)
         {
-            if (orderId < 0)
-                throw new ArgumentException("OderId must be a non-negative integer.");
+            ValidateId(orderId, "OrderId");
 
-            var order = await _repo.GetOrderById(orderId);
-
-            if (order == null)
-                throw new KeyNotFoundException("Order not found.");
+            var order = await _repo.GetOrderById(orderId)
+                ?? throw new KeyNotFoundException("Order not found.");
 
             order.Status = newStatus;
             order.UpdatedAt = DateTime.UtcNow;
@@ -144,42 +114,24 @@ namespace pbl3_web_api.Service
             if (page < 0) page = 1;
             if (pageSize < 0) pageSize = 12;
 
-            var querys = _repo.GetOrdersQuery();
+            var ordersQuery = _repo.GetOrdersQuery();
 
-            querys = querys.Where(o => o.UserId == userId);
-
-            if (!string.IsNullOrEmpty(status))
-                querys = querys.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            var querys = ApplyUserFilters(ordersQuery, userId, status);
 
             var totalCount = await querys.CountAsync();
 
-            var data = await querys
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(o => new HistoryOrderResponse
-                {
-                    orderId = o.OrderId,
-                    orderDate = o.OrderDate,
-                    totalAmount = o.TotalAmount,
-                    status = o.Status,
-                    PaymentStatus = o.PaymentStatus
-                })
-                .ToListAsync();
+            var data = await GetPageHistoryOrdersPage(querys, page, pageSize);
+
             return (data, totalCount);
         }
 
         public async Task<MyOrderDetailResponse> GetMyOrderDetail(int userId, int orderId)
         {
-            if (orderId < 0)
-                throw new ArgumentException("OderId must be a non-negative integer.");
+            ValidateId(orderId, "OrderId");
+            ValidateId(userId, "UserId");
 
-            if (userId < 0)
-                throw new ArgumentException("UserId must be a non-negative integer.");
-
-            var order = await _repo.GetOrderByIdAndUserId(userId, orderId);
-
-            if (order == null)
-                throw new KeyNotFoundException("Order not found.");
+            var order = await _repo.GetOrderByIdAndUserId(userId, orderId)
+                ?? throw new KeyNotFoundException("Order not found."); ;
 
             List<OrderDetailItem> items = new List<OrderDetailItem>();
             foreach (OrderDetail i in order.OrderDetails)
@@ -212,16 +164,11 @@ namespace pbl3_web_api.Service
 
         public async Task CancelOrder(int userId, int orderId)
         {
-            if (orderId < 0)
-                throw new ArgumentException("OderId must be a non-negative integer.");
+            ValidateId(orderId, "OrderId");
+            ValidateId(userId, "UserId");
 
-            if (userId < 0)
-                throw new ArgumentException("UserId must be a non-negative integer.");
-
-            var order = await _repo.GetOrderByIdAndUserId(userId, orderId);
-
-            if (order == null)
-                throw new KeyNotFoundException("Order not found.");
+            var order = await _repo.GetOrderByIdAndUserId(userId, orderId)
+                ?? throw new KeyNotFoundException("Order not found."); ;
 
             if (!order.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Only pending orders can be canceled.");
@@ -233,8 +180,7 @@ namespace pbl3_web_api.Service
 
         public async Task<CreateOrderResponse> CreateOrder(int userId, CreateOrderRequest request)
         {
-            if (userId < 0)
-                throw new ArgumentException("UserId must be a non-negative integer.");
+            ValidateId(userId, "UserId");
 
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null.");
@@ -279,6 +225,81 @@ namespace pbl3_web_api.Service
                 orderId = order.OrderId,
                 totalAmount = order.TotalAmount,
             };
+        }
+
+        private IQueryable<Order> ApplyFilters(
+            IQueryable<Order> query,
+            string? status,
+            int? userId,
+            DateTime? fromDate,
+            DateTime? toDate)
+        {
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+
+            if (userId.HasValue)
+                query = query.Where(o => o.UserId == userId.Value);
+
+            if (fromDate.HasValue)
+                query = query.Where(o => o.OrderDate >= fromDate.Value);
+
+            if (toDate.HasValue)
+                query = query.Where(o => o.OrderDate <= toDate.Value);
+
+            return query;
+        }
+
+        private async Task<List<AdminOrdersResponse>> GetPageOrders(IQueryable<Order> query, int page, int pageSize)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 20;
+
+            return await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(o => new AdminOrdersResponse
+                {
+                    orderId = o.OrderId,
+                    userId = o.UserId,
+                    userName = o.User.Username,
+                    orderDate = o.OrderDate,
+                    totalAmount = o.TotalAmount,
+                    status = o.Status,
+                })
+                .ToListAsync();
+        }
+
+        private IQueryable<Order> ApplyUserFilters(IQueryable<Order> query, int userId, string? status)
+        {
+            query = query.Where(o => o.UserId == userId);
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+            return query;
+        }
+
+        private async Task<List<HistoryOrderResponse>> GetPageHistoryOrdersPage(IQueryable<Order> query, int page, int pageSize)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            return await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(o => new HistoryOrderResponse
+                {
+                    orderId = o.OrderId,
+                    orderDate = o.OrderDate,
+                    totalAmount = o.TotalAmount,
+                    status = o.Status,
+                    PaymentStatus = o.PaymentStatus
+                })
+                .ToListAsync();
+        }
+
+        private void ValidateId(int id, string name)
+        {
+            if (id <= 0)
+                throw new ArgumentException($"{name} must be a non-negative integer.");
         }
     }
 }

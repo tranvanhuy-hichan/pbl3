@@ -42,44 +42,13 @@ namespace pbl3_web_api.Service
             decimal? minPrice,
             decimal? maxPrice)
         {
-            if (page <= 0) page = 1;
-            if (pageSize <= 0) pageSize = 12;
+            var productsQuery = _productRepo.GetProductsQuery();
 
-            var query = _productRepo.GetProductsQuery();
-
-            if (!string.IsNullOrEmpty(search))
-                query = query.Where(p => p.ProductName.Contains(search));
-
-            if (categoryId.HasValue)
-                query = query.Where(p => p.CategoryId == categoryId);
-
-            if (brandId.HasValue)
-                query = query.Where(p => p.BrandId == brandId);
-
-            if (minPrice.HasValue)
-                query = query.Where(p => p.Price >= minPrice);
-
-            if (maxPrice.HasValue)
-                query = query.Where(p => p.Price <= maxPrice);
+            var query = ApplyFilters(productsQuery, search, categoryId, brandId, minPrice, maxPrice);
 
             var totalCount = await query.CountAsync();
 
-            var products = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(p => new ProductsResponse
-                {
-                    productId = p.ProductId,
-                    productName = p.ProductName,
-                    productCode = p.ProductCode,
-                    price = p.Price,
-                    stockQuantity = p.StockQuantity,
-                    imageURL = p.ImageUrl,
-                    categoryName = p.Category!.CategoryName,
-                    brandName = p.Brand!.BrandName,
-                    isActive = p.IsActive
-                })
-                .ToListAsync();
+            var products = await GetPagedProducts(query, page, pageSize);
 
             return (products, totalCount);
         }
@@ -87,13 +56,10 @@ namespace pbl3_web_api.Service
 
         public async Task<ProductDetailResponse?> GetProductById(int id)
         {
-            if (id < 0)
-                throw new ArgumentException("Invalid product id");
+            ValidateId(id, "ProductId");
 
-            var product = await _productRepo.GetProductById(id);
-
-            if (product == null)
-                throw new KeyNotFoundException("Product Not Found");
+            var product = await _productRepo.GetProductById(id)
+                ?? throw new KeyNotFoundException("Product Not Found");
 
             return new ProductDetailResponse
             {
@@ -156,13 +122,10 @@ namespace pbl3_web_api.Service
 
         public async Task DeleteProduct(int id)
         {
-            if (id <= 0)
-                throw new ArgumentException("Invalid product id");
+            ValidateId(id, "ProductId");
 
-            var product = await _productRepo.GetProductById(id);
-
-            if (product == null)
-                throw new KeyNotFoundException("Product Not Found");
+            var product = await _productRepo.GetProductById(id)
+                ?? throw new KeyNotFoundException("Product Not Found");
 
             product.IsActive = false;
             await _productRepo.Save();
@@ -179,10 +142,8 @@ namespace pbl3_web_api.Service
             if (request.stockQuantity.HasValue && request.stockQuantity < 0)
                 throw new ArgumentException("StockQuantity cannot be negative");
 
-            var product = await _productRepo.GetProductById(id);
-
-            if (product == null)
-                throw new KeyNotFoundException("Product Not Found");
+            var product = await _productRepo.GetProductById(id)
+                ?? throw new KeyNotFoundException("Product Not Found");
 
             product.ProductName = request.productName ?? product.ProductName;
             product.CategoryId = request.categoryId ?? product.CategoryId;
@@ -196,7 +157,73 @@ namespace pbl3_web_api.Service
             product.UpdatedAt = DateTime.Now;
 
             await _productRepo.Save();
-        } 
+        }
 
+        private IQueryable<Product> ApplyFilters(
+           IQueryable<Product> query,
+           string? search,
+           int? categoryId,
+           int? brandId,
+           decimal? minPrice,
+           decimal? maxPrice)
+        {
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var keyword = search.ToLower();
+
+                query = query.Where(p =>
+                    p.ProductName.ToLower().Contains(keyword) ||
+                    (p.Description != null && p.Description.ToLower().Contains(keyword)) ||
+                    (p.Specifications != null && p.Specifications.ToLower().Contains(keyword)) ||
+                    (p.Brand != null && p.Brand.BrandName.ToLower().Contains(keyword)) ||
+                    (p.Category != null && p.Category.CategoryName.ToLower().Contains(keyword))
+                );
+            }
+
+            if (categoryId.HasValue)
+                query = query.Where(p => p.CategoryId == categoryId);
+
+            if (brandId.HasValue)
+                query = query.Where(p => p.BrandId == brandId);
+
+            if (minPrice.HasValue)
+                query = query.Where(p => p.Price >= minPrice);
+
+            if (maxPrice.HasValue)
+                query = query.Where(p => p.Price <= maxPrice);
+
+            return query;
+        }
+
+        private async Task<List<ProductsResponse>> GetPagedProducts(
+            IQueryable<Product> query,
+            int page,
+            int pageSize)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 12;
+
+            return await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductsResponse
+                {
+                    productId = p.ProductId,
+                    productName = p.ProductName,
+                    productCode = p.ProductCode,
+                    price = p.Price,
+                    stockQuantity = p.StockQuantity,
+                    imageURL = p.ImageUrl,
+                    categoryName = p.Category!.CategoryName,
+                    brandName = p.Brand!.BrandName,
+                    isActive = p.IsActive
+                })
+                .ToListAsync();
+        }
+        private void ValidateId(int id, string name)
+        {
+            if (id <= 0)
+                throw new ArgumentException($"{name} must be a non-negative integer.");
+        }
     }
 }
