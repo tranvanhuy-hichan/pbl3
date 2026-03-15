@@ -3,7 +3,26 @@ using pbl3_web_api.Entities;
 
 namespace pbl3_web_api.Repository
 {
-    public class OrderRepo
+    public interface IOrderRepo
+    {
+        Task<List<Order>> GetOrderByUserId(int id);
+
+        Task<Order?> GetOrderById(int id);
+
+        Task<Order?> GetOrderByIdAndUserId(int userId, int orderId);
+
+        IQueryable<Order> GetOrdersQuery();
+
+        Task Add(Order order);
+
+        Task<IEnumerable<Cart>> GetCartItemsByUserId(int userId);
+
+        Task AddOrderDetail(OrderDetail orderDetail);
+
+        Task Save();
+    }
+
+    public class OrderRepo : IOrderRepo
     {
         public readonly ShopPbl3Context _context;
         public OrderRepo(ShopPbl3Context context)

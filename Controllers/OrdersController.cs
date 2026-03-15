@@ -16,9 +16,9 @@ namespace pbl3_web_api.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly OrderService _service;
+        private readonly IOrderService _service;
 
-        public OrdersController(OrderService service)
+        public OrdersController(IOrderService service)
         {
             _service = service;
         }

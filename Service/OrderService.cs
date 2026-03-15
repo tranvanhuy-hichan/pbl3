@@ -6,10 +6,25 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace pbl3_web_api.Service
 {
-    public class OrderService
+    public interface IOrderService
     {
-        public readonly OrderRepo _repo;
-        public OrderService(OrderRepo repo)
+        Task<(IEnumerable<AdminOrdersResponse> orders, int totalCount)> GetOrders(
+            int page,
+            int pageSize,
+            string? status,
+            int? userId,
+            DateTime? fromDate,
+            DateTime? toDate);
+        Task<AdminOrderDetailResponse> GetOrderDetail(int orderId);
+        Task UpdateOrderStatus(int orderId, string newStatus);
+        Task CancelOrder(int userId, int orderId);
+        Task<CreateOrderResponse> CreateOrder(int userId, CreateOrderRequest request);
+    }
+
+    public class OrderService : IOrderService
+    {
+        public readonly IOrderRepo _repo;
+        public OrderService(IOrderRepo repo)
         {
             _repo = repo;
         }
@@ -115,7 +130,7 @@ namespace pbl3_web_api.Service
         }
 
         public async Task<(IEnumerable<HistoryOrderResponse> order, int totalCount)> GetHistoryOrders(
-            int orderId,
+            int userId,
             int page, 
             int pageSize,
             string? status)
@@ -125,7 +140,7 @@ namespace pbl3_web_api.Service
 
             var querys = _repo.GetOrdersQuery();
 
-            querys = querys.Where(o => o.OrderId == orderId);
+            querys = querys.Where(o => o.UserId == userId);
 
             if (!string.IsNullOrEmpty(status))
                 querys = querys.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
@@ -194,8 +209,8 @@ namespace pbl3_web_api.Service
             if (orderId < 0)
                 throw new ArgumentException("OderId must be a non-negative integer.");
 
-            if (orderId < 0)
-                throw new ArgumentException("OderId must be a non-negative integer.");
+            if (userId < 0)
+                throw new ArgumentException("UserId must be a non-negative integer.");
 
             var order = await _repo.GetOrderByIdAndUserId(userId, orderId);
 
