@@ -8,11 +8,27 @@ using pbl3_web_api.Repository;
 
 namespace pbl3_web_api.Service
 {
-    public class ProductService
+    public interface IProductService
     {
-        private readonly Repository.ProductRepo _productRepo;
+        Task<(IEnumerable<ProductsResponse> products, int totalCount)> GetProducts(
+            int page,
+            int pageSize,
+            string? search,
+            int? categoryId,
+            int? brandId,
+            decimal? minPrice,
+            decimal? maxPrice);
+        Task<ProductDetailResponse?> GetProductById(int id);
+        Task<int> AddProduct(AddProductRequest request);
+        Task DeleteProduct(int id);
+        Task EditProduct(int id, EditProductRequest request);
+    }
 
-        public ProductService(Repository.ProductRepo productRepo)
+    public class ProductService : IProductService
+    {
+        private readonly IProductRepo _productRepo;
+
+        public ProductService(IProductRepo productRepo)
         {
             _productRepo = productRepo;
         }
