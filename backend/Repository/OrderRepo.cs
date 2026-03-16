@@ -5,14 +5,14 @@ namespace pbl3_web_api.Repository
 {
     public interface IOrderRepo
     {
-        Task<List<Order>> GetOrderByUserId(int id);
-        Task<Order?> GetOrderById(int id);
-        Task<Order?> GetOrderByIdAndUserId(int userId, int orderId);
+        Task<List<Order>> GetOrderByUserIdAsync(int id);
+        Task<Order?> GetOrderByIdAsync(int id);
+        Task<Order?> GetOrderByIdAndUserIdAsync(int userId, int orderId);
         IQueryable<Order> GetOrdersQuery();
-        Task Add(Order order);
-        Task<IEnumerable<Cart>> GetCartItemsByUserId(int userId);
-        Task AddOrderDetail(OrderDetail orderDetail);
-        Task Save();
+        Task AddOrderAsync(Order order);
+        Task<IEnumerable<Cart>> GetCartItemsByUserIdAsync(int userId);
+        Task AddOrderDetailAsync(OrderDetail orderDetail);
+        Task SaveAsync();
     }
 
     public class OrderRepo : IOrderRepo
@@ -23,7 +23,7 @@ namespace pbl3_web_api.Repository
             _context = context;
         }
 
-        public async Task<List<Order>> GetOrderByUserId(int id)
+        public async Task<List<Order>> GetOrderByUserIdAsync(int id)
         {
             return await _context.Orders
                 .Where(o => o.UserId == id)
@@ -31,14 +31,14 @@ namespace pbl3_web_api.Repository
                 .ToListAsync();
         }
 
-        public async Task<Order?> GetOrderById(int id)
+        public async Task<Order?> GetOrderByIdAsync(int id)
         {
             return await _context.Orders
                 .Include(o => o.OrderDetails)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
-        public async Task<Order?> GetOrderByIdAndUserId(int userId, int orderId)
+        public async Task<Order?> GetOrderByIdAndUserIdAsync(int userId, int orderId)
         {
             return await _context.Orders
                 .Include(o => o.OrderDetails)
@@ -51,13 +51,13 @@ namespace pbl3_web_api.Repository
                         .Include(p => p.OrderDetails);
         }
 
-        public async Task Add(Order order)
+        public async Task AddOrderAsync(Order order)
         {
             await _context.Orders.AddAsync(order);
-            await Save();
+            await SaveAsync();
         }
 
-        public async Task<IEnumerable<Cart>> GetCartItemsByUserId(int userId)
+        public async Task<IEnumerable<Cart>> GetCartItemsByUserIdAsync(int userId)
         {
             return await _context.Carts
                 .Where(ci => ci.UserId == userId)
@@ -65,13 +65,13 @@ namespace pbl3_web_api.Repository
                 .ToListAsync();
         }
 
-        public async Task AddOrderDetail(OrderDetail orderDetail)
+        public async Task AddOrderDetailAsync(OrderDetail orderDetail)
         {
             await _context.OrderDetails.AddAsync(orderDetail);
-            await Save();
+            await SaveAsync();
         }
 
-        public async Task Save()
+        public async Task SaveAsync()
         {
             await _context.SaveChangesAsync(); 
         }

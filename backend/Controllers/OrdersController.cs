@@ -37,7 +37,7 @@ namespace pbl3_web_api.Controllers
         {
             try
             {
-                var orders = await _service.GetOrders(page, pageSize, status, userId, fromDate, toDate);
+                var orders = await _service.GetOrdersAsync(page, pageSize, status, userId, fromDate, toDate);
                 return Ok(orders);
             }
             catch (Exception ex)
@@ -52,7 +52,7 @@ namespace pbl3_web_api.Controllers
         {
             try
             {
-                var orderDetail = await _service.GetOrderDetail(orderId);
+                var orderDetail = await _service.GetOrderDetailAsync(orderId);
                 return Ok(orderDetail);
             }
             catch (ArgumentException ex)
@@ -75,7 +75,7 @@ namespace pbl3_web_api.Controllers
         {
             try
             {
-                await _service.UpdateOrderStatus(orderId, newStatus);
+                await _service.UpdateOrderStatusAsync(orderId, newStatus);
                 return Ok(new { message = "Order status updated successfully.", newStatus = newStatus });
 
             }
@@ -103,7 +103,7 @@ namespace pbl3_web_api.Controllers
             try
             {
                 int userId = GetUserIdFromToken();
-                var orders = await _service.GetHistoryOrders(userId, page, pageSize, status);
+                var orders = await _service.GetHistoryOrdersAsync(userId, page, pageSize, status);
                 return Ok(orders);
             }
             catch (UnauthorizedAccessException ex)
@@ -122,7 +122,7 @@ namespace pbl3_web_api.Controllers
             try
             {
                 int userId = GetUserIdFromToken();
-                var orderDetail = await _service.GetMyOrderDetail(userId, orderId);
+                var orderDetail = await _service.GetMyOrderDetailAsync(userId, orderId);
                 return Ok(orderDetail);
             }
             catch (ArgumentException ex)
@@ -145,7 +145,7 @@ namespace pbl3_web_api.Controllers
             try
             {
                 int userId = GetUserIdFromToken();
-                await _service.CancelOrder(userId, orderId);
+                await _service.CancelOrderAsync(userId, orderId);
                 return Ok(new { message = "Order canceled successfully." });
             }
             catch (ArgumentException ex)
@@ -172,7 +172,7 @@ namespace pbl3_web_api.Controllers
             try
             {
                 int userId = GetUserIdFromToken();
-                var orderId = await _service.CreateOrder(userId, request);
+                var orderId = await _service.CreateOrderAsync(userId, request);
                 return Created("", new { message = "Order created successfully.", orderId = orderId });
             }
             catch (ArgumentException ex)

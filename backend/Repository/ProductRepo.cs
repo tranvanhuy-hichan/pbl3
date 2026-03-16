@@ -7,10 +7,10 @@ namespace pbl3_web_api.Repository
     public interface IProductRepo
     {
         IQueryable<Product> GetProductsQuery();
-        Task<Product?> GetProductById(int id);
-        Task Add(Product product);
-        Task<bool> CheckCategoryAndBrandExist(int categoryId, int brandId);
-        Task Save();
+        Task<Product?> GetProductByIdAsync(int id);
+        Task AddProductAsync(Product product);
+        Task<bool> CheckCategoryAndBrandExistAsync(int categoryId, int brandId);
+        Task SaveAsync();
     }
 
     public class ProductRepo : IProductRepo
@@ -29,7 +29,7 @@ namespace pbl3_web_api.Repository
                         .Include(p => p.Brand);
         }
 
-        public async Task<Product?> GetProductById(int id)
+        public async Task<Product?> GetProductByIdAsync(int id)
         {
             return await _context.Products
                         .Include(p => p.Category)
@@ -37,20 +37,20 @@ namespace pbl3_web_api.Repository
                         .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
-        public async Task Add(Product product)
+        public async Task AddProductAsync(Product product)
         {
             _context.Products.Add(product);
-            await Save();
+            await SaveAsync();
         }
 
-        public async Task<bool> CheckCategoryAndBrandExist(int categoryId, int brandId)
+        public async Task<bool> CheckCategoryAndBrandExistAsync(int categoryId, int brandId)
         {
             var categoryExists = await _context.Categories.AnyAsync(c => c.CategoryId == categoryId);
             var brandExists = await _context.Brands.AnyAsync(b => b.BrandId == brandId);
             return categoryExists && brandExists;
         }
 
-        public async Task Save()
+        public async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
         }

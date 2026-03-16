@@ -29,7 +29,7 @@ namespace pbl3_web_api.Controllers
         {
             try
             {
-                var product = await _service.GetProductById(id);
+                var product = await _service.GetProductByIdAsync(id);
                 return Ok(product);
             }
             catch (ArgumentException ex)
@@ -59,7 +59,7 @@ namespace pbl3_web_api.Controllers
         {
             try
             {
-                var result = await _service.GetProducts(page, pageSize, search, categoryId, brandId, minPrice, maxPrice);
+                var result = await _service.GetProductsAsync(page, pageSize, search, categoryId, brandId, minPrice, maxPrice);
 
                 var data = result.products;
 
@@ -83,7 +83,7 @@ namespace pbl3_web_api.Controllers
         {
             try
             {
-                var productId = await _service.AddProduct(request);
+                var productId = await _service.AddProductAsync(request);
                 return Created("", new { message = "Product created successfully", productId = productId });
             }
             catch (ArgumentException ex)
@@ -102,7 +102,7 @@ namespace pbl3_web_api.Controllers
         {
             try
             {
-                await _service.DeleteProduct(id);
+                await _service.DeleteProductAsync(id);
                 return Ok(new { message = "Product deleted successfully" });
             }
             catch (KeyNotFoundException ex)
@@ -125,7 +125,7 @@ namespace pbl3_web_api.Controllers
         {
             try
             {
-                await _service.EditProduct(id, request);
+                await _service.EditProductAsync(id, request);
                 return Ok(new { message = "Product updated successfully" });
             }
             catch (KeyNotFoundException ex)
