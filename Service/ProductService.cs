@@ -10,7 +10,7 @@ namespace pbl3_web_api.Service
 {
     public interface IProductService
     {
-        Task<(IEnumerable<ProductsResponse> products, int totalCount)> GetProducts(
+        Task<(IEnumerable<ProductsResponse> products, int totalCount)> GetProductsAsync(
             int page,
             int pageSize,
             string? search,
@@ -18,10 +18,10 @@ namespace pbl3_web_api.Service
             int? brandId,
             decimal? minPrice,
             decimal? maxPrice);
-        Task<ProductDetailResponse?> GetProductById(int id);
-        Task<int> AddProduct(AddProductRequest request);
-        Task DeleteProduct(int id);
-        Task EditProduct(int id, EditProductRequest request);
+        Task<ProductDetailResponse?> GetProductByIdAsync(int id);
+        Task<int> AddProductAsync(AddProductRequest request);
+        Task DeleteProductAsync(int id);
+        Task EditProductAsync(int id, EditProductRequest request);
     }
 
     public class ProductService : IProductService
@@ -58,7 +58,7 @@ namespace pbl3_web_api.Service
         {
             ValidateId(id, "ProductId");
 
-            var product = await _productRepo.GetProductById(id)
+            var product = await _productRepo.GetProductByIdAsync(id)
                 ?? throw new KeyNotFoundException("Product Not Found");
 
             return new ProductDetailResponse
@@ -91,7 +91,7 @@ namespace pbl3_web_api.Service
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            if (! await _productRepo.CheckCategoryAndBrandExist(request.categoryId, request.brandId))
+            if (! await _productRepo.CheckCategoryAndBrandExistAsync(request.categoryId, request.brandId))
                 throw new ArgumentException("Category or Brand does not exist");
 
             if (request.price < 0)
@@ -116,7 +116,7 @@ namespace pbl3_web_api.Service
                 UpdatedAt = DateTime.Now
             };
 
-            await _productRepo.Add(newProduct);
+            await _productRepo.AddProductAsync(newProduct);
             return newProduct.ProductId;
         }
 
@@ -124,11 +124,11 @@ namespace pbl3_web_api.Service
         {
             ValidateId(id, "ProductId");
 
-            var product = await _productRepo.GetProductById(id)
+            var product = await _productRepo.GetProductByIdAsync(id)
                 ?? throw new KeyNotFoundException("Product Not Found");
 
             product.IsActive = false;
-            await _productRepo.Save();
+            await _productRepo.SaveAsync();
         }
 
         public async Task EditProduct(int id, EditProductRequest request)
@@ -142,7 +142,7 @@ namespace pbl3_web_api.Service
             if (request.stockQuantity.HasValue && request.stockQuantity < 0)
                 throw new ArgumentException("StockQuantity cannot be negative");
 
-            var product = await _productRepo.GetProductById(id)
+            var product = await _productRepo.GetProductByIdAsync(id)
                 ?? throw new KeyNotFoundException("Product Not Found");
 
             product.ProductName = request.productName ?? product.ProductName;
@@ -156,7 +156,7 @@ namespace pbl3_web_api.Service
             product.IsActive = request.isActive ?? product.IsActive;
             product.UpdatedAt = DateTime.Now;
 
-            await _productRepo.Save();
+            await _productRepo.SaveAsync();
         }
 
         private IQueryable<Product> ApplyFilters(

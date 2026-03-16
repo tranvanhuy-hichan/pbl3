@@ -8,23 +8,23 @@ namespace pbl3_web_api.Service
 {
     public interface IOrderService
     {
-        Task<(IEnumerable<AdminOrdersResponse> orders, int totalCount)> GetOrders(
+        Task<(IEnumerable<AdminOrdersResponse> orders, int totalCount)> GetOrdersAsync(
             int page,
             int pageSize,
             string? status,
             int? userId,
             DateTime? fromDate,
             DateTime? toDate);
-        Task<AdminOrderDetailResponse> GetOrderDetail(int orderId);
-        Task UpdateOrderStatus(int orderId, string newStatus);
-        Task<(IEnumerable<HistoryOrderResponse> order, int totalCount)> GetHistoryOrders(
+        Task<AdminOrderDetailResponse> GetOrderDetailAsync(int orderId);
+        Task UpdateOrderStatusAsync(int orderId, string newStatus);
+        Task<(IEnumerable<HistoryOrderResponse> order, int totalCount)> GetHistoryOrdersAsync(
             int userId,
             int page,
             int pageSize,
             string? status);
-        Task<MyOrderDetailResponse> GetMyOrderDetail(int userId, int orderId);
-        Task CancelOrder(int userId, int orderId);
-        Task<CreateOrderResponse> CreateOrder(int userId, CreateOrderRequest request);
+        Task<MyOrderDetailResponse> GetMyOrderDetailAsync(int userId, int orderId);
+        Task CancelOrderAsync(int userId, int orderId);
+        Task<CreateOrderResponse> CreateOrderAsync(int userId, CreateOrderRequest request);
     }
 
     public class OrderService : IOrderService
@@ -35,7 +35,7 @@ namespace pbl3_web_api.Service
             _repo = repo;
         }
 
-        public async Task<(IEnumerable<AdminOrdersResponse> orders, int totalCount)> GetOrders(
+        public async Task<(IEnumerable<AdminOrdersResponse> orders, int totalCount)> GetOrdersAsync(
             int page,
             int pageSize,
             string? status,
@@ -54,11 +54,11 @@ namespace pbl3_web_api.Service
             return (data, totalCount);
         }
 
-        public async Task<AdminOrderDetailResponse> GetOrderDetail(int orderId)
+        public async Task<AdminOrderDetailResponse> GetOrderDetailAsync(int orderId)
         {
             ValidateId(orderId, "OrderId");
 
-            var order = await _repo.GetOrderById(orderId)
+            var order = await _repo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found.");
 
             List<OrderDetailItem> items = new List<OrderDetailItem>();
@@ -93,19 +93,19 @@ namespace pbl3_web_api.Service
             return (orderDetails);
         }
 
-        public async Task UpdateOrderStatus(int orderId, string newStatus)
+        public async Task UpdateOrderStatusAsync(int orderId, string newStatus)
         {
             ValidateId(orderId, "OrderId");
 
-            var order = await _repo.GetOrderById(orderId)
+            var order = await _repo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found.");
 
             order.Status = newStatus;
             order.UpdatedAt = DateTime.UtcNow;
-            await _repo.Save();
+            await _repo.SaveAsync();
         }
 
-        public async Task<(IEnumerable<HistoryOrderResponse> order, int totalCount)> GetHistoryOrders(
+        public async Task<(IEnumerable<HistoryOrderResponse> order, int totalCount)> GetHistoryOrdersAsync(
             int userId,
             int page, 
             int pageSize,
@@ -125,12 +125,12 @@ namespace pbl3_web_api.Service
             return (data, totalCount);
         }
 
-        public async Task<MyOrderDetailResponse> GetMyOrderDetail(int userId, int orderId)
+        public async Task<MyOrderDetailResponse> GetMyOrderDetailAsync(int userId, int orderId)
         {
             ValidateId(orderId, "OrderId");
             ValidateId(userId, "UserId");
 
-            var order = await _repo.GetOrderByIdAndUserId(userId, orderId)
+            var order = await _repo.GetOrderByIdAndUserIdAsync(userId, orderId)
                 ?? throw new KeyNotFoundException("Order not found."); ;
 
             List<OrderDetailItem> items = new List<OrderDetailItem>();
@@ -162,12 +162,12 @@ namespace pbl3_web_api.Service
             return (orderDetails);
         }
 
-        public async Task CancelOrder(int userId, int orderId)
+        public async Task CancelOrderAsync(int userId, int orderId)
         {
             ValidateId(orderId, "OrderId");
             ValidateId(userId, "UserId");
 
-            var order = await _repo.GetOrderByIdAndUserId(userId, orderId)
+            var order = await _repo.GetOrderByIdAndUserIdAsync(userId, orderId)
                 ?? throw new KeyNotFoundException("Order not found."); ;
 
             if (!order.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
@@ -175,17 +175,17 @@ namespace pbl3_web_api.Service
 
             order.Status = "Cancel";
             order.UpdatedAt = DateTime.UtcNow;
-            await _repo.Save();
+            await _repo.SaveAsync();
         }
 
-        public async Task<CreateOrderResponse> CreateOrder(int userId, CreateOrderRequest request)
+        public async Task<CreateOrderResponse> CreateOrderAsync(int userId, CreateOrderRequest request)
         {
             ValidateId(userId, "UserId");
 
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null.");
 
-            var items = await _repo.GetCartItemsByUserId(userId);
+            var items = await _repo.GetCartItemsByUserIdAsync(userId);
 
             if (items == null || !items.Any())
                 throw new InvalidOperationException("Cart is empty.");
@@ -203,7 +203,7 @@ namespace pbl3_web_api.Service
                 UpdatedAt = DateTime.Now,
             };
     
-            await _repo.Add(order);
+            await _repo.AddOrderAsync(order);
 
             foreach (var item in items)
             {
@@ -216,9 +216,9 @@ namespace pbl3_web_api.Service
                     Subtotal = item.Quantity * item.Product.Price
                 };
                 order.TotalAmount += orderDetail.Subtotal;
-                await _repo.AddOrderDetail(orderDetail);
+                await _repo.AddOrderDetailAsync(orderDetail);
             }
-            await _repo.Save();
+            await _repo.SaveAsync();
             return new CreateOrderResponse
             {
                 message = "Order created successfully.",
