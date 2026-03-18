@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.DTO.Order;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
@@ -43,13 +44,13 @@ namespace pbl3_web_api.Service
             DateTime? fromDate,
             DateTime? toDate)
         {
-            var ordersQuery = _repo.GetOrdersQuery();
+            var baseQuery = _repo.GetOrdersQuery();
 
-            var querys = ApplyFilters(ordersQuery, status, userId, fromDate, toDate);
+            var filteredQuery = ApplyFilters(baseQuery, status, userId, fromDate, toDate);
 
-            var totalCount = await querys.CountAsync();
+            var totalCount = await filteredQuery.CountAsync();
 
-            var data = await GetPageOrders(querys, page, pageSize);
+            var data = await GetPageOrders(filteredQuery, page, pageSize);
 
             return (data, totalCount);
         }
@@ -61,36 +62,7 @@ namespace pbl3_web_api.Service
             var order = await _repo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found.");
 
-            List<OrderDetailItem> items = new List<OrderDetailItem>();
-            foreach (OrderDetail i in order.OrderDetails)
-            {
-                var item = new OrderDetailItem
-                {
-                    productId = i.ProductId,
-                    productName = i.Product.ProductName,
-                    quantity = i.Quantity,
-                    unitPrice = i.UnitPrice,
-                    subtotal = i.Subtotal
-                };
-                items.Add(item);
-            }
-
-            var orderDetails = new AdminOrderDetailResponse
-            {
-                orderId = order.OrderId,
-                userId = order.UserId,
-                userName = order.User.Username,
-                orderDate = order.OrderDate,
-                totalAmount = order.TotalAmount,
-                status = order.Status,
-                shippingAddress = order.ShippingAddress,
-                paymentMethod = order.PaymentMethod,
-                paymentStatus = order.PaymentStatus,
-                notes = order.Notes,
-                updatedAt = order.UpdatedAt,
-                orderDetails = items
-            };
-            return (orderDetails);
+            return MapToAdminOrderDetailResponse(order);
         }
 
         public async Task UpdateOrderStatusAsync(int orderId, string newStatus)
@@ -133,35 +105,9 @@ namespace pbl3_web_api.Service
             var order = await _repo.GetOrderByIdAndUserIdAsync(userId, orderId)
                 ?? throw new KeyNotFoundException("Order not found."); ;
 
-            List<OrderDetailItem> items = new List<OrderDetailItem>();
-            foreach (OrderDetail i in order.OrderDetails)
-            {
-                var item = new OrderDetailItem
-                {
-                    productId = i.ProductId,
-                    productName = i.Product.ProductName,
-                    quantity = i.Quantity,
-                    unitPrice = i.UnitPrice,
-                    subtotal = i.Subtotal
-                };
-                items.Add(item);
-            }
-            var orderDetails = new MyOrderDetailResponse
-            {
-                orderId = order.OrderId,
-                orderDate = order.OrderDate,
-                totalAmount = order.TotalAmount,
-                status = order.Status,
-                shippingAddress = order.ShippingAddress,
-                paymentMethod = order.PaymentMethod,
-                paymentStatus = order.PaymentStatus,
-                notes = order.Notes,
-                updatedAt = order.UpdatedAt,
-                orderDetails = items
-            };
-            return (orderDetails);
+            return MapToMyOrderDetailResponse(order);
         }
-
+        
         public async Task CancelOrderAsync(int userId, int orderId)
         {
             ValidateId(orderId, "OrderId");
@@ -190,35 +136,14 @@ namespace pbl3_web_api.Service
             if (items == null || !items.Any())
                 throw new InvalidOperationException("Cart is empty.");
 
-            var order = new Order
-            {
-                UserId = userId,
-                ShippingAddress = request.shippingAddress,
-                PaymentMethod = request.paymentMethod,
-                Notes = request.notes,
-                OrderDate = DateTime.Now,
-                Status = "Pending",
-                PaymentStatus = "Unpaid",
-                TotalAmount = 0,
-                UpdatedAt = DateTime.Now,
-            };
-    
+            var order = MapToOrder(userId, request);
+
             await _repo.AddOrderAsync(order);
 
-            foreach (var item in items)
-            {
-                var orderDetail = new OrderDetail
-                {
-                    OrderId = order.OrderId,
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.Product.Price,
-                    Subtotal = item.Quantity * item.Product.Price
-                };
-                order.TotalAmount += orderDetail.Subtotal;
-                await _repo.AddOrderDetailAsync(orderDetail);
-            }
+            await AddOrderDetails(order, items);
+
             await _repo.SaveAsync();
+
             return new CreateOrderResponse
             {
                 message = "Order created successfully.",
@@ -300,6 +225,101 @@ namespace pbl3_web_api.Service
         {
             if (id <= 0)
                 throw new ArgumentException($"{name} must be a non-negative integer.");
+        }
+
+        private AdminOrderDetailResponse MapToAdminOrderDetailResponse(Order order)
+        {
+            var items = new List<OrderDetailItem>();
+
+            foreach (var i in order.OrderDetails)
+            {
+                items.Add(new OrderDetailItem
+                {
+                    productId = i.ProductId,
+                    productName = i.Product.ProductName,
+                    quantity = i.Quantity,
+                    unitPrice = i.UnitPrice,
+                    subtotal = i.Subtotal
+                });
+            }
+
+            return new AdminOrderDetailResponse
+            {
+                orderId = order.OrderId,
+                userId = order.UserId,
+                userName = order.User.Username,
+                orderDate = order.OrderDate,
+                totalAmount = order.TotalAmount,
+                status = order.Status,
+                shippingAddress = order.ShippingAddress,
+                paymentMethod = order.PaymentMethod,
+                paymentStatus = order.PaymentStatus,
+                notes = order.Notes,
+                updatedAt = order.UpdatedAt,
+                orderDetails = items
+            };
+        }
+
+
+        private MyOrderDetailResponse MapToMyOrderDetailResponse(Order order)
+        {
+            var items = order.OrderDetails.Select(i => new OrderDetailItem
+            {
+                productId = i.ProductId,
+                productName = i.Product.ProductName,
+                quantity = i.Quantity,
+                unitPrice = i.UnitPrice,
+                subtotal = i.Subtotal
+            }).ToList();
+
+            return new MyOrderDetailResponse
+            {
+                orderId = order.OrderId,
+                orderDate = order.OrderDate,
+                totalAmount = order.TotalAmount,
+                status = order.Status,
+                shippingAddress = order.ShippingAddress,
+                paymentMethod = order.PaymentMethod,
+                paymentStatus = order.PaymentStatus,
+                notes = order.Notes,
+                updatedAt = order.UpdatedAt,
+                orderDetails = items
+            };
+        }
+
+        private Order MapToOrder(int userId, CreateOrderRequest request)
+        {
+            return new Order
+            {
+                UserId = userId,
+                ShippingAddress = request.shippingAddress,
+                PaymentMethod = request.paymentMethod,
+                Notes = request.notes,
+                OrderDate = DateTime.Now,
+                Status = "Pending",
+                PaymentStatus = "Unpaid",
+                TotalAmount = 0,
+                UpdatedAt = DateTime.Now,
+            };
+        }
+
+        private async Task AddOrderDetails(Order order, IEnumerable<Cart> items)
+        {
+            foreach (var item in items)
+            {
+                var orderDetail = new OrderDetail
+                {
+                    OrderId = order.OrderId,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.Product.Price,
+                    Subtotal = item.Quantity * item.Product.Price
+                };
+
+                order.TotalAmount += orderDetail.Subtotal;
+
+                await _repo.AddOrderDetailAsync(orderDetail);
+            }
         }
     }
 }

@@ -33,7 +33,7 @@ namespace pbl3_web_api.Service
             _productRepo = productRepo;
         }
 
-        public async Task<(IEnumerable<ProductsResponse> products, int totalCount)> GetProducts(
+        public async Task<(IEnumerable<ProductsResponse> products, int totalCount)> GetProductsAsync(
             int page,
             int pageSize,
             string? search,
@@ -42,51 +42,29 @@ namespace pbl3_web_api.Service
             decimal? minPrice,
             decimal? maxPrice)
         {
-            var productsQuery = _productRepo.GetProductsQuery();
+            var baseQuery = _productRepo.GetProductsQuery();
 
-            var query = ApplyFilters(productsQuery, search, categoryId, brandId, minPrice, maxPrice);
+            var filteredQuery = ApplyFilters(baseQuery, search, categoryId, brandId, minPrice, maxPrice);
 
-            var totalCount = await query.CountAsync();
+            var totalCount = await filteredQuery.CountAsync();
 
-            var products = await GetPagedProducts(query, page, pageSize);
+            var products = await GetPagedProducts(filteredQuery, page, pageSize);
 
             return (products, totalCount);
         }
 
 
-        public async Task<ProductDetailResponse?> GetProductById(int id)
+        public async Task<ProductDetailResponse?> GetProductByIdAsync(int id)
         {
             ValidateId(id, "ProductId");
 
             var product = await _productRepo.GetProductByIdAsync(id)
                 ?? throw new KeyNotFoundException("Product Not Found");
 
-            return new ProductDetailResponse
-            {
-                productId = product.ProductId,
-                productName = product.ProductName,
-                productCode = product.ProductCode,
-                description = product.Description,
-                price = product.Price,
-                stockQuantity = product.StockQuantity,
-                imageURL = product.ImageUrl,
-                specifications = product.Specifications,
-
-                category = new CategoryProductResponse
-                {
-                    id = product.Category!.CategoryId,
-                    name = product.Category.CategoryName
-                },
-
-                brand = new BrandProductResponse
-                {
-                    id = product.Brand!.BrandId,
-                    name = product.Brand.BrandName
-                }
-            };
+            return MapToProductDetailResponse(product);
         }
 
-        public async Task<int> AddProduct(AddProductRequest request)
+        public async Task<int> AddProductAsync(AddProductRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
@@ -100,27 +78,13 @@ namespace pbl3_web_api.Service
             if (request.stockQuantity < 0)
                 throw new ArgumentException("StockQuantity cannot be negative");
 
-            var newProduct = new Product
-            {
-                ProductName = request.productName,
-                ProductCode = request.productCode,
-                CategoryId = request.categoryId,
-                BrandId = request.brandId,
-                Description = request.description,
-                Price = request.price,
-                StockQuantity = request.stockQuantity,
-                ImageUrl = request.imageURL,
-                Specifications = request.specifications,
-                IsActive = true,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            };
+            var newProduct = MapToProduct(request);
 
             await _productRepo.AddProductAsync(newProduct);
             return newProduct.ProductId;
         }
 
-        public async Task DeleteProduct(int id)
+        public async Task DeleteProductAsync(int id)
         {
             ValidateId(id, "ProductId");
 
@@ -131,7 +95,7 @@ namespace pbl3_web_api.Service
             await _productRepo.SaveAsync();
         }
 
-        public async Task EditProduct(int id, EditProductRequest request)
+        public async Task EditProductAsync(int id, EditProductRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
@@ -224,6 +188,52 @@ namespace pbl3_web_api.Service
         {
             if (id <= 0)
                 throw new ArgumentException($"{name} must be a non-negative integer.");
+        }
+
+        private ProductDetailResponse MapToProductDetailResponse(Product product)
+        {
+            return new ProductDetailResponse
+            {
+                productId = product.ProductId,
+                productName = product.ProductName,
+                productCode = product.ProductCode,
+                description = product.Description,
+                price = product.Price,
+                stockQuantity = product.StockQuantity,
+                imageURL = product.ImageUrl,
+                specifications = product.Specifications,
+
+                category = new CategoryProductResponse
+                {
+                    id = product.Category!.CategoryId,
+                    name = product.Category.CategoryName
+                },
+
+                brand = new BrandProductResponse
+                {
+                    id = product.Brand!.BrandId,
+                    name = product.Brand.BrandName
+                }
+            };
+        }
+
+        private Product MapToProduct(AddProductRequest request)
+        {
+            return new Product
+            {
+                ProductName = request.productName,
+                ProductCode = request.productCode,
+                CategoryId = request.categoryId,
+                BrandId = request.brandId,
+                Description = request.description,
+                Price = request.price,
+                StockQuantity = request.stockQuantity,
+                ImageUrl = request.imageURL,
+                Specifications = request.specifications,
+                IsActive = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
         }
     }
 }
