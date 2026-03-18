@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using pbl3_web_api.Entities;
 
 namespace pbl3_web_api.Repository
@@ -12,6 +13,8 @@ namespace pbl3_web_api.Repository
         Task AddOrderAsync(Order order);
         Task<IEnumerable<Cart>> GetCartItemsByUserIdAsync(int userId);
         Task AddOrderDetailAsync(OrderDetail orderDetail);
+        Task AddRangeOrderDetailsAsync(IEnumerable<OrderDetail> orderDetails);
+        Task<IDbContextTransaction> BeginTransactionAsync();
         Task SaveAsync();
     }
 
@@ -69,6 +72,16 @@ namespace pbl3_web_api.Repository
         {
             await _context.OrderDetails.AddAsync(orderDetail);
             await SaveAsync();
+        }
+
+        public async Task AddRangeOrderDetailsAsync(IEnumerable<OrderDetail> orderDetails)
+        {
+            await _context.OrderDetails.AddRangeAsync(orderDetails);
+        }
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
         }
 
         public async Task SaveAsync()
