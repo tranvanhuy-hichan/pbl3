@@ -138,11 +138,20 @@ namespace pbl3_web_api.Service
 
             var order = MapToOrder(userId, request);
 
-            await _repo.AddOrderAsync(order);
+            using var transaction = await _repo.BeginTransactionAsync();
+            try
+            {
+                await _repo.AddOrderAsync(order);
+                await AddOrderDetails(order, items);
+                await _repo.SaveAsync();
 
-            await AddOrderDetails(order, items);
-
-            await _repo.SaveAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
 
             return new CreateOrderResponse
             {
@@ -160,7 +169,7 @@ namespace pbl3_web_api.Service
             DateTime? toDate)
         {
             if (!string.IsNullOrEmpty(status))
-                query = query.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(o => o.Status.ToLower() == status.ToLower());
 
             if (userId.HasValue)
                 query = query.Where(o => o.UserId == userId.Value);
@@ -198,7 +207,7 @@ namespace pbl3_web_api.Service
         {
             query = query.Where(o => o.UserId == userId);
             if (!string.IsNullOrEmpty(status))
-                query = query.Where(o => o.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(o => o.Status.ToLower() == status.ToLower());
             return query;
         }
 
@@ -295,31 +304,28 @@ namespace pbl3_web_api.Service
                 ShippingAddress = request.shippingAddress,
                 PaymentMethod = request.paymentMethod,
                 Notes = request.notes,
-                OrderDate = DateTime.Now,
+                OrderDate = DateTime.UtcNow,
                 Status = "Pending",
                 PaymentStatus = "Unpaid",
                 TotalAmount = 0,
-                UpdatedAt = DateTime.Now,
+                UpdatedAt = DateTime.UtcNow,
             };
         }
 
         private async Task AddOrderDetails(Order order, IEnumerable<Cart> items)
         {
-            foreach (var item in items)
+            var orderDetails = items.Select(item => new OrderDetail
             {
-                var orderDetail = new OrderDetail
-                {
-                    OrderId = order.OrderId,
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.Product.Price,
-                    Subtotal = item.Quantity * item.Product.Price
-                };
+                OrderId = order.OrderId,
+                ProductId = item.ProductId,
+                Quantity = item.Quantity,
+                UnitPrice = item.Product.Price,
+                Subtotal = item.Quantity * item.Product.Price
+            }).ToList();
 
-                order.TotalAmount += orderDetail.Subtotal;
+            order.TotalAmount = orderDetails.Sum(x => x.Subtotal);
 
-                await _repo.AddOrderDetailAsync(orderDetail);
-            }
+            await _repo.AddRangeOrderDetailsAsync(orderDetails);
         }
     }
 }

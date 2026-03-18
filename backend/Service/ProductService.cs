@@ -66,21 +66,14 @@ namespace pbl3_web_api.Service
 
         public async Task<int> AddProductAsync(AddProductRequest request)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
-
-            if (! await _productRepo.CheckCategoryAndBrandExistAsync(request.categoryId, request.brandId))
-                throw new ArgumentException("Category or Brand does not exist");
-
-            if (request.price < 0)
-                throw new ArgumentException("Price cannot be negative");
-
-            if (request.stockQuantity < 0)
-                throw new ArgumentException("StockQuantity cannot be negative");
+            await ValidateAddProductRequest(request);
 
             var newProduct = MapToProduct(request);
 
             await _productRepo.AddProductAsync(newProduct);
+
+            await _productRepo.SaveAsync();
+
             return newProduct.ProductId;
         }
 
@@ -92,33 +85,18 @@ namespace pbl3_web_api.Service
                 ?? throw new KeyNotFoundException("Product Not Found");
 
             product.IsActive = false;
+
             await _productRepo.SaveAsync();
         }
 
         public async Task EditProductAsync(int id, EditProductRequest request)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
-
-            if (request.price.HasValue && request.price < 0)
-                throw new ArgumentException("Price cannot be negative");
-
-            if (request.stockQuantity.HasValue && request.stockQuantity < 0)
-                throw new ArgumentException("StockQuantity cannot be negative");
+            ValidateEditProductRequest(request);
 
             var product = await _productRepo.GetProductByIdAsync(id)
                 ?? throw new KeyNotFoundException("Product Not Found");
 
-            product.ProductName = request.productName ?? product.ProductName;
-            product.CategoryId = request.categoryId ?? product.CategoryId;
-            product.BrandId = request.brandId ?? product.BrandId;
-            product.Description = request.description ?? product.Description;
-            product.Price = request.price ?? product.Price;
-            product.StockQuantity = request.stockQuantity ?? product.StockQuantity;
-            product.ImageUrl = request.imageURL ?? product.ImageUrl;
-            product.Specifications = request.specifications ?? product.Specifications;
-            product.IsActive = request.isActive ?? product.IsActive;
-            product.UpdatedAt = DateTime.Now;
+            ApplyChange(product, request);
 
             await _productRepo.SaveAsync();
         }
@@ -217,6 +195,47 @@ namespace pbl3_web_api.Service
             };
         }
 
+        private void ValidateEditProductRequest(EditProductRequest request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            if (request.price.HasValue && request.price < 0)
+                throw new ArgumentException("Price cannot be negative");
+
+            if (request.stockQuantity.HasValue && request.stockQuantity < 0)
+                throw new ArgumentException("StockQuantity cannot be negative");
+        }
+
+        private void ApplyChange(Product product, EditProductRequest request)
+        {
+            product.ProductName = request.productName ?? product.ProductName;
+            product.CategoryId = request.categoryId ?? product.CategoryId;
+            product.BrandId = request.brandId ?? product.BrandId;
+            product.Description = request.description ?? product.Description;
+            product.Price = request.price ?? product.Price;
+            product.StockQuantity = request.stockQuantity ?? product.StockQuantity;
+            product.ImageUrl = request.imageURL ?? product.ImageUrl;
+            product.Specifications = request.specifications ?? product.Specifications;
+            product.IsActive = request.isActive ?? product.IsActive;
+            product.UpdatedAt = DateTime.UtcNow;
+        }
+
+        private async Task ValidateAddProductRequest(AddProductRequest request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            if (!await _productRepo.CheckCategoryAndBrandExistAsync(request.categoryId, request.brandId))
+                throw new ArgumentException("Category or Brand does not exist");
+
+            if (request.price < 0)
+                throw new ArgumentException("Price cannot be negative");
+
+            if (request.stockQuantity < 0)
+                throw new ArgumentException("StockQuantity cannot be negative");
+        }
+
         private Product MapToProduct(AddProductRequest request)
         {
             return new Product
@@ -231,8 +250,8 @@ namespace pbl3_web_api.Service
                 ImageUrl = request.imageURL,
                 Specifications = request.specifications,
                 IsActive = true,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
         }
     }
