@@ -9,6 +9,16 @@ namespace PBL3
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
+            });
             // Ép toàn bộ URL của API tự động chuyển thành chữ thường
             builder.Services.AddRouting(options => options.LowercaseUrls = true);
             IServiceCollection serviceCollection = builder.Services.AddDbContext<shop_pbl3>(options =>
@@ -18,9 +28,9 @@ namespace PBL3
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
+  
             var app = builder.Build();
-
+            app.UseCors("AllowAll");
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

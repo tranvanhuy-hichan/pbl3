@@ -98,7 +98,7 @@ namespace YourProjectName.Controllers
                 return NotFound(new { message = "Không tìm thấy người dùng để cập nhật!" });
             }
 
-            // Chỉ cập nhật những trường mà Giao diện có gửi lên (khác null)
+
             if (request.fullName != null) user.FullName = request.fullName;
             if (request.email != null) user.Email = request.email;
             if (request.phoneNumber != null) user.PhoneNumber = request.phoneNumber;
@@ -106,10 +106,19 @@ namespace YourProjectName.Controllers
             if (request.dateOfBirth != null) user.DateOfBirth = request.dateOfBirth;
             if (request.role != null) user.Role = request.role;
 
-            // Cập nhật lại thời gian sửa đổi cho đúng thực tế
+            if (!string.IsNullOrEmpty(request.password))
+            {
+                user.Password = request.password;
+            }
+
+            if (request.isActive != null)
+            {
+                user.IsActive = request.isActive.Value; 
+            }
+
             user.UpdatedAt = DateTime.Now;
 
-            await _context.SaveChangesAsync(); // Lưu vào SQL
+            await _context.SaveChangesAsync(); 
 
             return Ok(new { message = "Cập nhật thành công", updatedUser = user });
         }
@@ -136,20 +145,39 @@ namespace YourProjectName.Controllers
 
 
         // 6. Xóa tài khoản (DELETE /api/users/{id})
- 
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
-                return NotFound(new { message = "Không tìm thấy người dùng để xóa!" });
+                return NotFound(new { message = "Không tìm thấy tài khoản để xóa!" });
             }
 
-            _context.Users.Remove(user); // Lệnh xóa
-            await _context.SaveChangesAsync(); // Lưu thay đổi xuống SQL
+            try
+            {
 
-            return Ok(new { message = "Đã xóa tài khoản thành công vĩnh viễn!" });
+                var userOrders = _context.Orders.Where(o => o.UserID == id).ToList();
+                if (userOrders.Any())
+                {
+                    _context.Orders.RemoveRange(userOrders);
+                }
+
+                _context.Users.Remove(user);
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Đã xóa vĩnh viễn tài khoản và toàn bộ dữ liệu liên quan!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = "Lỗi xóa dữ liệu!",
+                    errorDetail = ex.InnerException?.Message ?? ex.Message
+                });
+            }
         }
     }
 }
