@@ -50,7 +50,7 @@ namespace pbl3_web_api.Service
 
             var totalCount = await filteredQuery.CountAsync();
 
-            var data = await GetPageOrders(filteredQuery, page, pageSize);
+            var data = await GetPageOrdersAsync(filteredQuery, page, pageSize);
 
             return (data, totalCount);
         }
@@ -92,7 +92,7 @@ namespace pbl3_web_api.Service
 
             var totalCount = await filteredQuery.CountAsync();
 
-            var data = await GetPageHistoryOrdersPage(filteredQuery, page, pageSize);
+            var data = await GetHistoryOrdersPageAsync(filteredQuery, page, pageSize);
 
             return (data, totalCount);
         }
@@ -142,7 +142,7 @@ namespace pbl3_web_api.Service
             try
             {
                 await _repo.AddOrderAsync(order);
-                await AddOrderDetails(order, items);
+                await AddOrderDetailsAsync(order, items);
                 await _repo.SaveAsync();
 
                 await transaction.CommitAsync();
@@ -183,7 +183,7 @@ namespace pbl3_web_api.Service
             return query;
         }
 
-        private async Task<List<AdminOrdersResponse>> GetPageOrders(IQueryable<Order> query, int page, int pageSize)
+        private async Task<List<AdminOrdersResponse>> GetPageOrdersAsync(IQueryable<Order> query, int page, int pageSize)
         {
             if (page <= 0) page = 1;
             if (pageSize <= 0) pageSize = 20;
@@ -213,7 +213,7 @@ namespace pbl3_web_api.Service
             return query;
         }
 
-        private async Task<List<HistoryOrderResponse>> GetPageHistoryOrdersPage(IQueryable<Order> query, int page, int pageSize)
+        private async Task<List<HistoryOrderResponse>> GetHistoryOrdersPageAsync(IQueryable<Order> query, int page, int pageSize)
         {
             if (page <= 0) page = 1;
             if (pageSize <= 0) pageSize = 10;
@@ -311,7 +311,7 @@ namespace pbl3_web_api.Service
             };
         }
 
-        private async Task AddOrderDetails(Order order, IEnumerable<Cart> items)
+        private async Task AddOrderDetailsAsync(Order order, IEnumerable<Cart> items)
         {
             var orderDetails = items.Select(item => new OrderDetail
             {

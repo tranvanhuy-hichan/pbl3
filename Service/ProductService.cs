@@ -48,7 +48,7 @@ namespace pbl3_web_api.Service
 
             var totalCount = await filteredQuery.CountAsync();
 
-            var products = await GetPagedProducts(filteredQuery, page, pageSize);
+            var products = await GetPagedProductsAsync(filteredQuery, page, pageSize);
 
             return (products, totalCount);
         }
@@ -66,7 +66,7 @@ namespace pbl3_web_api.Service
 
         public async Task<int> AddProductAsync(AddProductRequest request)
         {
-            await ValidateAddProductRequest(request);
+            await ValidateAddProductRequestAsync(request);
 
             var newProduct = MapToProduct(request);
 
@@ -137,7 +137,7 @@ namespace pbl3_web_api.Service
             return query;
         }
 
-        private async Task<List<ProductsResponse>> GetPagedProducts(
+        private async Task<List<ProductsResponse>> GetPagedProductsAsync(
             IQueryable<Product> query,
             int page,
             int pageSize)
@@ -221,7 +221,7 @@ namespace pbl3_web_api.Service
             product.UpdatedAt = DateTime.UtcNow;
         }
 
-        private async Task ValidateAddProductRequest(AddProductRequest request)
+        private async Task ValidateAddProductRequestAsync(AddProductRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
