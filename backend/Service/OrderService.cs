@@ -86,13 +86,13 @@ namespace pbl3_web_api.Service
             if (page < 0) page = 1;
             if (pageSize < 0) pageSize = 12;
 
-            var ordersQuery = _repo.GetOrdersQuery();
+            var baseQuery = _repo.GetOrdersQuery();
 
-            var querys = ApplyUserFilters(ordersQuery, userId, status);
+            var filteredQuery = ApplyUserFilters(baseQuery, userId, status);
 
-            var totalCount = await querys.CountAsync();
+            var totalCount = await filteredQuery.CountAsync();
 
-            var data = await GetPageHistoryOrdersPage(querys, page, pageSize);
+            var data = await GetPageHistoryOrdersPage(filteredQuery, page, pageSize);
 
             return (data, totalCount);
         }
@@ -206,8 +206,10 @@ namespace pbl3_web_api.Service
         private IQueryable<Order> ApplyUserFilters(IQueryable<Order> query, int userId, string? status)
         {
             query = query.Where(o => o.UserId == userId);
+
             if (!string.IsNullOrEmpty(status))
                 query = query.Where(o => o.Status.ToLower() == status.ToLower());
+
             return query;
         }
 
@@ -238,19 +240,16 @@ namespace pbl3_web_api.Service
 
         private AdminOrderDetailResponse MapToAdminOrderDetailResponse(Order order)
         {
-            var items = new List<OrderDetailItem>();
-
-            foreach (var i in order.OrderDetails)
-            {
-                items.Add(new OrderDetailItem
+            var items = order.OrderDetails.Select(i => new OrderDetailItem
                 {
                     productId = i.ProductId,
                     productName = i.Product.ProductName,
                     quantity = i.Quantity,
                     unitPrice = i.UnitPrice,
                     subtotal = i.Subtotal
-                });
-            }
+                })
+                .ToList();
+
 
             return new AdminOrderDetailResponse
             {
