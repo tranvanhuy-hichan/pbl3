@@ -57,7 +57,8 @@ namespace pbl3_web_api.Service
             var category = new Category
             {
                 CategoryName = request.CategoryName,
-                Description = request.Description
+                Description = request.Description,
+                CreatedAt = DateTime.UtcNow
             };
 
             // Gọi Repository để lưu vào DB

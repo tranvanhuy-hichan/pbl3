@@ -11,7 +11,15 @@ namespace pbl3_web_api.Data
 
         // Khai báo bảng Categories trong CSDL
         public DbSet<Category> Categories { get; set; }
+
         // Thêm DbSet cho Brands để sử dụng repository/service mới
         public DbSet<Brand> Brands { get; set; }
+
+        // Giỏ hàng
+        public DbSet<Cart> Carts { get; set; }
+
+        // Cần để kiểm tra tồn tại người dùng và sản phẩm từ Cart service
+        public DbSet<Product> Products { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }
