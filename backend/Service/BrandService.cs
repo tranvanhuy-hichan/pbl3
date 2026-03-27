@@ -53,6 +53,7 @@ namespace pbl3_web_api.Service
             var brand = new Brand
             {
                 BrandName = request.BrandName,
+                CreatedAt = DateTime.UtcNow,
                 LogoUrl = request.LogoUrl
             };
 
