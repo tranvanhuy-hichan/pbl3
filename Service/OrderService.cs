@@ -59,6 +59,7 @@ namespace pbl3_web_api.Service
         {
             ValidateId(orderId, "OrderId");
 
+
             var order = await _repo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found.");
 
