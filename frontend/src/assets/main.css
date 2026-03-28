@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "../constants/theme.css";
+
+@layer base {
+  body {
+    @apply text-slate-700 bg-white antialiased min-h-screen flex flex-col;
+  }
+}
