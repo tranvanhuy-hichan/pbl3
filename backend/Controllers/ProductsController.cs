@@ -1,107 +1,145 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
+using pbl3_web_api.DTO.Product;
+using pbl3_web_api.Entities;
+using pbl3_web_api.Service;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using pbl3_web_api.Entities;
 
 namespace pbl3_web_api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/products")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ShopPbl3Context _context;
+        private readonly IProductService _service;
 
-        public ProductsController(ShopPbl3Context context)
+        public ProductsController(IProductService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: api/Products
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
-        {
-            return await _context.Products.ToListAsync();
-        }
-
-        // GET: api/Products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<object>> GetProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return product;
-        }
-
-        // PUT: api/Products/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
-        {
-            if (id != product.ProductId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(product).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                var product = await _service.GetProductByIdAsync(id);
+                return Ok(product);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (ArgumentException ex)
             {
-                if (!ProductExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest(new { message = ex.Message });
             }
-
-            return NoContent();
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        // POST: api/Products
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+
+        [HttpGet]
+        public async Task<IActionResult> GetProducts(
+            int page = 1,
+            int pageSize = 12,
+            string? search = null,
+            int? categoryId = null,
+            int? brandId = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var result = await _service.GetProductsAsync(page, pageSize, search, categoryId, brandId, minPrice, maxPrice);
 
-            return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
+                var data = result.products;
+
+                return Ok(new
+                {
+                    data,
+                    totalCount = result.totalCount,
+                    page,
+                    pageSize
+                });
+            }
+            catch (Exception ex)
+            {
+                return  StatusCode(500, ex.Message);
+            }
         }
 
-        // DELETE: api/Products/5
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> AddProduct(AddProductRequest request)
+        {
+            try
+            {
+                var productId = await _service.AddProductAsync(request);
+                return Created("", new { message = "Product created successfully", productId = productId });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new {message = ex.Message});
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            try
             {
-                return NotFound();
+                await _service.DeleteProductAsync(id);
+                return Ok(new { message = "Product deleted successfully" });
             }
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new {message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message }); 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        private bool ProductExists(int id)
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditProduct(int id, EditProductRequest request)
         {
-            return _context.Products.Any(e => e.ProductId == id);
+            try
+            {
+                await _service.EditProductAsync(id, request);
+                return Ok(new { message = "Product updated successfully" });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
