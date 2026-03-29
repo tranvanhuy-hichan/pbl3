@@ -10,10 +10,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace pbl3_web_api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/orders")]
     [ApiController]
     public class OrdersController : ControllerBase
@@ -25,20 +26,25 @@ namespace pbl3_web_api.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Get(
             int page = 1,
             int pageSize = 20,
             string? status = null,
+            string? paymentStatus = null,
             int? userId = null,
             DateTime? fromDate = null,
             DateTime? toDate = null)
         {
             try
             {
-                var orders = await _service.GetOrdersAsync(page, pageSize, status, userId, fromDate, toDate);
-                return Ok(orders);
+                var (data, totalCount) = await _service.GetOrdersAsync(page, pageSize, status, paymentStatus, userId, fromDate, toDate);
+                return Ok(new          // ✅ wrap vào anonymous object
+                {
+                    data = data,
+                    totalCount = totalCount,
+                });
             }
             catch (Exception ex)
             {
@@ -46,7 +52,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet("{orderId}")]
         public async Task<ActionResult> AdminGetOrderDetail(int orderId)
         {
@@ -69,7 +75,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPatch("{orderId}/status")]
         public async Task<ActionResult> UpdateOrserStutus([FromRoute] int orderId, [FromBody] string newStatus)
         {

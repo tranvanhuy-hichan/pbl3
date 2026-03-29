@@ -123,16 +123,16 @@ namespace pbl3_web_api.Service
             }
 
             if (categoryId.HasValue)
-                query = query.Where(p => p.CategoryId == categoryId);
+                query = query.Where(p => p.CategoryId == categoryId.Value);
 
             if (brandId.HasValue)
-                query = query.Where(p => p.BrandId == brandId);
+                query = query.Where(p => p.BrandId == brandId.Value);
 
             if (minPrice.HasValue)
-                query = query.Where(p => p.Price >= minPrice);
+                query = query.Where(p => p.Price >= minPrice.Value);
 
             if (maxPrice.HasValue)
-                query = query.Where(p => p.Price <= maxPrice);
+                query = query.Where(p => p.Price <= maxPrice.Value);
 
             return query;
         }

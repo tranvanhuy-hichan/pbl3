@@ -13,6 +13,7 @@ namespace pbl3_web_api.Service
             int page,
             int pageSize,
             string? status,
+            string? paymentStatus,
             int? userId,
             DateTime? fromDate,
             DateTime? toDate);
@@ -40,13 +41,14 @@ namespace pbl3_web_api.Service
             int page,
             int pageSize,
             string? status,
+            string? paymentStatus,
             int? userId,
             DateTime? fromDate,
             DateTime? toDate)
         {
             var baseQuery = _repo.GetOrdersQuery();
 
-            var filteredQuery = ApplyFilters(baseQuery, status, userId, fromDate, toDate);
+            var filteredQuery = ApplyFilters(baseQuery, status, paymentStatus, userId, fromDate, toDate);
 
             var totalCount = await filteredQuery.CountAsync();
 
@@ -58,7 +60,6 @@ namespace pbl3_web_api.Service
         public async Task<AdminOrderDetailResponse> GetOrderDetailAsync(int orderId)
         {
             ValidateId(orderId, "OrderId");
-
 
             var order = await _repo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found.");
@@ -165,12 +166,16 @@ namespace pbl3_web_api.Service
         private IQueryable<Order> ApplyFilters(
             IQueryable<Order> query,
             string? status,
+            string? paymentStatus,
             int? userId,
             DateTime? fromDate,
             DateTime? toDate)
         {
             if (!string.IsNullOrEmpty(status))
                 query = query.Where(o => o.Status.ToLower() == status.ToLower());
+
+            if (!string.IsNullOrEmpty(paymentStatus))
+                query = query.Where(o => o.PaymentStatus.ToLower() == paymentStatus.ToLower());
 
             if (userId.HasValue)
                 query = query.Where(o => o.UserId == userId.Value);
@@ -196,7 +201,7 @@ namespace pbl3_web_api.Service
                 {
                     orderId = o.OrderId,
                     userId = o.UserId,
-                    userName = o.User.Username,
+                    fullName = o.User.FullName,
                     orderDate = o.OrderDate,
                     totalAmount = o.TotalAmount,
                     status = o.Status,
@@ -256,7 +261,7 @@ namespace pbl3_web_api.Service
             {
                 orderId = order.OrderId,
                 userId = order.UserId,
-                userName = order.User.Username,
+                userName = order.User.FullName,
                 orderDate = order.OrderDate,
                 totalAmount = order.TotalAmount,
                 status = order.Status,
