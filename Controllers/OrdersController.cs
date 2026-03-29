@@ -1,107 +1,206 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using pbl3_web_api.DTO.Order;
 using pbl3_web_api.Entities;
+using pbl3_web_api.Service;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace pbl3_web_api.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/orders")]
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly ShopPbl3Context _context;
+        private readonly IOrderService _service;
 
-        public OrdersController(ShopPbl3Context context)
+        public OrdersController(IOrderService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: api/Orders
+        [Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public async Task<IActionResult> Get(
+            int page = 1,
+            int pageSize = 20,
+            string? status = null,
+            int? userId = null,
+            DateTime? fromDate = null,
+            DateTime? toDate = null)
         {
-            return await _context.Orders.ToListAsync();
-        }
-
-        // GET: api/Orders/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(int id)
-        {
-            var order = await _context.Orders.FindAsync(id);
-
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return order;
-        }
-
-        // PUT: api/Orders/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, Order order)
-        {
-            if (id != order.OrderId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(order).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                var orders = await _service.GetOrdersAsync(page, pageSize, status, userId, fromDate, toDate);
+                return Ok(orders);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!OrderExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, ex.Message);
             }
-
-            return NoContent();
         }
 
-        // POST: api/Orders
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{orderId}")]
+        public async Task<ActionResult> AdminGetOrderDetail(int orderId)
+        {
+            try
+            {
+                var orderDetail = await _service.GetOrderDetailAsync(orderId);
+                return Ok(orderDetail);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("{orderId}/status")]
+        public async Task<ActionResult> UpdateOrserStutus([FromRoute] int orderId, [FromBody] string newStatus)
+        {
+            try
+            {
+                await _service.UpdateOrderStatusAsync(orderId, newStatus);
+                return Ok(new { message = "Order status updated successfully.", newStatus = newStatus });
+
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("my")]
+        public async Task<ActionResult> GetMyOrders(
+            int page = 1,
+            int pageSize = 10,
+            string? status = "Pending"
+            )
+        {
+            try
+            {
+                int userId = GetUserIdFromToken();
+                var orders = await _service.GetHistoryOrdersAsync(userId, page, pageSize, status);
+                return Ok(orders);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("my/{orderId}")]
+        public async Task<ActionResult> GetMyOrderDetail(int orderId)
+        {
+            try
+            {
+                int userId = GetUserIdFromToken();
+                var orderDetail = await _service.GetMyOrderDetailAsync(userId, orderId);
+                return Ok(orderDetail);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPatch("my/{orderId}/cancel")]
+        public async Task<ActionResult> CancelMyOrder(int orderId)
+        {
+            try
+            {
+                int userId = GetUserIdFromToken();
+                await _service.CancelOrderAsync(userId, orderId);
+                return Ok(new { message = "Order canceled successfully." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public async Task<ActionResult> CreateOrder([FromBody] CreateOrderRequest request)
         {
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);
-        }
-
-        // DELETE: api/Orders/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(int id)
-        {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
+            try
             {
-                return NotFound();
+                int userId = GetUserIdFromToken();
+                var orderId = await _service.CreateOrderAsync(userId, request);
+                return Created("", new { message = "Order created successfully.", orderId = orderId });
             }
-
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return UnprocessableEntity(new {message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        private bool OrderExists(int id)
+        private int GetUserIdFromToken()
         {
-            return _context.Orders.Any(e => e.OrderId == id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+                throw new UnauthorizedAccessException("Invalid token");
+
+            return int.Parse(userId);
         }
     }
 }
