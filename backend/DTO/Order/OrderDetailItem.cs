@@ -2,6 +2,7 @@
 {
     public class OrderDetailItem
     {
+        public string? imageURL { get; set; } 
         public int productId { get; set; }
         public string productName { get; set; } = null!;
 
