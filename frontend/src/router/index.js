@@ -8,6 +8,7 @@ import RegisterView from '../views/client/RegisterView.vue'
 import ProductDetailView from '../views/client/ProductDetailView.vue'
 import CartView from '../views/client/CartView.vue'
 import CheckoutView from '../views/client/CheckoutView.vue'
+import ProductView from '../views/client/ProductView.vue'
 
 import DashboardView from '../views/admin/DashboardView.vue'
 import ProductManagementView from '../views/admin/ProductManagementView.vue'
@@ -59,7 +60,14 @@ const router = createRouter({
           name: 'register',
           component: RegisterView,
           meta: { title: 'Register' }
+        }, 
+        {
+          path: 'products',
+          name: 'products',
+          component: ProductView,
+          meta: { title: 'Products' }
         }
+    
       ]
     },
     {

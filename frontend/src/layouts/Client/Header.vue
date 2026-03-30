@@ -3,23 +3,15 @@
     <div class="container mx-auto px-4 flex justify-between items-center gap-4 lg:gap-8 flex-wrap lg:flex-nowrap">
       
       <div class="text-2xl font-extrabold text-slate-800 tracking-tight">
-        <router-link to="/">ElectroShop</router-link>
+        <router-link to="/">Cửa hàng thiết bị điện tử</router-link>
       </div>
 
       <nav class="hidden md:flex gap-6">
-        <router-link to="/" class="text-slate-500 font-medium hover:text-blue-500 transition-colors">Home</router-link>
-        <router-link to="/products" class="text-slate-500 font-medium hover:text-blue-500 transition-colors">Products</router-link>
-        <router-link to="/categories" class="text-slate-500 font-medium hover:text-blue-500 transition-colors">Categories</router-link>
+        <router-link to="/" class="text-slate-500 font-medium hover:text-blue-500 transition-colors">Trang chủ</router-link>
+        <router-link to="/products" class="text-slate-500 font-medium hover:text-blue-500 transition-colors">Sản phẩm</router-link>
+        <router-link to="/categories" class="text-slate-500 font-medium hover:text-blue-500 transition-colors">Danh mục</router-link>
+        <router-link to="/categories" class="text-slate-500 font-medium hover:text-blue-500 transition-colors">Nhãn hàng</router-link>
       </nav>
-
-      <div class="flex-1 w-full order-3 lg:order-none lg:max-w-md flex bg-slate-100 rounded-full overflow-hidden px-2 py-1 border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-colors">
-        <input type="text" placeholder="Search for electronics..." class="flex-1 bg-transparent border-none px-4 py-2 outline-none text-sm text-slate-700" />
-        <button class="p-2 text-slate-500 hover:text-blue-500 flex items-center justify-center" aria-label="Search">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-          </svg>
-        </button>
-      </div>
 
       <div class="flex items-center gap-4">
         <!-- Cart -->
@@ -29,7 +21,7 @@
           </svg>
           <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-brand-500 rounded-full border-2 border-white">2</span>
         </router-link>
-        <router-link to="/login" class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2 rounded-full font-semibold transition-colors">Log In</router-link>
+        <router-link to="/login" class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2 rounded-full font-semibold transition-colors">Đăng nhập</router-link>
       </div>
 
     </div>

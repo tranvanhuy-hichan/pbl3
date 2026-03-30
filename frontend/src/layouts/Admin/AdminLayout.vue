@@ -10,35 +10,35 @@
         <ul class="space-y-1 px-3">
           <li>
             <router-link to="/admin" class="flex items-center px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition-colors group" active-class="bg-brand-600 text-white hover:bg-brand-600">
-              <span class="font-medium">Dashboard</span>
+              <span class="font-medium">Thống kê</span>
             </router-link>
           </li>
           
-          <li class="pt-4 pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Management</li>
+          <li class="pt-4 pb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Quản lý</li>
           
           <li>
             <router-link to="/admin/products" class="flex items-center px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition-colors" active-class="bg-slate-800 text-white">
-              <span class="font-medium">Products</span>
+              <span class="font-medium">Sản phẩm</span>
             </router-link>
           </li>
           <li>
             <router-link to="/admin/brands" class="flex items-center px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition-colors" active-class="bg-slate-800 text-white">
-              <span class="font-medium">Brands</span>
+              <span class="font-medium">Nhãn hàng</span>
             </router-link>
           </li>
           <li>
             <router-link to="/admin/categories" class="flex items-center px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition-colors" active-class="bg-slate-800 text-white">
-              <span class="font-medium">Categories</span>
+              <span class="font-medium">Danh mục</span>
             </router-link>
           </li>
           <li>
             <router-link to="/admin/users" class="flex items-center px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition-colors" active-class="bg-slate-800 text-white">
-              <span class="font-medium">Users</span>
+              <span class="font-medium">Người dùng</span>
             </router-link>
           </li>
           <li>
             <router-link to="/admin/orders" class="flex items-center px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition-colors" active-class="bg-slate-800 text-white">
-              <span class="font-medium">Orders</span>
+              <span class="font-medium">Đơn hàng</span>
             </router-link>
           </li>
         </ul>
