@@ -283,6 +283,7 @@
           </div>
 
           <!-- Order Items -->
+          <!-- Order Items -->
           <div class="space-y-3">
             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sản phẩm</h4>
             <div class="border border-slate-100 rounded-xl overflow-hidden">
@@ -297,9 +298,26 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                   <tr v-for="item in selectedOrder.orderDetails" :key="item.productId">
-                    <td class="py-4 px-4">
-                      <div class="font-bold text-slate-800">{{ item.productName }}</div>
-                      <div class="text-xs text-slate-400">SKU: {{ item.productId }}</div>
+                    <td class="py-4 px-4 flex items-center gap-3">
+                      <!-- Image -->
+                      <router-link :to="`/product/${item.productId}`" class="flex-shrink-0">
+                        <img
+                          :src="item.imageURL ? `https://localhost:7010${item.imageURL}` : 'https://via.placeholder.com/150'"
+                          :alt="item.productName"
+                          class="h-16 w-16 object-contain rounded-lg transition-transform duration-300 hover:scale-105"
+                        />
+                      </router-link>
+
+                      <!-- Name & SKU -->
+                      <div class="flex flex-col">
+                        <router-link
+                          :to="`/product/${item.productId}`"
+                          class="font-bold text-slate-800 hover:text-blue-600 hover:underline transition-colors text-sm"
+                        >
+                          {{ item.productName }}
+                        </router-link>
+                        <div class="text-xs text-slate-400">Code: {{ item.productCode }}</div>
+                      </div>
                     </td>
                     <td class="py-4 px-4 text-center text-sm font-medium">{{ item.quantity }}</td>
                     <td class="py-4 px-4 text-right text-sm">{{ Number(item.unitPrice).toLocaleString('vi-VN') }}₫</td>
@@ -315,6 +333,7 @@
               </table>
             </div>
           </div>
+
 
           <!-- Payment & Notes -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
