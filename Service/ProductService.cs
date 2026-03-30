@@ -64,11 +64,57 @@ namespace pbl3_web_api.Service
             return MapToProductDetailResponse(product);
         }
 
+        private async Task<string?> SaveImageAsync(IFormFile? file, string? oldImageUrl = null)
+        {
+            if (file == null) return oldImageUrl; // Nếu không có file mới, giữ nguyên URL cũ
+
+            // 1. Xóa ảnh cũ nếu có
+            if (!string.IsNullOrEmpty(oldImageUrl))
+            {
+                // Chuyển URL (/images/products/abc.jpg) thành đường dẫn vật lý trên ổ đĩa
+                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", oldImageUrl.TrimStart('/'));
+
+                if (File.Exists(oldFilePath))
+                {
+                    try
+                    {
+                        File.Delete(oldFilePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log lỗi nếu không xóa được (do file đang bị khóa bởi tiến trình khác...)
+                        Console.WriteLine($"Không thể xóa ảnh cũ: {ex.Message}");
+                    }
+                }
+            }
+
+            // 2. Lưu ảnh mới (Giữ nguyên logic của bạn)
+            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return $"/images/products/{fileName}";
+        }
+
+
         public async Task<int> AddProductAsync(AddProductRequest request)
         {
             await ValidateAddProductRequestAsync(request);
 
             var newProduct = MapToProduct(request);
+
+            if (request.ImageFile != null)
+            {
+                newProduct.ImageUrl = await SaveImageAsync(request.ImageFile);
+            }
 
             await _productRepo.AddProductAsync(newProduct);
 
@@ -95,6 +141,11 @@ namespace pbl3_web_api.Service
 
             var product = await _productRepo.GetProductByIdAsync(id)
                 ?? throw new KeyNotFoundException("Product Not Found");
+
+            if (request.ImageFile != null)
+            {
+                product.ImageUrl = await SaveImageAsync(request.ImageFile, product.ImageUrl);
+            }
 
             ApplyChange(product, request);
 
@@ -163,6 +214,8 @@ namespace pbl3_web_api.Service
                 })
                 .ToListAsync();
         }
+
+
         private void ValidateId(int id, string name)
         {
             if (id <= 0)
@@ -216,7 +269,6 @@ namespace pbl3_web_api.Service
             product.Description = request.description ?? product.Description;
             product.Price = request.price ?? product.Price;
             product.StockQuantity = request.stockQuantity ?? product.StockQuantity;
-            product.ImageUrl = request.imageURL ?? product.ImageUrl;
             product.Specifications = request.specifications ?? product.Specifications;
             product.IsActive = request.isActive ?? product.IsActive;
             product.UpdatedAt = DateTime.UtcNow;
@@ -235,6 +287,7 @@ namespace pbl3_web_api.Service
 
             if (request.stockQuantity < 0)
                 throw new ArgumentException("StockQuantity cannot be negative");
+
         }
 
         private Product MapToProduct(AddProductRequest request)
@@ -248,7 +301,6 @@ namespace pbl3_web_api.Service
                 Description = request.description,
                 Price = request.price,
                 StockQuantity = request.stockQuantity,
-                ImageUrl = request.imageURL,
                 Specifications = request.specifications,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,

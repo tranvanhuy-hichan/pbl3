@@ -79,7 +79,7 @@ namespace pbl3_web_api.Controllers
 
         //[Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> AddProduct(AddProductRequest request)
+        public async Task<IActionResult> AddProduct([FromForm] AddProductRequest request)
         {
             try
             {
@@ -88,7 +88,7 @@ namespace pbl3_web_api.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new {message = ex.Message});
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -120,21 +120,13 @@ namespace pbl3_web_api.Controllers
         }
 
         //[Authorize(Roles = "Admin")]
-        [HttpPut("{id}")]   
-        public async Task<IActionResult> EditProduct(int id, EditProductRequest request)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditProduct(int id, [FromForm] EditProductRequest request)
         {
             try
             {
                 await _service.EditProductAsync(id, request);
                 return Ok(new { message = "Product updated successfully" });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch(ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
