@@ -248,7 +248,8 @@ namespace pbl3_web_api.Service
         {
             var items = order.OrderDetails.Select(i => new OrderDetailItem
                 {
-                    productId = i.ProductId,
+                    imageURL = i.Product.ImageUrl,
+                productId = i.ProductId,
                     productName = i.Product.ProductName,
                     quantity = i.Quantity,
                     unitPrice = i.UnitPrice,
