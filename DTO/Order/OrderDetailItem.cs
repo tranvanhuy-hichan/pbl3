@@ -4,6 +4,7 @@
     {
         public string? imageURL { get; set; } 
         public int productId { get; set; }
+        public string productCode { get; set; } = null!;
         public string productName { get; set; } = null!;
 
         public int quantity { get; set; }

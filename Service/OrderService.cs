@@ -249,11 +249,12 @@ namespace pbl3_web_api.Service
             var items = order.OrderDetails.Select(i => new OrderDetailItem
                 {
                     imageURL = i.Product.ImageUrl,
-                productId = i.ProductId,
+                    productId = i.ProductId,
                     productName = i.Product.ProductName,
                     quantity = i.Quantity,
                     unitPrice = i.UnitPrice,
-                    subtotal = i.Subtotal
+                    subtotal = i.Subtotal,
+                    productCode = i.Product.ProductCode,
                 })
                 .ToList();
 
