@@ -7,7 +7,7 @@
       class="block relative h-64 overflow-hidden bg-slate-50 border-b border-slate-100 flex items-center justify-center p-6 group"
     >
       <img
-        :src="product.image"
+        :src="product.image ? `https://localhost:7010${product.image}` : 'https://via.placeholder.com/150'"
         :alt="product.name"
         class="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
       />

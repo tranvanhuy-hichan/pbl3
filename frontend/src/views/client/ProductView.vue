@@ -88,7 +88,7 @@
       <div class="flex justify-center items-center gap-4 mt-6">
 
         <button
-          @click="productStore.changePage(productStore.page - 1)"
+          @click="() => { productStore.changePage(productStore.page - 1); window.scrollTo(0, 0) }"
           :disabled="productStore.page === 1"
           class="px-4 py-2 bg-white border border-blue-300 rounded-lg disabled:opacity-30 hover:bg-blue-100 transition-colors"
         >
@@ -100,7 +100,7 @@
         </span>
 
         <button
-          @click="productStore.changePage(productStore.page + 1)"
+          @click="() => { productStore.changePage(productStore.page + 1); window.scrollTo(0, 0) }"
           :disabled="productStore.page >= totalPages"
           class="px-4 py-2 bg-white border border-blue-300 rounded-lg disabled:opacity-30 hover:bg-blue-100 transition-colors"
         >

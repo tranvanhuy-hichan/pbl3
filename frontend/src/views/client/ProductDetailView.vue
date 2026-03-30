@@ -18,13 +18,13 @@
 
       <!-- Image -->
       <div class="bg-white rounded-2xl flex items-center justify-center p-10 shadow-sm">
-        <img :src="product.image" class="max-h-[450px] object-contain" />
+        <img :src="product.image ? `https://localhost:7010${product.image}` : 'https://via.placeholder.com/150'" />
       </div>
 
       <!-- Info -->
       <div class="bg-white rounded-2xl p-8 shadow-sm flex flex-col">
 
-        <div class="text-sm text-slate-500 mb-2 uppercase">
+        <div class="text-sm text-slate-500 mb-2 uppercase ">
           {{ product.category }} • {{ product.brand }}
         </div>
 
@@ -113,7 +113,7 @@ onMounted(async () => {
       id: res.productId,
       name: res.productName,
       price: res.price,
-      image: res.image,
+      image: res.imageURL,
       category: res.category.name,
       brand: res.brand.name,
       stock: res.stockQuantity,
