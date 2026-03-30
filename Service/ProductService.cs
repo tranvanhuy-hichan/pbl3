@@ -158,7 +158,8 @@ namespace pbl3_web_api.Service
                     imageURL = p.ImageUrl,
                     categoryName = p.Category!.CategoryName,
                     brandName = p.Brand!.BrandName,
-                    isActive = p.IsActive
+                    isActive = p.IsActive,
+                    specifications = p.Specifications
                 })
                 .ToListAsync();
         }
