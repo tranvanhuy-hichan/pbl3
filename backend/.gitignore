@@ -17,6 +17,8 @@ appsettings.Development.json
 # Mono auto generated files
 mono_crash.*
 
+wwwroot/images/products/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
