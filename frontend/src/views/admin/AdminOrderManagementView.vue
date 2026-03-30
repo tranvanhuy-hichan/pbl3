@@ -1,6 +1,6 @@
 <!-- src/views/admin/OrderManagement.vue -->
 <template>
-  <div class="space-y-6 p-6 bg-slate-50 min-h-screen">
+  <div class="space-y-6 p-6 bg-blue-50 min-h-screen">
 
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -21,9 +21,9 @@
     </div>
 
     <!-- Toolbar -->
-    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 ">
       <!-- Search -->
-      <div class="relative w-full md:max-w-md">
+      <div class="relative w-full md:max-w-md bg-blue-50">
         <input
           type="text"
           v-model="searchQuery"
@@ -37,15 +37,15 @@
       </div>
 
       <!-- Filters -->
-      <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto items-end">
+      <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto items-end ">
 
         <!-- Status Filter -->
-        <div class="flex flex-col w-full md:w-auto">
+        <div class="flex flex-col w-full md:w-auto ">
           <label class="text-xs text-slate-500 mb-1 font-medium">Trạng thái đơn</label>
           <select
             v-model="statusFilter"
             @change="loadData"
-            class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 text-sm"
+            class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50 text-slate-700 text-sm "
           >
             <option value="">Tất cả</option>
             <option value="Pending">Pending</option>
@@ -62,7 +62,7 @@
           <select
             v-model="paymentStatusFilter"
             @change="loadData"
-            class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 text-sm"
+            class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50 text-slate-700 text-sm"
           >
             <option value="">Tất cả</option>
             <option value="Paid">Đã thanh toán</option>
@@ -77,7 +77,7 @@
             type="date"
             v-model="fromDateFilter"
             @change="loadData"
-            class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 text-sm"
+            class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50 text-slate-700 text-sm"
           />
         </div>
 
@@ -89,7 +89,7 @@
             v-model="toDateFilter"
             :min="fromDateFilter"
             @change="loadData"
-            class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 text-sm"
+            class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50 text-slate-700 text-sm"
           />
         </div>
 
@@ -190,7 +190,7 @@
       </div>
 
       <!-- Pagination -->
-      <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="px-6 py-4 bg-blue-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="text-sm text-slate-500 font-medium">
           Hiển thị
           <span class="text-slate-800 font-bold">{{ startEntry }}</span> -

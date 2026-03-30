@@ -1,97 +1,96 @@
 <template>
-  <div class="bg-slate-50 min-h-screen py-16">
-    <div class="max-w-6xl mx-auto px-6">
+  <div class="bg-blue-50 min-h-screen">
 
-      <!-- Breadcrumb -->
-      <div class="text-base text-slate-500 mb-8">
-        Home / {{ product?.category }} / {{ product?.name }}
-      </div>
-
-      <!-- Content -->
-      <div v-if="product" class="bg-white rounded-3xl shadow-md border p-10 grid md:grid-cols-2 gap-12">
-
-        <!-- Image -->
-        <div class="bg-slate-50 rounded-2xl flex items-center justify-center p-10">
-          <img :src="product.image" class="max-h-[400px] object-contain" />
-        </div>
-
-        <!-- Info -->
-        <div class="flex flex-col">
-
-          <!-- Category + Brand -->
-          <div class="text-sm text-slate-500 mb-3 uppercase tracking-wide">
-            {{ product.category }} • {{ product.brand }}
-          </div>
-
-          <!-- Name -->
-          <h1 class="text-4xl font-extrabold mb-6 leading-tight">
-            {{ product.name }}
-          </h1>
-
-          <!-- Price -->
-          <div class="text-3xl font-bold text-indigo-600 mb-8">
-            {{ formatCurrency(product.price) }}
-          </div>
-
-          <!-- Description -->
-          <p class="text-lg text-slate-600 mb-8 leading-relaxed">
-            Mô tả: {{ product.description }}
-          </p>
-
-          <!-- Specifications -->
-          <p class="text-lg text-slate-600 mb-8 leading-relaxed">
-            Thông số kỹ thuật: {{ product.specifications }}
-          </p>
-
-          <!-- Stock -->
-          <div class="mb-8 text-base">
-            <span v-if="product.stock > 0" class="text-green-600 font-semibold">
-              ✔ Còn hàng ({{ product.stock }})
-            </span>
-            <span v-else class="text-red-500 font-semibold">
-              ✖ Hết hàng
-            </span>
-          </div>
-
-          <!-- Quantity + Button -->
-          <div class="flex gap-5 mt-auto">
-
-            <input
-              type="number"
-              v-model.number="quantity"
-              min="1"
-              :max="product.stock"
-              class="w-24 text-lg border rounded-xl text-center py-2"
-            />
-
-            <button
-              @click="addToCart"
-              :disabled="product.stock === 0"
-              class="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-300"
-            >
-              Thêm vào giỏ hàng
-            </button>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- Loading -->
-      <div v-else class="text-center py-32 text-slate-500 text-lg">
-        Loading...
-      </div>
-
+    <!-- Breadcrumb -->
+    <div class="px-6 lg:px-16 py-4 text-sm text-slate-500 bg-blue-50 border-b">
+      <router-link to="/" class="hover:text-indigo-600">Trang chủ</router-link>
+      <span class="mx-2">/</span>
+      <router-link to="/products" class="hover:text-indigo-600">
+        Sản phẩm
+      </router-link>
+      <span class="mx-2">/</span>
+      <span class="text-slate-700 font-medium">{{ product?.name }}</span>
     </div>
+
+    <!-- Content FULL -->
+    <div v-if="product"
+      class="grid md:grid-cols-2 gap-10 px-6 lg:px-16 py-10">
+
+      <!-- Image -->
+      <div class="bg-white rounded-2xl flex items-center justify-center p-10 shadow-sm">
+        <img :src="product.image" class="max-h-[450px] object-contain" />
+      </div>
+
+      <!-- Info -->
+      <div class="bg-white rounded-2xl p-8 shadow-sm flex flex-col">
+
+        <div class="text-sm text-slate-500 mb-2 uppercase">
+          {{ product.category }} • {{ product.brand }}
+        </div>
+
+        <h1 class="text-3xl font-bold mb-4 text-slate-800">
+          {{ product.name }}
+        </h1>
+
+        <div class="text-2xl font-bold text-blue-500 mb-6">
+          {{ formatCurrency(product.price) }}
+        </div>
+
+        <p class="text-slate-600 mb-6">
+          Mô tả: {{ product.description }}
+        </p>
+
+        <p class="text-slate-600 mb-6">
+          Thông số kỹ thuật: {{ product.specifications }}
+        </p>
+
+        <!-- Stock -->
+        <div class="mb-6">
+          <span v-if="product.stock > 0" class="text-green-600 font-semibold">
+            Còn hàng ({{ product.stock }})
+          </span>
+          <span v-else class="text-red-500 font-semibold">
+            Hết hàng
+          </span>
+        </div>
+
+        <!-- Action -->
+        <div class="flex gap-4 mt-auto">
+          <input
+            type="number"
+            v-model.number="quantity"
+            min="1"
+            :max="product.stock"
+            class="w-20 border rounded-lg text-center py-2"
+          />
+
+          <button
+            @click="addToCart"
+            :disabled="product.stock === 0"
+            class="flex-1 bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600"
+          >
+            🛒 Thêm vào giỏ hàng
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div v-else class="text-center py-32 text-slate-400">
+      Loading...
+    </div>
+
   </div>
 </template>
-
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/products'
+import { useCartStore } from '@/stores/cart'
+
+const cartStore = useCartStore()
 
 const route = useRoute()
 const productStore = useProductStore()
@@ -126,7 +125,15 @@ onMounted(async () => {
   }
 })
 
-const addToCart = () => {
-  alert(`Đã thêm ${quantity.value} x ${product.value.name}`)
+
+const addToCart = async () => {
+  // try {
+  //   await cartStore.addToCart(product.value.id, quantity.value)
+
+  //   alert(`Đã thêm ${quantity.value} x ${product.value.name}`)
+  // } catch (err) {
+  //   console.error(err)
+  // }
 }
+
 </script>

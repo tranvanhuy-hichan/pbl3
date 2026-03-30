@@ -136,6 +136,21 @@
         fetchProducts()
     }
 
+    const addToCart = async () => {
+        if (!product.value) return
+
+        try {
+            await api.post('/cart/add', {
+            productId: product.value.id,
+            quantity: quantity.value
+            })
+
+            alert(`Đã thêm ${quantity.value} x ${product.value.name}`)
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
     return {
         products,
         categories,

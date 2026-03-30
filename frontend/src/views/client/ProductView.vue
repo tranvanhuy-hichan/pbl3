@@ -1,24 +1,24 @@
 <template>
-  <div class="bg-slate-50 min-h-screen">
+  <div class="bg-blue-50 min-h-screen">
 
     <div class="max-w-7xl mx-auto p-6 space-y-6">
 
       <!-- Filter -->
-      <div class="bg-white p-4 rounded-2xl shadow-sm border flex flex-wrap gap-3">
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-blue-200 flex flex-wrap gap-3">
 
         <!-- Search -->
         <input
           :value="productStore.searchQuery"
           @input="onSearchInput"
           placeholder="Tìm sản phẩm..."
-          class="flex-1 min-w-[220px] px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none"
+          class="flex-1 min-w-[220px] px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
         />
 
         <!-- Category -->
         <select
           :value="productStore.selectedCategory ?? ''"
           @change="onCategoryChange"
-          class="px-3 py-2 border rounded-xl"
+          class="px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
         >
           <option value="">Danh mục</option>
           <option
@@ -30,19 +30,20 @@
           </option>
         </select>
 
+        <!-- Brand -->
         <select
-        :value="productStore.selectedBrand ?? ''"
-        @change="onBrandChange"
-        class="px-3 py-2 border rounded-xl"
+          :value="productStore.selectedBrand ?? ''"
+          @change="onBrandChange"
+          class="px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
         >
-        <option value="">Nhãn hàng</option>
-        <option
+          <option value="">Nhãn hàng</option>
+          <option
             v-for="b in productStore.brands"
             :key="b.brandId"
             :value="b.brandId"
-        >
+          >
             {{ b.brandName }}
-        </option>
+          </option>
         </select>
 
         <!-- Price -->
@@ -50,26 +51,27 @@
           :value="productStore.minPrice ?? ''"
           @input="e => onPriceInput('min', e)"
           placeholder="Giá từ"
-          class="w-28 px-2 py-2 border rounded-xl"
+          class="w-28 px-2 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
         />
 
         <input
           :value="productStore.maxPrice ?? ''"
           @input="e => onPriceInput('max', e)"
           placeholder="Đến"
-          class="w-28 px-2 py-2 border rounded-xl"
+          class="w-28 px-2 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
         />
 
         <!-- Reset -->
         <button
           v-if="hasFilters"
           @click="resetFilters"
-          class="px-4 py-2 bg-rose-500 text-white rounded-xl hover:bg-rose-600"
+          class="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all"
         >
           Reset
         </button>
 
       </div>
+      
 
       <!-- Product Grid -->
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -79,8 +81,8 @@
           :key="p.productId"
           :product="mapProduct(p)"
         />
-
       </div>
+  
 
       <!-- Pagination -->
       <div class="flex justify-center items-center gap-4 mt-6">
@@ -88,19 +90,19 @@
         <button
           @click="productStore.changePage(productStore.page - 1)"
           :disabled="productStore.page === 1"
-          class="px-4 py-2 bg-white border rounded-lg disabled:opacity-30"
+          class="px-4 py-2 bg-white border border-blue-300 rounded-lg disabled:opacity-30 hover:bg-blue-100 transition-colors"
         >
           Prev
         </button>
 
-        <span class="font-bold">
+        <span class="font-bold text-blue-700">
           {{ productStore.page }} / {{ totalPages }}
         </span>
 
         <button
           @click="productStore.changePage(productStore.page + 1)"
           :disabled="productStore.page >= totalPages"
-          class="px-4 py-2 bg-white border rounded-lg disabled:opacity-30"
+          class="px-4 py-2 bg-white border border-blue-300 rounded-lg disabled:opacity-30 hover:bg-blue-100 transition-colors"
         >
           Next
         </button>
@@ -110,6 +112,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { onMounted, computed } from 'vue'
@@ -183,12 +186,10 @@ const hasFilters = computed(() => {
 const mapProduct = (p) => ({
   id: p.productId,
   name: p.productName,
-  image: p.image,
+  image: p.imageURL,
   price: p.price,
   category: p.categoryName,
   brand: p.brandName,
-  discount: p.discount || 0,
-  isNew: p.isNew || false,
   reviews: 0,
   specifications: p.specifications,
   stock: p.stockQuantity
