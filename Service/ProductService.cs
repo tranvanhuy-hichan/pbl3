@@ -160,6 +160,8 @@ namespace pbl3_web_api.Service
            decimal? minPrice,
            decimal? maxPrice)
         {
+            //query = query.Where(p => p.IsActive);
+            query = query.OrderBy(p => Guid.NewGuid());
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var keyword = search.ToLower();
