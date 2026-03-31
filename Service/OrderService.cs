@@ -12,13 +12,14 @@ namespace pbl3_web_api.Service
         Task<(IEnumerable<AdminOrdersResponse> orders, int totalCount)> GetOrdersAsync(
             int page,
             int pageSize,
+            string? search,
             string? status,
             string? paymentStatus,
-            int? userId,
             DateTime? fromDate,
             DateTime? toDate);
         Task<AdminOrderDetailResponse> GetOrderDetailAsync(int orderId);
         Task UpdateOrderStatusAsync(int orderId, string newStatus);
+        Task UpdatePaymentStatusAsync(int orderId, string newStatus);
         Task<(IEnumerable<HistoryOrderResponse> order, int totalCount)> GetHistoryOrdersAsync(
             int userId,
             int page,
@@ -40,15 +41,15 @@ namespace pbl3_web_api.Service
         public async Task<(IEnumerable<AdminOrdersResponse> orders, int totalCount)> GetOrdersAsync(
             int page,
             int pageSize,
+            string? search,
             string? status,
             string? paymentStatus,
-            int? userId,
             DateTime? fromDate,
             DateTime? toDate)
         {
             var baseQuery = _repo.GetOrdersQuery();
 
-            var filteredQuery = ApplyFilters(baseQuery, status, paymentStatus, userId, fromDate, toDate);
+            var filteredQuery = ApplyFilters(baseQuery, search, status, paymentStatus, fromDate, toDate);
 
             var totalCount = await filteredQuery.CountAsync();
 
@@ -75,6 +76,22 @@ namespace pbl3_web_api.Service
                 ?? throw new KeyNotFoundException("Order not found.");
 
             order.Status = newStatus;
+
+            if (newStatus == "Delivered")
+                order.PaymentStatus = "Paid";
+
+            order.UpdatedAt = DateTime.UtcNow;
+            await _repo.SaveAsync();
+        }
+
+        public async Task UpdatePaymentStatusAsync(int orderId, string newStatus)
+        {
+            ValidateId(orderId, "OrderId");
+
+            var order = await _repo.GetOrderByIdAsync(orderId)
+                ?? throw new KeyNotFoundException("Order not found.");
+
+            order.PaymentStatus = newStatus;
             order.UpdatedAt = DateTime.UtcNow;
             await _repo.SaveAsync();
         }
@@ -165,20 +182,28 @@ namespace pbl3_web_api.Service
 
         private IQueryable<Order> ApplyFilters(
             IQueryable<Order> query,
+            string? search,
             string? status,
             string? paymentStatus,
-            int? userId,
             DateTime? fromDate,
             DateTime? toDate)
         {
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var keyword = $"%{search.Trim()}%";
+
+                query = query.Where(p =>
+                    EF.Functions.Like(p.OrderId.ToString(), keyword) ||
+                    EF.Functions.Like(p.UserId.ToString(), keyword)
+                );
+            }
+
             if (!string.IsNullOrEmpty(status))
                 query = query.Where(o => o.Status.ToLower() == status.ToLower());
 
             if (!string.IsNullOrEmpty(paymentStatus))
                 query = query.Where(o => o.PaymentStatus.ToLower() == paymentStatus.ToLower());
-
-            if (userId.HasValue)
-                query = query.Where(o => o.UserId == userId.Value);
 
             if (fromDate.HasValue)
                 query = query.Where(o => o.OrderDate >= fromDate.Value);
@@ -205,6 +230,7 @@ namespace pbl3_web_api.Service
                     orderDate = o.OrderDate,
                     totalAmount = o.TotalAmount,
                     status = o.Status,
+                    paymentStatus = o.PaymentStatus
                 })
                 .ToListAsync();
         }

@@ -12,6 +12,7 @@
         public decimal totalAmount { get; set; }
 
         public string status { get; set; } = null!;
+        public string paymentStatus { get; set; } = null!;
 
     }
 }
