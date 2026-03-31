@@ -72,9 +72,9 @@
 
       </div>
       
-
       <!-- Product Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div v-if="productStore.products.length > 0"
+          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
         <ProductCard
           v-for="p in productStore.products"
@@ -82,7 +82,16 @@
           :product="mapProduct(p)"
         />
       </div>
-  
+
+      <!-- Empty state -->
+      <div v-else class="text-center py-16">
+        <p class="text-xl font-semibold text-gray-500">
+          Không có sản phẩm nào 
+        </p>
+        <p class="text-sm text-gray-400 mt-2">
+          Thử thay đổi bộ lọc hoặc tìm kiếm khác nhé!
+        </p>
+      </div>
 
       <!-- Pagination -->
       <div class="flex justify-center items-center gap-4 mt-6">

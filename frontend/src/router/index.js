@@ -121,10 +121,18 @@ const router = createRouter({
           name: 'admin-orders',
           component: AdminOrderManagementView,
           meta: { title: 'Order Management' }
-        }
+        },
+        {
+        path: '/admin/products/trash',
+        name: 'ProductTrash',
+        component: () => import('@/views/admin/ProductTrashView.vue')
+      }
       ]
     }
   ],
+  scrollBehavior() {
+    return { top: 0, behavior: 'smooth' }
+  }
 })
 
 export default router

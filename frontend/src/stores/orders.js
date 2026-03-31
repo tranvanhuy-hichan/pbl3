@@ -9,7 +9,6 @@ const api = axios.create({
 })
 
 export const useOrderStore = defineStore('orders', () => {
-  // --- State ---
   const orders = ref([])
   const totalCount = ref(0)
   const page = ref(1)
@@ -20,7 +19,6 @@ export const useOrderStore = defineStore('orders', () => {
   const fromDateFilter = ref('')
   const toDateFilter = ref('')
 
-  // --- Computed ---
   const pendingCount = computed(() => {
     if (!Array.isArray(orders.value)) return 0
     return orders.value.filter(o => (o.status || o.Status) === 'Pending').length
@@ -31,12 +29,12 @@ export const useOrderStore = defineStore('orders', () => {
     return orders.value.filter(o => (o.status || o.Status) === 'Processing').length
   })
 
-  // --- Actions ---
   const fetchOrders = async () => {
     try {
       const params = {
         page: page.value,
         pageSize: pageSize.value,
+        search: searchQuery.value || undefined,
         status: statusFilter.value || undefined,
         paymentStatus: paymentStatusFilter.value || undefined,
         fromDate: fromDateFilter.value || undefined,
@@ -83,6 +81,18 @@ export const useOrderStore = defineStore('orders', () => {
     }
   }
 
+  const updatePaymentStatus = async (orderId, newPaymentStatus) => {
+    try {
+      await api.patch(`/orders/${orderId}/payment-status`, JSON.stringify(newPaymentStatus), {
+        headers: { 'Content-Type': 'application/json' }
+      })
+      await fetchOrders()
+    } catch (error) {
+      console.error('Update payment status error:', error)
+      throw error
+    }
+  }
+
   const resetFilters = () => {
     searchQuery.value = ''
     statusFilter.value = ''
@@ -103,6 +113,6 @@ export const useOrderStore = defineStore('orders', () => {
     searchQuery, statusFilter, paymentStatusFilter,
     fromDateFilter, toDateFilter,
     pendingCount, processingCount,
-    fetchOrders, fetchOrderById, updateOrderStatus, resetFilters, changePage
+    fetchOrders, fetchOrderById, updateOrderStatus, resetFilters, changePage, updatePaymentStatus
   }
 })

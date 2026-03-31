@@ -86,6 +86,7 @@ const mapProduct = (p) => ({
 // Featured (lấy 8 sản phẩm đầu)
 const featuredProducts = computed(() => {
   return productStore.products
+    .sort(() => Math.random() - 0.5) 
     .slice(0, 8)
     .map(mapProduct)
 })

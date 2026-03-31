@@ -90,6 +90,17 @@ export const useProductStore = defineStore('products', () => {
     }
   }
 
+  const fetchDeletedProducts = async () => {
+    try {
+      const res = await api.get('/products/deleted')
+      products.value = res.data.data || res.data
+      return products.value 
+    } catch (error) {
+      console.error('Lỗi khi lấy sản phẩm đã xóa:', error)
+    }
+  }
+
+
   // 5. Thêm sản phẩm mới (Hỗ trợ upload ảnh)
   const addProduct = async (formData) => {
     try {
@@ -133,6 +144,19 @@ export const useProductStore = defineStore('products', () => {
     }
   }
 
+  const restoreProduct = async (id) => {
+    try {
+      await api.put(`/products/${id}/restore`)
+      // Thêm lại sản phẩm vào mảng để UI phản hồi nhanh
+      const restoredProduct = await fetchProductById(id)
+      products.value.push(restoredProduct)
+      totalCount.value += 1
+    } catch (error) {
+      console.error('Lỗi khi xóa sản phẩm:', error)
+      throw error
+    }
+  }
+
   // 8. Điều hướng trang
   const changePage = (newPage) => {
     page.value = newPage
@@ -167,6 +191,8 @@ export const useProductStore = defineStore('products', () => {
     updateProduct,
     deleteProduct,
     changePage,
-    changePageSize
+    changePageSize,
+    restoreProduct,
+    fetchDeletedProducts
   }
 })

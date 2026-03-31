@@ -7,13 +7,25 @@
         <h2 class="text-2xl font-bold text-blue-900 tracking-tight">Quản lý sản phẩm</h2>
         <p class="text-sm text-blue-700/70">Quản lý danh sách, tìm kiếm và lọc sản phẩm hệ thống</p>
       </div>
-      <router-link to="/admin/products/new" 
-        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md shadow-blue-100 transition-all flex items-center gap-2 active:scale-95">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-        <span>Thêm sản phẩm</span>
-      </router-link>
-    </div>
+      <div class="flex items-center gap-2">
+        <router-link to="/admin/products/new" 
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md shadow-blue-100 transition-all flex items-center gap-2 active:scale-95">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Thêm sản phẩm</span>
+        </router-link>
 
+        <router-link to="/admin/products/trash"
+          class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md shadow-rose-100 transition-all flex items-center gap-2 active:scale-95">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3"/>
+          </svg>
+          <span>Thùng rác</span>
+        </router-link>
+      </div>
+    </div>
     <!-- Toolbar: Filters -->
     <div class="bg-white p-4 rounded-2xl shadow-sm border border-blue-200">
       <div class="flex flex-wrap items-center gap-3">
@@ -105,13 +117,25 @@
                   </div>
                 </div>
               </td>
-              <td class="py-4 px-6">
-                <span class="px-2 py-1 rounded-lg text-xs font-bold bg-green-50 text-green-700">{{ product.categoryName }}</span>
+              <!-- Cột Danh mục -->
+              <td class="py-4 px-6 whitespace-nowrap">
+                <span class="px-2 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-700 whitespace-nowrap inline-block border border-emerald-100">
+                  {{ product.categoryName }}
+                </span>
               </td>
-              <td class="py-4 px-6 text-red-600 text-sm font-medium">{{ product.brandName }}</td>
+
+              <!-- Cột Thương hiệu -->
+              <td class="py-4 px-6 whitespace-nowrap">
+                <span class="px-2 py-1 rounded-lg text-[11px] font-bold bg-red-50 text-red-700 whitespace-nowrap inline-block border border-red-100">
+                  {{ product.brandName }}
+                </span>
+              </td>
               <td class="py-4 px-6 font-bold text-blue-900">{{ formatCurrency(product.price) }}</td>
-              <td class="py-4 px-6">
-                <span :class="['px-2.5 py-1 text-[11px] font-bold rounded-full', product.stockQuantity > 0 ? 'bg-blue-100 text-blue-700' : 'bg-rose-100 text-rose-700']">
+              <td class="py-4 px-6 whitespace-nowrap"> <!-- Thêm whitespace-nowrap vào td để ô không bị bóp lại -->
+                <span :class="[
+                  'px-2.5 py-1 text-[11px] font-bold rounded-full inline-block whitespace-nowrap', // Thêm inline-block và whitespace-nowrap
+                  product.stockQuantity > 0 ? 'bg-blue-100 text-blue-700' : 'bg-rose-100 text-rose-700'
+                ]">
                   {{ product.stockQuantity > 0 ? `Còn ${product.stockQuantity}` : 'Hết hàng' }}
                 </span>
               </td>
@@ -170,7 +194,6 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 

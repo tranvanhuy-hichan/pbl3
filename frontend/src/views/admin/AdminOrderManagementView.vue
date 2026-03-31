@@ -23,15 +23,16 @@
     <!-- Toolbar -->
     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 ">
       <!-- Search -->
-      <div class="relative w-full md:max-w-md bg-blue-50">
-        <input
+      <div class="relative w-full md:max-w-md">
+         <label class="text-xs text-slate-500 mb-1 font-medium bg-white">Tìm kiếm</label>
+        <input 
           type="text"
           v-model="searchQuery"
           @input="debouncedFetch"
-          placeholder="Search by Order ID or User ID..."
-          class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Tìm theo mã đơn, ID khách..."
+          class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50"
         />
-        <svg class="absolute left-3 top-2.5 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="absolute left-3 top-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </div>
@@ -48,11 +49,11 @@
             class="border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50 text-slate-700 text-sm "
           >
             <option value="">Tất cả</option>
-            <option value="Pending">Pending</option>
-            <option value="Processing">Processing</option>
-            <option value="Shipped">Shipped</option>
-            <option value="Delivered">Delivered</option>
-            <option value="Cancelled">Cancelled</option>
+            <option value="Pending">Chờ xử lý</option>
+            <option value="Processing">Đang xử lý</option>
+            <option value="Shipped">Đang giao</option>
+            <option value="Delivered">Đã giao</option>
+            <option value="Cancelled">Đã hủy</option>
           </select>
         </div>
 
@@ -127,6 +128,7 @@
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Ngày đặt hàng</th>
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng tiền</th>
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
+              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Thanh toán</th>
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Thao tác</th>
             </tr>
           </thead>
@@ -149,30 +151,31 @@
               <td class="py-4 px-6 text-sm font-bold text-slate-900">
                 {{ Number(order.totalAmount).toLocaleString('vi-VN') }}₫
               </td>
-              <td class="py-4 px-6">
-                <select
-                  v-model="order.status"
-                  @change="handleStatusChange(order)"
-                  :disabled="updatingId === order.orderId"
-                  :class="[
-                    'text-xs font-bold rounded-full px-4 py-1.5 border appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1',
-                    getStatusClass(order.status),
-                    updatingId === order.orderId ? 'opacity-50 cursor-not-allowed' : ''
-                  ]"
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Processing">Processing</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Delivered">Delivered</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
+              <!-- Cột TRẠNG THÁI -->
+              <td class="py-2.5 px-4">
+                <span :class="[
+                  'text-[10px] font-bold rounded-full px-3 py-1 border uppercase tracking-tight whitespace-nowrap inline-block', 
+                  getStatusClass(order.status)
+                ]">
+                  {{ getStatusLabel(order.status) }}
+                </span>
+              </td>
+
+              <!-- Cột THANH TOÁN -->
+              <td class="py-2.5 px-4">
+                <span :class="[
+                  'text-[10px] font-bold rounded-full px-3 py-1 border uppercase tracking-tight whitespace-nowrap inline-block', 
+                  getPaymentStatusClass(order.paymentStatus)
+                ]">
+                  {{ getPaymentStatusLabel(order.paymentStatus) }}
+                </span>
               </td>
               <td class="py-4 px-6 text-right">
                 <button
                   @click="viewOrderDetails(order.orderId)"
                   class="text-blue-600 hover:text-blue-700 font-bold text-sm bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors"
                 >
-                  View Details
+                  Chi tiết
                 </button>
               </td>
             </tr>
@@ -283,7 +286,6 @@
           </div>
 
           <!-- Order Items -->
-          <!-- Order Items -->
           <div class="space-y-3">
             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sản phẩm</h4>
             <div class="border border-slate-100 rounded-xl overflow-hidden">
@@ -334,26 +336,69 @@
             </div>
           </div>
 
-
-          <!-- Payment & Notes -->
+          <!-- Payment & Notes inside Modal Body -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="space-y-3">
-              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Thanh toán</h4>
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Thông tin thanh toán & Trạng thái</h4>
               <div class="flex gap-3 flex-wrap">
-                <div class="px-4 py-2 bg-slate-100 rounded-lg text-xs font-bold text-slate-600 uppercase">
-                  {{ selectedOrder.paymentMethod }}
+                
+                <!-- Hiển thị Phương thức thanh toán (Mới thêm) -->
+                <div class="flex flex-col">
+                  <label class="text-[10px] font-bold text-slate-400 mb-1">PHƯƠNG THỨC</label>
+                  <div class="text-xs font-bold rounded-lg px-3 py-2 border bg-slate-50 border-slate-200 text-slate-600 flex items-center gap-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    {{ selectedOrder.paymentMethod }}
+                  </div>
                 </div>
-                <div class="px-4 py-2 bg-green-50 rounded-lg text-xs font-bold text-green-600 uppercase">
-                  {{ selectedOrder.paymentStatus }}
+
+                <!-- Select Trạng thái thanh toán -->
+                <div class="flex flex-col">
+                  <label class="text-[10px] font-bold text-slate-400 mb-1">THANH TOÁN</label>
+                  <select
+                    v-model="selectedOrder.paymentStatus"
+                    @change="handlePaymentStatusChange(selectedOrder)"
+                    :disabled="updatingId === selectedOrder.orderId"
+                    :class="[
+                      'text-xs font-bold rounded-lg px-3 py-2 border appearance-none cursor-pointer focus:outline-none focus:ring-2 transition-all',
+                      getPaymentStatusClass(selectedOrder.paymentStatus)
+                    ]"
+                  >
+                    <option value="Paid">Paid</option>
+                    <option value="Unpaid">Unpaid</option>
+                  </select>
                 </div>
-                <div class="px-4 py-2 bg-green-50 rounded-lg text-xs font-bold text-green-600 uppercase">
-                  {{ selectedOrder.status }}
+
+                <!-- Select Trạng thái đơn hàng -->
+                <div class="flex flex-col">
+                  <label class="text-[10px] font-bold text-slate-400 mb-1">TRẠNG THÁI ĐƠN</label>
+                  <select
+                    v-model="selectedOrder.status"
+                    @change="handleStatusChange(selectedOrder)"
+                    :disabled="updatingId === selectedOrder.orderId"
+                    :class="[
+                      'text-xs font-bold rounded-lg px-3 py-2 border appearance-none cursor-pointer focus:outline-none focus:ring-2 transition-all',
+                      getStatusClass(selectedOrder.status)
+                    ]"
+                  >
+                    <option value="Pending" :disabled="statusOrder['Pending'] < statusOrder[selectedOrder._originalStatus]">Pending</option>
+                    <option value="Processing" :disabled="statusOrder['Processing'] < statusOrder[selectedOrder._originalStatus]">Processing</option>
+                    <option value="Shipped" :disabled="statusOrder['Shipped'] < statusOrder[selectedOrder._originalStatus]">Shipped</option>
+                    <option value="Delivered" :disabled="statusOrder['Delivered'] < statusOrder[selectedOrder._originalStatus]">Delivered</option>
+                    <option value="Cancelled" :disabled="statusOrder['Cancelled'] < statusOrder[selectedOrder._originalStatus]">Cancelled</option>
+                  </select>
                 </div>
+
               </div>
             </div>
+
+            <!-- Ghi chú -->
             <div v-if="selectedOrder.notes" class="space-y-3">
-              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Ghi chú</h4>
-              <p class="text-sm text-slate-600 italic">"{{ selectedOrder.notes }}"</p>
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Ghi chú từ khách</h4>
+              <div class="bg-amber-50 border border-amber-100 p-3 rounded-xl">
+                <p class="text-sm text-amber-800 italic leading-relaxed">"{{ selectedOrder.notes }}"</p>
+              </div>
             </div>
           </div>
 
@@ -371,6 +416,64 @@
       </div>
     </div>
 
+    <!-- Confirm Delete Modal -->
+    <div v-if="showDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-blue-900/50 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+        <h3 class="text-xl font-bold text-blue-600 mb-2 text-center">Xác nhận xóa</h3>
+        <p class="text-blue-700 mb-6 text-center">Xóa sản phẩm <span class="font-bold text-blue-900">"{{ productToDelete?.productName }}"</span>?</p>
+        <div class="flex gap-3 justify-center">
+          <button @click="showDeleteDialog = false" class="px-4 py-2 text-blue-500 font-bold hover:bg-blue-50 rounded-xl">Hủy</button>
+          <button @click="executeDelete" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Xác nhận Xóa</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Status Modal -->
+    <div v-if="showStatusDialog && pendingStatusChange" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+        <div class="flex justify-center mb-4">
+          <div class="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center">
+            <svg class="w-7 h-7 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+          </div>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-2 text-center">Xác nhận</h3>
+        <p class="text-slate-500 text-sm text-center mb-6">
+          Đơn hàng <span class="font-bold text-slate-800">#{{ pendingStatusChange.order.orderId }}</span>
+          <span :class="getStatusClass(pendingStatusChange.oldStatus)" class="inline-block font-bold rounded-full px-3 py-0.5 text-xs border mx-1">{{ pendingStatusChange.oldStatus }}</span>
+          →
+          <span :class="getStatusClass(pendingStatusChange.newStatus)" class="inline-block font-bold rounded-full px-3 py-0.5 text-xs border mx-1">{{ pendingStatusChange.newStatus }}</span>
+        </p>
+        <div class="flex gap-3 justify-center">
+          <button @click="cancelStatusChange" class="px-5 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-xl transition-colors">Hủy</button>
+          <button @click="confirmStatusChange" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl shadow hover:bg-blue-700 transition-colors">Xác nhận</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showPaymentStatusDialog && pendingPaymentStatusChange" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+        <div class="flex justify-center mb-4">
+          <div class="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center">
+            <svg class="w-7 h-7 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+          </div>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-2 text-center">Xác nhận</h3>
+        <p class="text-slate-500 text-sm text-center mb-6">
+          Đơn hàng <span class="font-bold text-slate-800">#{{ pendingPaymentStatusChange.order.orderId }}</span>
+          <span :class="getStatusClass(pendingPaymentStatusChange.oldPaymentStatus)" class="inline-block font-bold rounded-full px-3 py-0.5 text-xs border mx-1">{{ pendingPaymentStatusChange.oldPaymentStatus }}</span>
+          →
+          <span :class="getStatusClass(pendingPaymentStatusChange.newPaymentStatus)" class="inline-block font-bold rounded-full px-3 py-0.5 text-xs border mx-1">{{ pendingPaymentStatusChange.newPaymentStatus }}</span>
+        </p>
+        <div class="flex gap-3 justify-center">
+          <button @click="cancelPaymentStatusChange" class="px-5 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-xl transition-colors">Hủy</button>
+          <button @click="confirmPaymentStatusChange" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl shadow hover:bg-blue-700 transition-colors">Xác nhận</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -386,50 +489,167 @@ const {
   pendingCount, processingCount
 } = storeToRefs(orderStore)
 
-// --- Computed phân trang ---
+// --- Pagination ---
 const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value) || 1)
 const startEntry = computed(() => totalCount.value === 0 ? 0 : (page.value - 1) * pageSize.value + 1)
 const endEntry   = computed(() => Math.min(page.value * pageSize.value, totalCount.value))
 
-// --- Local UI State ---
 const loading = ref(false)
 const error = ref(null)
-const updatingId = ref(null)
-const selectedOrder = ref(null)
+const updatingId = ref(null) // ID của đơn hàng đang trong quá trình gọi API cập nhật
+const selectedOrder = ref(null) // Đơn hàng đang hiển thị trong Modal
 
-// --- Methods ---
+// --- Dialogs (Xác nhận) ---
+const showStatusDialog = ref(false)
+const pendingStatusChange = ref(null)
+
+const showPaymentStatusDialog = ref(false)
+const pendingPaymentStatusChange = ref(null)
+
+// --- Thứ tự trạng thái (Để chặn việc cập nhật ngược) ---
+const statusOrder = {
+  Pending: 1,
+  Processing: 2,
+  Shipped: 3,
+  Delivered: 4,
+  Cancelled: 5
+}
+
+// ================= LOAD DATA =================
+
 const loadData = async () => {
   loading.value = true
   error.value = null
   try {
     await orderStore.fetchOrders()
   } catch (err) {
-    error.value = err.message || "Failed to load orders."
+    error.value = err.message || "Không thể tải danh sách đơn hàng."
   } finally {
     loading.value = false
   }
 }
 
-const handleStatusChange = async (order) => {
-  updatingId.value = order.orderId
-  try {
-    await orderStore.updateOrderStatus(order.orderId, order.status)
-  } catch (err) {
-    alert("Update failed: " + err.message)
-    loadData()
-  } finally {
-    updatingId.value = null
-  }
-}
+// ================= VIEW DETAILS =================
 
 const viewOrderDetails = async (orderId) => {
   try {
     const data = await orderStore.fetchOrderById(orderId)
+    
+    // Khởi tạo các giá trị gốc để so sánh và phục hồi nếu cần
+    data._originalStatus = data.status
+    data._originalPaymentStatus = data.paymentStatus
+    
     selectedOrder.value = data
   } catch (err) {
-    alert("Could not load order details.")
+    alert("Không thể tải chi tiết đơn hàng này.")
   }
 }
+
+// ================= LOGIC THAY ĐỔI TRẠNG THÁI ĐƠN HÀNG =================
+
+const handleStatusChange = (orderInModal) => {
+  const oldStatus = orderInModal._originalStatus
+  const newStatus = orderInModal.status
+
+  // 1. Kiểm tra không cho phép quay lại trạng thái trước đó
+  if (statusOrder[newStatus] < statusOrder[oldStatus]) {
+    alert("Không thể quay lại trạng thái trước đó (VD: Đã giao không thể quay về Chờ xử lý)!")
+    orderInModal.status = oldStatus // Revert UI
+    return
+  }
+
+  if (newStatus === oldStatus) return
+
+  // 2. Mở dialog xác nhận
+  pendingStatusChange.value = { order: orderInModal, oldStatus, newStatus }
+  showStatusDialog.value = true
+}
+
+const confirmStatusChange = async () => {
+  const { order, oldStatus, newStatus } = pendingStatusChange.value
+  showStatusDialog.value = false
+  updatingId.value = order.orderId
+
+  try {
+    await orderStore.updateOrderStatus(order.orderId, newStatus)
+    
+    // Cập nhật trạng thái gốc trong Modal
+    order._originalStatus = newStatus
+    
+    // ĐỒNG BỘ: Cập nhật lại dòng đơn hàng tương ứng ngoài danh sách chính
+    const orderInList = orders.value.find(o => o.orderId === order.orderId)
+    if (orderInList) {
+      orderInList.status = newStatus
+    }
+  } catch (err) {
+    alert("Cập nhật thất bại: " + err.message)
+    order.status = oldStatus // Rollback UI trong modal
+  } finally {
+    updatingId.value = null
+    pendingStatusChange.value = null
+  }
+}
+
+const cancelStatusChange = () => {
+  if (pendingStatusChange.value) {
+    pendingStatusChange.value.order.status = pendingStatusChange.value.oldStatus
+  }
+  showStatusDialog.value = false
+  pendingStatusChange.value = null
+}
+
+// ================= LOGIC THAY ĐỔI THANH TOÁN =================
+
+const handlePaymentStatusChange = (orderInModal) => {
+  const oldPaymentStatus = orderInModal._originalPaymentStatus
+  const newPaymentStatus = orderInModal.paymentStatus
+
+  if (newPaymentStatus === oldPaymentStatus) return
+
+  pendingPaymentStatusChange.value = {
+    order: orderInModal,
+    oldPaymentStatus,
+    newPaymentStatus
+  }
+  showPaymentStatusDialog.value = true
+}
+
+const confirmPaymentStatusChange = async () => {
+  if (!pendingPaymentStatusChange.value) return
+  const { order, oldPaymentStatus, newPaymentStatus } = pendingPaymentStatusChange.value
+
+  showPaymentStatusDialog.value = false
+  updatingId.value = order.orderId
+
+  try {
+    await orderStore.updatePaymentStatus(order.orderId, newPaymentStatus)
+    
+    // Cập nhật trạng thái gốc trong Modal
+    order._originalPaymentStatus = newPaymentStatus
+    
+    // ĐỒNG BỘ: Cập nhật lại ngoài danh sách chính
+    const orderInList = orders.value.find(o => o.orderId === order.orderId)
+    if (orderInList) {
+      orderInList.paymentStatus = newPaymentStatus
+    }
+  } catch (err) {
+    alert("Cập nhật thanh toán thất bại: " + err.message)
+    order.paymentStatus = oldPaymentStatus
+  } finally {
+    updatingId.value = null
+    pendingPaymentStatusChange.value = null
+  }
+}
+
+const cancelPaymentStatusChange = () => {
+  if (pendingPaymentStatusChange.value) {
+    pendingPaymentStatusChange.value.order.paymentStatus = pendingPaymentStatusChange.value.oldPaymentStatus
+  }
+  showPaymentStatusDialog.value = false
+  pendingPaymentStatusChange.value = null
+}
+
+// ================= SEARCH & FILTERS =================
 
 let timeout = null
 const debouncedFetch = () => {
@@ -444,6 +664,8 @@ const resetAndFetch = () => {
   orderStore.resetFilters()
   loadData()
 }
+
+// ================= HELPER FUNCTIONS =================
 
 const formatDate = (dateString, includeTime = false) => {
   if (!dateString) return 'N/A'
@@ -460,18 +682,37 @@ const getStatusClass = (status) => {
     case 'processing': return 'bg-blue-100 text-blue-700 border-blue-200'
     case 'shipped':    return 'bg-purple-100 text-purple-700 border-purple-200'
     case 'delivered':  return 'bg-green-100 text-green-700 border-green-200'
-    case 'cancelled':
-    case 'cancel':     return 'bg-red-100 text-red-700 border-red-200'
+    case 'cancelled':  return 'bg-red-100 text-red-700 border-red-200'
     default:           return 'bg-slate-100 text-slate-600 border-slate-200'
   }
 }
 
+const getPaymentStatusClass = (status) => {
+  switch (String(status).toLowerCase()) {
+    case 'paid':   return 'bg-green-50 text-green-600 border-green-200'
+    case 'unpaid': return 'bg-red-50 text-red-600 border-red-200'
+    default:       return 'bg-slate-100 text-slate-600 border-slate-200'
+  }
+}
+
+// Map chuyển đổi ngôn ngữ cho Trạng thái đơn hàng
+const statusLabels = {
+  Pending: 'Chờ xử lý',
+  Processing: 'Đang xử lý',
+  Shipped: 'Đang giao',
+  Delivered: 'Đã giao',
+  Cancelled: 'Đã hủy'
+}
+
+// Map chuyển đổi ngôn ngữ cho Trạng thái thanh toán
+const paymentStatusLabels = {
+  Paid: 'Đã thanh toán',
+  Unpaid: 'Chưa thanh toán'
+}
+
+// Hàm helper để lấy nhãn tiếng Việt
+const getStatusLabel = (status) => statusLabels[status] || status
+const getPaymentStatusLabel = (status) => paymentStatusLabels[status] || status
+
 onMounted(loadData)
 </script>
-
-<style scoped>
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
-</style>
