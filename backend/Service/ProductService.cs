@@ -21,6 +21,8 @@ namespace pbl3_web_api.Service
         Task<ProductDetailResponse?> GetProductByIdAsync(int id);
         Task<int> AddProductAsync(AddProductRequest request);
         Task DeleteProductAsync(int id);
+        Task<List<ProductsResponse>> GetDeletedProductsAsync();
+        Task RestoreProductAsync(int id);
         Task EditProductAsync(int id, EditProductRequest request);
     }
 
@@ -151,6 +153,42 @@ namespace pbl3_web_api.Service
 
             await _productRepo.SaveAsync();
         }
+         
+        public async Task<List<ProductsResponse>> GetDeletedProductsAsync()
+        {
+            IQueryable<Product> products = _productRepo.GetProductsQuery();
+
+            products = products.Where(p => !p.IsActive);
+
+            var deletedProducts = await products.Select(p => new ProductsResponse
+            {
+                productId = p.ProductId,
+                productName = p.ProductName,
+                productCode = p.ProductCode,
+                price = p.Price,
+                stockQuantity = p.StockQuantity,
+                imageURL = p.ImageUrl,
+                categoryName = p.Category!.CategoryName,
+                brandName = p.Brand!.BrandName,
+                isActive = p.IsActive,
+                specifications = p.Specifications
+            })
+            .ToListAsync();
+
+            return deletedProducts;
+        }
+
+        public async Task RestoreProductAsync(int id)
+        {
+            ValidateId(id, "ProductId");
+
+            var product = await _productRepo.GetProductByIdAsync(id)
+                ?? throw new KeyNotFoundException("Product Not Found");
+
+            product.IsActive = true;
+
+            await _productRepo.SaveAsync();
+        }
 
         private IQueryable<Product> ApplyFilters(
            IQueryable<Product> query,
@@ -160,7 +198,7 @@ namespace pbl3_web_api.Service
            decimal? minPrice,
            decimal? maxPrice)
         {
-            //query = query.Where(p => p.IsActive);
+            query = query.Where(p => p.IsActive);
             query = query.OrderBy(p => Guid.NewGuid());
             if (!string.IsNullOrWhiteSpace(search))
             {
