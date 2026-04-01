@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.DTO.Order;
 using pbl3_web_api.Entities;
@@ -16,7 +17,8 @@ namespace pbl3_web_api.Service
             string? status,
             string? paymentStatus,
             DateTime? fromDate,
-            DateTime? toDate);
+            DateTime? toDate,
+            string? sortOrder);
         Task<AdminOrderDetailResponse> GetOrderDetailAsync(int orderId);
         Task UpdateOrderStatusAsync(int orderId, string newStatus);
         Task UpdatePaymentStatusAsync(int orderId, string newStatus);
@@ -45,11 +47,12 @@ namespace pbl3_web_api.Service
             string? status,
             string? paymentStatus,
             DateTime? fromDate,
-            DateTime? toDate)
+            DateTime? toDate,
+            string? sortOrder)
         {
             var baseQuery = _repo.GetOrdersQuery();
 
-            var filteredQuery = ApplyFilters(baseQuery, search, status, paymentStatus, fromDate, toDate);
+            var filteredQuery = ApplyFilters(baseQuery, search, status, paymentStatus, fromDate, toDate, sortOrder);
 
             var totalCount = await filteredQuery.CountAsync();
 
@@ -186,7 +189,8 @@ namespace pbl3_web_api.Service
             string? status,
             string? paymentStatus,
             DateTime? fromDate,
-            DateTime? toDate)
+            DateTime? toDate,
+            string? sortOrder)
         {
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -195,7 +199,8 @@ namespace pbl3_web_api.Service
 
                 query = query.Where(p =>
                     EF.Functions.Like(p.OrderId.ToString(), keyword) ||
-                    EF.Functions.Like(p.UserId.ToString(), keyword)
+                    EF.Functions.Like(p.UserId.ToString(), keyword) ||
+                    EF.Functions.Like(p.User.PhoneNumber, keyword)
                 );
             }
 
@@ -210,6 +215,16 @@ namespace pbl3_web_api.Service
 
             if (toDate.HasValue)
                 query = query.Where(o => o.OrderDate <= toDate.Value);
+
+            if (!string.IsNullOrEmpty(sortOrder))
+            {
+                query = sortOrder switch
+                {
+                    "asc" => query.OrderBy(p => p.OrderDate),
+                    "desc" => query.OrderByDescending(p => p.OrderDate),
+                    _ => query
+                };
+            }
 
             return query;
         }

@@ -35,11 +35,12 @@ namespace pbl3_web_api.Controllers
             string? status = null,
             string? paymentStatus = null,
             DateTime? fromDate = null,
-            DateTime? toDate = null)
+            DateTime? toDate = null,
+            string? sortOrder = null)
         {
             try
             {
-                var (data, totalCount) = await _service.GetOrdersAsync(page, pageSize, search, status, paymentStatus, fromDate, toDate);
+                var (data, totalCount) = await _service.GetOrdersAsync(page, pageSize, search, status, paymentStatus, fromDate, toDate, sortOrder);
                 return Ok(new        
                 {
                     data = data,
