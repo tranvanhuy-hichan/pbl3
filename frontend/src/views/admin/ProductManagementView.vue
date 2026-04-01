@@ -4,8 +4,7 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h2 class="text-2xl font-bold text-blue-900 tracking-tight">Quản lý sản phẩm</h2>
-        <p class="text-sm text-blue-700/70">Quản lý danh sách, tìm kiếm và lọc sản phẩm hệ thống</p>
+        <h2 class="text-2xl font-bold text-blue-900 tracking-tight">Quản lý danh sách, tìm kiếm và lọc sản phẩm hệ thống</h2>
       </div>
       <div class="flex items-center gap-2">
         <router-link to="/admin/products/new" 
@@ -37,16 +36,16 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
           </div>
-          <input type="text" :value="productStore.searchQuery" @input="onSearchInput" placeholder="Tìm theo tên hoặc mã..." 
+          <input type="text" :value="adminProductStore.searchQuery" @input="onSearchInput" placeholder="Tìm theo tên hoặc mã sản phẩm" 
             class="w-full pl-10 pr-4 py-2 bg-blue-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"/>
         </div>
 
         <!-- Category -->
         <div class="w-full sm:w-44 relative">
-          <select :value="productStore.selectedCategory ?? ''" @change="onCategoryChange" 
+          <select :value="adminProductStore.selectedCategory ?? ''" @change="onCategoryChange" 
             class="w-full pl-3 pr-10 py-2 bg-blue-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
             <option value="">Tất cả danh mục</option>
-            <option v-for="cat in productStore.categories" :key="cat.categoryId" :value="cat.categoryId">{{ cat.categoryName }}</option>
+            <option v-for="cat in adminProductStore.categories" :key="cat.categoryId" :value="cat.categoryId">{{ cat.categoryName }}</option>
           </select>
           <!-- Icon Mũi tên đổ xuống -->
           <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-blue-400">
@@ -58,10 +57,10 @@
 
         <!-- Brand -->
         <div class="w-full sm:w-44 relative">
-          <select :value="productStore.selectedBrand ?? ''" @change="onBrandChange" 
+          <select :value="adminProductStore.selectedBrand ?? ''" @change="onBrandChange" 
             class="w-full pl-3 pr-10 py-2 bg-blue-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
             <option value="">Tất cả nhãn hàng</option>
-            <option v-for="brand in productStore.brands" :key="brand.brandId" :value="brand.brandId">{{ brand.brandName }}</option>
+            <option v-for="brand in adminProductStore.brands" :key="brand.brandId" :value="brand.brandId">{{ brand.brandName }}</option>
           </select>
           <!-- Icon Mũi tên đổ xuống -->
           <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-blue-400">
@@ -77,7 +76,7 @@
             <button @click="adjustPrice('min', -500000)" class="p-1.5 hover:bg-blue-100 text-blue-500 rounded-lg transition-colors">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
             </button>
-            <input type="text" :value="productStore.minPrice ?? ''" @input="e => onPriceInput('min', e)" placeholder="Giá từ" class="w-20 py-1 bg-transparent text-xs focus:outline-none text-center font-medium"/>
+            <input type="text" :value="adminProductStore.minPrice ?? ''" @input="e => onPriceInput('min', e)" placeholder="Giá từ" class="w-20 py-1 bg-transparent text-xs focus:outline-none text-center font-medium"/>
             <button @click="adjustPrice('min', 500000)" class="p-1.5 hover:bg-blue-100 text-blue-500 rounded-lg transition-colors">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             </button>
@@ -87,7 +86,7 @@
             <button @click="adjustPrice('max', -500000)" class="p-1.5 hover:bg-blue-100 text-blue-500 rounded-lg transition-colors">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
             </button>
-            <input type="text" :value="productStore.maxPrice ?? ''" @input="e => onPriceInput('max', e)" placeholder="Đến" class="w-20 py-1 bg-transparent text-xs focus:outline-none text-center font-medium"/>
+            <input type="text" :value="adminProductStore.maxPrice ?? ''" @input="e => onPriceInput('max', e)" placeholder="Đến" class="w-20 py-1 bg-transparent text-xs focus:outline-none text-center font-medium"/>
             <button @click="adjustPrice('max', 500000)" class="p-1.5 hover:bg-blue-100 text-blue-500 rounded-lg transition-colors">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             </button>
@@ -104,7 +103,7 @@
 
     <!-- Data Table -->
     <div class="bg-white rounded-2xl shadow-sm border border-blue-200 overflow-hidden flex flex-col">
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto" ref="tableWrapperRef">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-blue-50/50 border-b border-blue-200">
@@ -117,7 +116,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-blue-100">
-            <tr v-for="product in productStore.adminProducts" :key="product.productId" class="hover:bg-blue-50 transition-colors group">
+            <tr v-for="product in adminProductStore.products" :key="product.productId" class="hover:bg-blue-50 transition-colors group">
               <td class="py-4 px-6">
                 <div class="flex items-center gap-5">
                   <div class="w-20 h-20 rounded-xl bg-blue-100 overflow-hidden flex-shrink-0 border border-blue-200 shadow-sm">
@@ -168,26 +167,26 @@
       <div class="px-6 py-4 bg-blue-50 border-t border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="text-sm text-blue-700 font-medium">
           Hiển thị <span class="text-blue-900 font-bold">{{ startEntry }}</span> - <span class="text-blue-900 font-bold">{{ endEntry }}</span> 
-          trong tổng số <span class="text-blue-600 font-bold">{{ productStore.totalCount }}</span> sản phẩm
+          trong tổng số <span class="text-blue-600 font-bold">{{ adminProductStore.totalCount }}</span> sản phẩm
         </div>
         <div class="flex items-center gap-6">
           <div class="flex items-center gap-2">
             <span class="text-xs text-blue-400 font-bold uppercase">Mỗi trang:</span>
-            <select :value="productStore.pageSize" @change="onPageSizeChange" class="bg-white border border-blue-200 rounded-lg px-2 py-1 text-sm font-bold text-blue-700 focus:outline-none">
-              <option :value="12">12</option>
-              <option :value="24">24</option>
+            <select :value="adminProductStore.pageSize" @change="onPageSizeChange" class="bg-white border border-blue-200 rounded-lg px-2 py-1 text-sm font-bold text-blue-700 focus:outline-none">
+              <option :value="20">20</option>
+              <option :value="30">30</option>
               <option :value="48">48</option>
             </select>
           </div>
           <div class="flex items-center bg-white border border-blue-200 rounded-xl p-1 shadow-sm">
-            <button @click="productStore.changePage(productStore.page - 1)" :disabled="productStore.page === 1" class="p-2 rounded-lg hover:bg-blue-50 disabled:opacity-30">
+            <button @click="goToPage(adminProductStore.page - 1)" :disabled="adminProductStore.page === 1" class="p-2 rounded-lg hover:bg-blue-50 disabled:opacity-30">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
             </button>
             <div class="flex items-center px-2 gap-1">
-              <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm font-bold">{{ productStore.page }}</span>
+              <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm font-bold">{{ adminProductStore.page }}</span>
               <span class="text-sm font-bold text-blue-400">/ {{ totalPages }}</span>
             </div>
-            <button @click="productStore.changePage(productStore.page + 1)" :disabled="productStore.page >= totalPages" class="p-2 rounded-lg hover:bg-blue-50 disabled:opacity-30">
+            <button @click="goToPage(adminProductStore.page + 1)" :disabled="adminProductStore.page >= totalPages" class="p-2 rounded-lg hover:bg-blue-50 disabled:opacity-30">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </button>
           </div>
@@ -210,76 +209,90 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, computed } from 'vue'
-  import { useProductStore } from '../../stores/products'
+import { ref, onMounted, computed } from 'vue'
+import { useAdminProductStore } from '../../stores/admin_products'
 
-  const productStore = useProductStore()
-  const showDeleteDialog = ref(false)
-  const productToDelete = ref(null)
+const adminProductStore = useAdminProductStore()
+const showDeleteDialog = ref(false)
+const productToDelete = ref(null)
+const tableWrapperRef = ref(null) // <-- thêm ref cho scroll
 
-  const totalPages = computed(() => Math.ceil(productStore.totalCount / productStore.pageSize) || 1)
-  const startEntry = computed(() => (productStore.page - 1) * productStore.pageSize + 1)
-  const endEntry = computed(() => Math.min(productStore.page * productStore.pageSize, productStore.totalCount))
+const totalPages = computed(() => Math.ceil(adminProductStore.totalCount / adminProductStore.pageSize) || 1)
+const startEntry = computed(() => (adminProductStore.page - 1) * adminProductStore.pageSize + 1)
+const endEntry = computed(() => Math.min(adminProductStore.page * adminProductStore.pageSize, adminProductStore.totalCount))
 
-  const onPageSizeChange = (e) => {
-    productStore.changePageSize(parseInt(e.target.value))
+const onPageSizeChange = (e) => {
+  adminProductStore.changePageSize(parseInt(e.target.value))
+  scrollToTop()
+}
+
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    adminProductStore.changePage(page)
+    scrollToTop()
   }
+}
 
-  const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val)
-
-  const hasFilters = computed(() => {
-    return productStore.searchQuery !== '' || productStore.selectedCategory !== null || 
-          productStore.selectedBrand !== null || productStore.minPrice !== null || productStore.maxPrice !== null
-  })
-
-  let debounceTimeout = null
-  const debounceFetch = (delay = 400) => {
-    clearTimeout(debounceTimeout)
-    debounceTimeout = setTimeout(() => { productStore.fetchAdminProducts() }, delay)
+const scrollToTop = () => {
+  if (tableWrapperRef.value) {
+    tableWrapperRef.value.scrollTo({ top: 0, behavior: 'smooth' })
   }
+}
 
-  const onSearchInput = (e) => { productStore.searchQuery = e.target.value; debounceFetch(500) }
-  
-  const onCategoryChange = (e) => { 
-    const val = e.target.value; 
-    productStore.selectedCategory = val === '' ? null : parseInt(val);
-    productStore.page = 1; productStore.fetchAdminProducts(); 
-  }
+const formatCurrency = (val) =>
+  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val)
 
-  const onBrandChange = (e) => { 
-    const val = e.target.value; 
-    productStore.selectedBrand = val === '' ? null : parseInt(val);
-    productStore.page = 1; productStore.fetchAdminProducts(); 
-  }
+const hasFilters = computed(() => {
+  return adminProductStore.searchQuery !== '' || adminProductStore.selectedCategory !== null || 
+         adminProductStore.selectedBrand !== null || adminProductStore.minPrice !== null || adminProductStore.maxPrice !== null
+})
 
-  const onPriceInput = (type, e) => {
-    const rawValue = e.target.value.replace(/\D/g, '')
-    const numValue = rawValue === '' ? null : parseInt(rawValue)
-    
-    if (type === 'min') productStore.minPrice = numValue
-    else productStore.maxPrice = numValue
-    
-    debounceFetch(800)
-  }
+let debounceTimeout = null
+const debounceFetch = (delay = 400) => {
+  clearTimeout(debounceTimeout)
+  debounceTimeout = setTimeout(() => { adminProductStore.fetchProducts() }, delay)
+}
 
-  const adjustPrice = (type, amount) => {
-    const current = (type === 'min' ? productStore.minPrice : productStore.maxPrice) || 0
-    const newVal = Math.max(0, current + amount)
-    if (type === 'min') productStore.minPrice = newVal; else productStore.maxPrice = newVal
-    debounceFetch(300)
-  }
-  
-  const resetAllFilters = () => {
-    productStore.searchQuery = ''; productStore.selectedCategory = null; productStore.selectedBrand = null;
-    productStore.minPrice = null; productStore.maxPrice = null; productStore.page = 1;
-    productStore.fetchAdminProducts()
-  }
+const onSearchInput = (e) => { adminProductStore.searchQuery = e.target.value; debounceFetch(500) }
 
-  onMounted(() => {
-    productStore.fetchCategories(); 
-    productStore.fetchBrands(); 
-    productStore.fetchAdminProducts()
-  })
+const onCategoryChange = (e) => { 
+  const val = e.target.value; 
+  adminProductStore.selectedCategory = val === '' ? null : parseInt(val);
+  adminProductStore.page = 1; adminProductStore.fetchProducts(); scrollToTop();
+}
+
+const onBrandChange = (e) => { 
+  const val = e.target.value; 
+  adminProductStore.selectedBrand = val === '' ? null : parseInt(val);
+  adminProductStore.page = 1; adminProductStore.fetchProducts(); scrollToTop();
+}
+
+const onPriceInput = (type, e) => {
+  const rawValue = e.target.value.replace(/\D/g, '')
+  const numValue = rawValue === '' ? null : parseInt(rawValue)
+  if (type === 'min') adminProductStore.minPrice = numValue
+  else adminProductStore.maxPrice = numValue
+  debounceFetch(800)
+}
+
+const adjustPrice = (type, amount) => {
+  const current = (type === 'min' ? adminProductStore.minPrice : adminProductStore.maxPrice) || 0
+  const newVal = Math.max(0, current + amount)
+  if (type === 'min') adminProductStore.minPrice = newVal; else adminProductStore.maxPrice = newVal
+  debounceFetch(300)
+}
+
+const resetAllFilters = () => {
+  adminProductStore.searchQuery = ''; adminProductStore.selectedCategory = null; adminProductStore.selectedBrand = null;
+  adminProductStore.minPrice = null; adminProductStore.maxPrice = null; adminProductStore.page = 1;
+  adminProductStore.fetchProducts(); scrollToTop();
+}
+
+onMounted(() => {
+  adminProductStore.fetchCategories(); 
+  adminProductStore.fetchBrands(); 
+  adminProductStore.fetchProducts()
+})
 
 const confirmDelete = (product) => { 
   productToDelete.value = product; 
@@ -291,7 +304,7 @@ const executeDelete = async () => {
     const idToDelete = productToDelete.value.productId || productToDelete.value.id;
     if (!idToDelete) return;
     try {
-      await productStore.deleteProduct(idToDelete);
+      await adminProductStore.deleteProduct(idToDelete);
       showDeleteDialog.value = false;
     } catch (error) {
       alert("Lỗi khi xóa sản phẩm!");

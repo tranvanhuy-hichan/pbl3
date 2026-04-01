@@ -5,8 +5,7 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Quản lý đơn hàng</h2>
-        <p class="text-slate-500 text-sm mt-1">Quản lý và theo dõi tất cả đơn hàng của khách hàng</p>
+        <h2 class="text-2xl font-bold text-blue-900 tracking-tight">Quản lý và theo dõi tất cả đơn hàng</h2>
       </div>
       <div class="flex gap-2">
         <div class="bg-amber-50 text-amber-700 px-3 py-1.5 rounded-lg text-sm border border-amber-200 shadow-sm flex items-center gap-2">

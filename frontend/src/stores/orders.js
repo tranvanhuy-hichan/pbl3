@@ -1,4 +1,3 @@
-// src/stores/orders.js
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import axios from 'axios'
@@ -44,7 +43,7 @@ export const useOrderStore = defineStore('orders', () => {
       }
 
       const res = await api.get('/orders', { params })
-      
+
       if (res.data && Array.isArray(res.data.data)) {
         orders.value = res.data.data
         totalCount.value = res.data.totalCount ?? 0
@@ -110,15 +109,29 @@ export const useOrderStore = defineStore('orders', () => {
   }
 
   const onSortChange = () => {
-  orderStore.page = 1 
-  loadData()
-}
+    orderStore.page = 1
+    loadData()
+  }
 
   return {
-    orders, totalCount, page, pageSize,
-    searchQuery, statusFilter, paymentStatusFilter,
-    fromDateFilter, toDateFilter, sortOrder,
-    pendingCount, processingCount,
-    fetchOrders, fetchOrderById, updateOrderStatus, resetFilters, changePage, updatePaymentStatus, onSortChange
+    orders, 
+    totalCount, 
+    page, 
+    pageSize,
+    searchQuery, 
+    statusFilter, 
+    paymentStatusFilter,
+    fromDateFilter, 
+    toDateFilter, 
+    sortOrder,
+    pendingCount, 
+    processingCount,
+    fetchOrders, 
+    fetchOrderById,
+    updateOrderStatus, 
+    resetFilters, 
+    changePage, 
+    updatePaymentStatus, 
+    onSortChange
   }
 })
