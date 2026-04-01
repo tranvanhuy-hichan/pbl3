@@ -18,6 +18,15 @@ namespace pbl3_web_api.Service
             int? brandId,
             decimal? minPrice,
             decimal? maxPrice);
+        Task<(IEnumerable<ProductsResponse> products, int totalCount)> AdminGetProductsAsync(
+            int page,
+            int pageSize,
+            string? search,
+            int? categoryId,
+            int? brandId,
+            decimal? minPrice,
+            decimal? maxPrice);
+
         Task<ProductDetailResponse?> GetProductByIdAsync(int id);
         Task<int> AddProductAsync(AddProductRequest request);
         Task DeleteProductAsync(int id);
@@ -47,6 +56,26 @@ namespace pbl3_web_api.Service
             var baseQuery = _productRepo.GetProductsQuery();
 
             var filteredQuery = ApplyFilters(baseQuery, search, categoryId, brandId, minPrice, maxPrice);
+
+            var totalCount = await filteredQuery.CountAsync();
+
+            var products = await GetPagedProductsAsync(filteredQuery, page, pageSize);
+
+            return (products, totalCount);
+        }
+
+        public async Task<(IEnumerable<ProductsResponse> products, int totalCount)> AdminGetProductsAsync(
+            int page,
+            int pageSize,
+            string? search,
+            int? categoryId,
+            int? brandId,
+            decimal? minPrice,
+            decimal? maxPrice)
+        {
+            var baseQuery = _productRepo.GetProductsQuery();
+
+            var filteredQuery = AdminApplyFilters(baseQuery, search, categoryId, brandId, minPrice, maxPrice);
 
             var totalCount = await filteredQuery.CountAsync();
 
@@ -210,6 +239,45 @@ namespace pbl3_web_api.Service
                     (p.Specifications != null && p.Specifications.ToLower().Contains(keyword)) ||
                     (p.Brand != null && p.Brand.BrandName.ToLower().Contains(keyword)) ||
                     (p.Category != null && p.Category.CategoryName.ToLower().Contains(keyword))
+                );
+            }
+
+            if (categoryId.HasValue)
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+
+            if (brandId.HasValue)
+                query = query.Where(p => p.BrandId == brandId.Value);
+
+            if (minPrice.HasValue)
+                query = query.Where(p => p.Price >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                query = query.Where(p => p.Price <= maxPrice.Value);
+
+            return query;
+        }
+
+        private IQueryable<Product> AdminApplyFilters(
+           IQueryable<Product> query,
+           string? search,
+           int? categoryId,
+           int? brandId,
+           decimal? minPrice,
+           decimal? maxPrice)
+        {
+            query = query.Where(p => p.IsActive);
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var keyword = search.ToLower();
+
+                query = query.Where(p =>
+                    p.ProductName.ToLower().Contains(keyword) ||
+                    (p.Description != null && p.Description.ToLower().Contains(keyword)) ||
+                    (p.Specifications != null && p.Specifications.ToLower().Contains(keyword)) ||
+                    (p.Brand != null && p.Brand.BrandName.ToLower().Contains(keyword)) ||
+                    (p.Category != null && p.Category.CategoryName.ToLower().Contains(keyword)) ||
+                    EF.Functions.Like(p.ProductId.ToString(), keyword) ||
+                    EF.Functions.Like(p.ProductCode, keyword)
                 );
             }
 

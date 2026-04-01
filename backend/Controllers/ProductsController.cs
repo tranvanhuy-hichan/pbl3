@@ -77,6 +77,36 @@ namespace pbl3_web_api.Controllers
             }
         }
 
+        [HttpGet("admin")]
+        public async Task<IActionResult> AdminGetProducts(
+            int page = 1,
+            int pageSize = 12,
+            string? search = null,
+            int? categoryId = null,
+            int? brandId = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null)
+        {
+            try
+            {
+                var result = await _service.AdminGetProductsAsync(page, pageSize, search, categoryId, brandId, minPrice, maxPrice);
+
+                var data = result.products;
+
+                return Ok(new
+                {
+                    data,
+                    totalCount = result.totalCount,
+                    page,
+                    pageSize
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpGet("deleted")]
         public async Task<ActionResult> GetDeletedProducts()
         {
