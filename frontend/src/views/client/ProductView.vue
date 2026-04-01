@@ -8,7 +8,7 @@
 
         <!-- Search -->
         <input
-          :value="productStore.searchQuery"
+          :value="clientProductStore.searchQuery"
           @input="onSearchInput"
           placeholder="Tìm sản phẩm..."
           class="flex-1 min-w-[220px] px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
@@ -16,13 +16,13 @@
 
         <!-- Category -->
         <select
-          :value="productStore.selectedCategory ?? ''"
+          :value="clientProductStore.selectedCategory ?? ''"
           @change="onCategoryChange"
           class="px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
         >
           <option value="">Danh mục</option>
           <option
-            v-for="c in productStore.categories"
+            v-for="c in clientProductStore.categories"
             :key="c.categoryId"
             :value="c.categoryId"
           >
@@ -32,13 +32,13 @@
 
         <!-- Brand -->
         <select
-          :value="productStore.selectedBrand ?? ''"
+          :value="clientProductStore.selectedBrand ?? ''"
           @change="onBrandChange"
           class="px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
         >
           <option value="">Nhãn hàng</option>
           <option
-            v-for="b in productStore.brands"
+            v-for="b in clientProductStore.brands"
             :key="b.brandId"
             :value="b.brandId"
           >
@@ -48,14 +48,14 @@
 
         <!-- Price -->
         <input
-          :value="productStore.minPrice ?? ''"
+          :value="clientProductStore.minPrice ?? ''"
           @input="e => onPriceInput('min', e)"
           placeholder="Giá từ"
           class="w-28 px-2 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
         />
 
         <input
-          :value="productStore.maxPrice ?? ''"
+          :value="clientProductStore.maxPrice ?? ''"
           @input="e => onPriceInput('max', e)"
           placeholder="Đến"
           class="w-28 px-2 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
@@ -73,11 +73,12 @@
       </div>
       
       <!-- Product Grid -->
-      <div v-if="productStore.products.length > 0"
-          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div v-if="clientProductStore.products.length > 0"
+        ref="productGridRef"
+        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
         <ProductCard
-          v-for="p in productStore.products"
+          v-for="p in clientProductStore.products"
           :key="p.productId"
           :product="mapProduct(p)"
         />
@@ -97,20 +98,20 @@
       <div class="flex justify-center items-center gap-4 mt-6">
 
         <button
-          @click="() => { productStore.changePage(productStore.page - 1); window.scrollTo(0, 0) }"
-          :disabled="productStore.page === 1"
+          @click="goPrevPage"
+          :disabled="clientProductStore.page === 1"
           class="px-4 py-2 bg-white border border-blue-300 rounded-lg disabled:opacity-30 hover:bg-blue-100 transition-colors"
         >
           Prev
         </button>
 
         <span class="font-bold text-blue-700">
-          {{ productStore.page }} / {{ totalPages }}
+          {{ clientProductStore.page }} / {{ totalPages }}
         </span>
 
         <button
-          @click="() => { productStore.changePage(productStore.page + 1); window.scrollTo(0, 0) }"
-          :disabled="productStore.page >= totalPages"
+          @click="goNextPage"
+          :disabled="clientProductStore.page >= totalPages"
           class="px-4 py-2 bg-white border border-blue-300 rounded-lg disabled:opacity-30 hover:bg-blue-100 transition-colors"
         >
           Next
@@ -125,14 +126,16 @@
 
 <script setup>
 import { onMounted, computed } from 'vue'
-import { useProductStore } from '@/stores/products'
+import { useClientProductStore } from '@/stores/client_products'
 import ProductCard from '@/components/ProductCard.vue'
+import { ref } from 'vue'
 
-const productStore = useProductStore()
+const clientProductStore = useClientProductStore()
+const productGridRef = ref(null)
 
 // pagination
 const totalPages = computed(() =>
-  Math.ceil(productStore.totalCount / productStore.pageSize) || 1
+  Math.ceil(clientProductStore.totalCount / clientProductStore.pageSize) || 1
 )
 
 // debounce
@@ -140,54 +143,54 @@ let timeout = null
 const debounceFetch = () => {
   clearTimeout(timeout)
   timeout = setTimeout(() => {
-    productStore.fetchProducts()
+    clientProductStore.fetchProducts()
   }, 400)
 }
 
 // handlers
 const onSearchInput = (e) => {
-  productStore.searchQuery = e.target.value
+  clientProductStore.searchQuery = e.target.value
   debounceFetch()
 }
 
 const onCategoryChange = (e) => {
-  productStore.selectedCategory = e.target.value || null
-  productStore.page = 1
-  productStore.fetchProducts()
+  clientProductStore.selectedCategory = e.target.value || null
+  clientProductStore.page = 1
+  clientProductStore.fetchProducts()
 }
 
 const onBrandChange = (e) => {
-  productStore.selectedBrand = e.target.value || null
-  productStore.page = 1
-  productStore.fetchProducts()
+  clientProductStore.selectedBrand = e.target.value || null
+  clientProductStore.page = 1
+  clientProductStore.fetchProducts()
 }   
 
 const onPriceInput = (type, e) => {
   const value = e.target.value ? parseInt(e.target.value) : null
-  if (type === 'min') productStore.minPrice = value
-  else productStore.maxPrice = value
+  if (type === 'min') clientProductStore.minPrice = value
+  else clientProductStore.maxPrice = value
 
   debounceFetch()
 }
 
 const resetFilters = () => {
-  productStore.searchQuery = ''
-  productStore.selectedCategory = null
-  productStore.selectedBrand = null
-  productStore.minPrice = null
-  productStore.maxPrice = null
-  productStore.page = 1
-  productStore.fetchProducts()
+  clientProductStore.searchQuery = ''
+  clientProductStore.selectedCategory = null
+  clientProductStore.selectedBrand = null
+  clientProductStore.minPrice = null
+  clientProductStore.maxPrice = null
+  clientProductStore.page = 1
+  clientProductStore.fetchProducts()
 }
 
 // check filter
 const hasFilters = computed(() => {
   return (
-    productStore.searchQuery ||
-    productStore.selectedCategory ||
-    productStore.minPrice ||
-    productStore.maxPrice ||
-    productStore.selectedBrand
+    clientProductStore.searchQuery ||
+    clientProductStore.selectedCategory ||
+    clientProductStore.minPrice ||
+    clientProductStore.maxPrice ||
+    clientProductStore.selectedBrand
   )
 })
 
@@ -206,9 +209,30 @@ const mapProduct = (p) => ({
 
 // init
 onMounted(() => {
-  productStore.fetchProducts()
-  productStore.fetchCategories()
-  productStore.fetchBrands()
+  clientProductStore.fetchProducts()
+  clientProductStore.fetchCategories()
+  clientProductStore.fetchBrands()
 })
+
+
+const goPrevPage = () => {
+  if (clientProductStore.page > 1) {
+    clientProductStore.changePage(clientProductStore.page - 1)
+    scrollToTopGrid()
+  }
+}
+
+const goNextPage = () => {
+  if (clientProductStore.page < totalPages.value) {
+    clientProductStore.changePage(clientProductStore.page + 1)
+    scrollToTopGrid()
+  }
+}
+
+const scrollToTopGrid = () => {
+  if (productGridRef.value) {
+    productGridRef.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
 
 </script>

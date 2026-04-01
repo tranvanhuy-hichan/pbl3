@@ -29,43 +29,43 @@ const router = createRouter({
           path: '',
           name: 'home',
           component: HomeView,
-          meta: { title: 'Home' }
+          meta: { title: 'Trang chủ' }
         },
         {
           path: 'product/:id',
           name: 'product-detail',
           component: ProductDetailView,
-          meta: { title: 'Product Details' }
+          meta: { title: 'Chi tiết sản phẩm' }
         },
         {
           path: 'cart',
           name: 'cart',
           component: CartView,
-          meta: { title: 'Shopping Cart' }
+          meta: { title: 'Giỏ hàng' }
         },
         {
           path: 'checkout',
           name: 'checkout',
           component: CheckoutView,
-          meta: { title: 'Checkout' }
+          meta: { title: 'Thanh toán' }
         },
         {
           path: 'login',
           name: 'login',
           component: LoginView,
-          meta: { title: 'Login' }
+          meta: { title: 'Đăng nhập' }
         },
         {
           path: 'register',
           name: 'register',
           component: RegisterView,
-          meta: { title: 'Register' }
+          meta: { title: 'Đăng ký' }
         }, 
         {
           path: 'products',
           name: 'products',
           component: ProductView,
-          meta: { title: 'Products' }
+          meta: { title: 'Sản phẩm' }
         }
     
       ]
@@ -78,54 +78,55 @@ const router = createRouter({
           path: '',
           name: 'admin-dashboard',
           component: DashboardView,
-          meta: { title: 'Dashboard' }
+          meta: { title: 'Thống kê' }
         },
         {
           path: 'products',
           name: 'admin-products',
           component: ProductManagementView,
-          meta: { title: 'Product Management' }
+          meta: { title: 'Quản lý sản phẩm' }
         },
         {
           path: 'products/new',
           name: 'admin-product-add',
           component: ProductFormView,
-          meta: { title: 'Add Product' }
+          meta: { title: 'Thêm sản phẩm' }
         },
         {
           path: 'products/:id/edit',
           name: 'admin-product-edit',
           component: ProductFormView,
-          meta: { title: 'Edit Product' }
+          meta: { title: 'Sửa thông tin sản phẩm' }
         },
         {
           path: 'brands',
           name: 'admin-brands',
           component: BrandManagementView,
-          meta: { title: 'Brand Management' }
+          meta: { title: 'Quản lý nhãn hàng' }
         },
         {
           path: 'categories',
           name: 'admin-categories',
           component: CategoryManagementView,
-          meta: { title: 'Category Management' }
+          meta: { title: 'Quản lý danh mục' }
         },
         {
           path: 'users',
           name: 'admin-users',
           component: UserManagementView,
-          meta: { title: 'User Management' }
+          meta: { title: 'Quản lý người dùng' }
         },
         {
           path: 'orders',
           name: 'admin-orders',
           component: AdminOrderManagementView,
-          meta: { title: 'Order Management' }
+          meta: { title: 'Quản lý đơn hàng' }
         },
         {
         path: '/admin/products/trash',
         name: 'ProductTrash',
-        component: () => import('@/views/admin/ProductTrashView.vue')
+        component: () => import('@/views/admin/ProductTrashView.vue'),
+        meta: { title: 'Sản phẩm đã xóa' }
       }
       ]
     }

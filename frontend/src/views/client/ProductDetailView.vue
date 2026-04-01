@@ -87,7 +87,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { useProductStore } from '@/stores/products'
+import { useClientProductStore } from '@/stores/client_products'
 import { useCartStore } from '@/stores/cart'
 
 const cartStore = useCartStore()

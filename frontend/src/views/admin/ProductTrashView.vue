@@ -45,9 +45,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useProductStore } from '../../stores/products'
+import { useAdminProductStore } from '../../stores/admin_products'
 
-const productStore = useProductStore()
+const productStore = useAdminProductStore()
 const deletedProducts = ref([])
 
 const fetchDeletedProducts = async () => {

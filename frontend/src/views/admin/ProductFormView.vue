@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-blue-50 pb-20">
     <!-- STICKY HEADER: Nơi đặt các nút hành động chính -->
-    <div class="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 mb-6">
+    <div class="top-0 z-30 bg-blue-50 backdrop-blur-md border-b border-slate-200 mb-6">
       <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
         <div class="flex items-center gap-4">
           <button @click="router.back()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
@@ -18,7 +18,7 @@
             Hủy bỏ
           </button>
           <!-- Nút chính đặt ở góc phải trên cùng - chuẩn UI Dashboard -->
-          <button @click="saveProduct" type="submit" form="product-form"
+          <button type="submit" form="product-form"
             class="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             {{ isEditing ? 'Lưu thay đổi' : 'Đăng bán ngay' }}
@@ -129,11 +129,11 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useProductStore } from '../../stores/products'
+import { useAdminProductStore } from '../../stores/admin_products'
 
 const route = useRoute()
 const router = useRouter()
-const productStore = useProductStore()
+const productStore = useAdminProductStore()
 
 const API_URL = 'https://localhost:7010'
 const isEditing = computed(() => !!route.params.id)
@@ -198,12 +198,21 @@ onMounted(async () => {
 const saveProduct = async () => {
   try {
     const fd = new FormData()
-    Object.keys(formData.value).forEach(key => {
-      if (key !== 'imageFile' && key !== 'imageUrl') fd.append(key, formData.value[key])
-    })
-    if (formData.value.imageFile) fd.append('ImageFile', formData.value.imageFile)
+    fd.append("productName", formData.value.productName)
+    fd.append("productCode", formData.value.productCode.toUpperCase())
+    fd.append("categoryId", formData.value.categoryId)
+    fd.append("brandId", formData.value.brandId)
+    fd.append("description", formData.value.description)
+    fd.append("specifications", formData.value.specifications)
+    fd.append("price", formData.value.price)
+    fd.append("stockQuantity", formData.value.stockQuantity)
+
+    if (formData.value.imageFile) {
+      fd.append("ImageFile", formData.value.imageFile)
+    }
 
     if (isEditing.value) await productStore.updateProduct(formData.value.id, fd)
+
     else await productStore.addProduct(fd)
     
     router.push('/admin/products')

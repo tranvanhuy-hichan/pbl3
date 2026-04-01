@@ -56,11 +56,11 @@
 
 <script setup>
 import { onMounted, computed } from 'vue'
-import { useProductStore } from '@/stores/products'
+import { useClientProductStore } from '@/stores/client_products'
 import HeroBanner from '@/components/HeroBanner.vue'
 import ProductCard from '@/components/ProductCard.vue'
 
-const productStore = useProductStore()
+const productStore = useClientProductStore()
 
 onMounted(async () => {
   await productStore.fetchProducts()
