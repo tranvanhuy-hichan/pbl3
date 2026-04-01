@@ -42,21 +42,33 @@
         </div>
 
         <!-- Category -->
-        <div class="w-full sm:w-44">
+        <div class="w-full sm:w-44 relative">
           <select :value="productStore.selectedCategory ?? ''" @change="onCategoryChange" 
-            class="w-full pl-3 pr-8 py-2 bg-blue-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer bg-no-repeat bg-[right_0.7rem_center] bg-[length:1em]">
+            class="w-full pl-3 pr-10 py-2 bg-blue-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
             <option value="">Tất cả danh mục</option>
             <option v-for="cat in productStore.categories" :key="cat.categoryId" :value="cat.categoryId">{{ cat.categoryName }}</option>
           </select>
+          <!-- Icon Mũi tên đổ xuống -->
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-blue-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
         </div>
 
         <!-- Brand -->
-        <div class="w-full sm:w-44">
+        <div class="w-full sm:w-44 relative">
           <select :value="productStore.selectedBrand ?? ''" @change="onBrandChange" 
-            class="w-full pl-3 pr-8 py-2 bg-blue-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer bg-no-repeat bg-[right_0.7rem_center] bg-[length:1em]">
+            class="w-full pl-3 pr-10 py-2 bg-blue-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
             <option value="">Tất cả nhãn hàng</option>
             <option v-for="brand in productStore.brands" :key="brand.brandId" :value="brand.brandId">{{ brand.brandName }}</option>
           </select>
+          <!-- Icon Mũi tên đổ xuống -->
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-blue-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
         </div>
 
         <!-- Price -->
@@ -105,7 +117,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-blue-100">
-            <tr v-for="product in productStore.products" :key="product.id" class="hover:bg-blue-50 transition-colors group">
+            <tr v-for="product in productStore.adminProducts" :key="product.productId" class="hover:bg-blue-50 transition-colors group">
               <td class="py-4 px-6">
                 <div class="flex items-center gap-5">
                   <div class="w-20 h-20 rounded-xl bg-blue-100 overflow-hidden flex-shrink-0 border border-blue-200 shadow-sm">
@@ -223,7 +235,7 @@
   let debounceTimeout = null
   const debounceFetch = (delay = 400) => {
     clearTimeout(debounceTimeout)
-    debounceTimeout = setTimeout(() => { productStore.fetchProducts() }, delay)
+    debounceTimeout = setTimeout(() => { productStore.fetchAdminProducts() }, delay)
   }
 
   const onSearchInput = (e) => { productStore.searchQuery = e.target.value; debounceFetch(500) }
@@ -231,13 +243,13 @@
   const onCategoryChange = (e) => { 
     const val = e.target.value; 
     productStore.selectedCategory = val === '' ? null : parseInt(val);
-    productStore.page = 1; productStore.fetchProducts(); 
+    productStore.page = 1; productStore.fetchAdminProducts(); 
   }
 
   const onBrandChange = (e) => { 
     const val = e.target.value; 
     productStore.selectedBrand = val === '' ? null : parseInt(val);
-    productStore.page = 1; productStore.fetchProducts(); 
+    productStore.page = 1; productStore.fetchAdminProducts(); 
   }
 
   const onPriceInput = (type, e) => {
@@ -256,15 +268,17 @@
     if (type === 'min') productStore.minPrice = newVal; else productStore.maxPrice = newVal
     debounceFetch(300)
   }
-
+  
   const resetAllFilters = () => {
     productStore.searchQuery = ''; productStore.selectedCategory = null; productStore.selectedBrand = null;
     productStore.minPrice = null; productStore.maxPrice = null; productStore.page = 1;
-    productStore.fetchProducts()
+    productStore.fetchAdminProducts()
   }
 
   onMounted(() => {
-    productStore.fetchCategories(); productStore.fetchBrands(); productStore.fetchProducts()
+    productStore.fetchCategories(); 
+    productStore.fetchBrands(); 
+    productStore.fetchAdminProducts()
   })
 
 const confirmDelete = (product) => { 
