@@ -6,8 +6,6 @@ import axios from 'axios'
 // Cấu hình API instance
 const api = axios.create({
   baseURL: 'https://localhost:7010/api',
-  // QUAN TRỌNG: Không để Content-Type là application/json ở đây 
-  // để Axios tự động nhận diện khi nào gửi JSON, khi nào gửi FormData (ảnh)
   headers: {
     'Accept': 'application/json'
   }
@@ -16,6 +14,7 @@ const api = axios.create({
 export const useProductStore = defineStore('products', () => {
   // --- STATE ---
   const products = ref([])
+  const adminProducts = ref([])
   const categories = ref([])
   const brands = ref([])
 
@@ -50,9 +49,28 @@ export const useProductStore = defineStore('products', () => {
       if (maxPrice.value !== null) params.maxPrice = maxPrice.value
 
       const res = await api.get('/products', { params })
-      
-      // API của bạn trả về { data: [...], totalCount: ... }
       products.value = res.data.data
+      totalCount.value = res.data.totalCount
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách sản phẩm:', error)
+    }
+  }
+
+  const fetchAdminProducts = async () => {
+    try {
+      const params = {
+        page: page.value,
+        pageSize: pageSize.value
+      }
+
+      if (searchQuery.value?.trim()) params.search = searchQuery.value
+      if (selectedCategory.value) params.categoryId = selectedCategory.value
+      if (selectedBrand.value) params.brandId = selectedBrand.value
+      if (minPrice.value !== null) params.minPrice = minPrice.value
+      if (maxPrice.value !== null) params.maxPrice = maxPrice.value
+
+      const res = await api.get('/products/admin', { params })
+      adminProducts.value = res.data.data
       totalCount.value = res.data.totalCount
     } catch (error) {
       console.error('Lỗi khi lấy danh sách sản phẩm:', error)
@@ -171,6 +189,7 @@ export const useProductStore = defineStore('products', () => {
 
   return {
     products,
+    adminProducts,
     categories,
     brands,
     totalCount,
@@ -184,6 +203,7 @@ export const useProductStore = defineStore('products', () => {
     totalProducts,
     outOfStockCount,
     fetchProducts,
+    fetchAdminProducts,
     fetchProductById,
     fetchCategories,
     fetchBrands,

@@ -15,6 +15,7 @@ export const useOrderStore = defineStore('orders', () => {
   const pageSize = ref(20)
   const searchQuery = ref('')
   const statusFilter = ref('')
+  const sortOrder = ref('desc')
   const paymentStatusFilter = ref('')
   const fromDateFilter = ref('')
   const toDateFilter = ref('')
@@ -39,11 +40,11 @@ export const useOrderStore = defineStore('orders', () => {
         paymentStatus: paymentStatusFilter.value || undefined,
         fromDate: fromDateFilter.value || undefined,
         toDate: toDateFilter.value || undefined,
+        sortOrder: sortOrder.value || undefined
       }
 
       const res = await api.get('/orders', { params })
-      console.log('Raw API response:', res.data)
-
+      
       if (res.data && Array.isArray(res.data.data)) {
         orders.value = res.data.data
         totalCount.value = res.data.totalCount ?? 0
@@ -108,11 +109,16 @@ export const useOrderStore = defineStore('orders', () => {
     fetchOrders()
   }
 
+  const onSortChange = () => {
+  orderStore.page = 1 
+  loadData()
+}
+
   return {
     orders, totalCount, page, pageSize,
     searchQuery, statusFilter, paymentStatusFilter,
-    fromDateFilter, toDateFilter,
+    fromDateFilter, toDateFilter, sortOrder,
     pendingCount, processingCount,
-    fetchOrders, fetchOrderById, updateOrderStatus, resetFilters, changePage, updatePaymentStatus
+    fetchOrders, fetchOrderById, updateOrderStatus, resetFilters, changePage, updatePaymentStatus, onSortChange
   }
 })
