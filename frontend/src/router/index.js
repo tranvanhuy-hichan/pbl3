@@ -123,7 +123,7 @@ const router = createRouter({
           meta: { title: 'Quản lý đơn hàng' }
         },
         {
-        path: '/admin/products/trash',
+        path: 'products/trash',
         name: 'ProductTrash',
         component: () => import('@/views/admin/ProductTrashView.vue'),
         meta: { title: 'Sản phẩm đã xóa' }
