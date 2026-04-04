@@ -39,8 +39,21 @@
         <router-link 
           v-if="authStore.user?.role === 'Admin'"
           to="/"
-          class="px-3 py-1.5 bg-indigo-500 text-white rounded-lg text-sm font-semibold hover:bg-indigo-600 transition">
-          Trang chủ
+          title="Trang chủ"
+          class="w-9 h-9 flex items-center justify-center 
+                text-indigo-500 hover:text-white 
+                hover:bg-indigo-500 rounded-full transition">
+
+          <svg xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke-width="2" 
+              stroke="currentColor" 
+              class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" 
+              d="M3 9.75L12 4.5l9 5.25M4.5 10.5V19.5a.75.75 0 00.75.75h4.5v-6h4.5v6h4.5a.75.75 0 00.75-.75V10.5" />
+          </svg>
+
         </router-link>
 
         <!-- User Info -->

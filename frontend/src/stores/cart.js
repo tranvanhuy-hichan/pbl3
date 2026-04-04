@@ -8,6 +8,17 @@ const api = axios.create({
   }
 })
 
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
 export const useCartStore = defineStore('cart', () => {
 
   const addToCart = async (productId, quantity) => {
@@ -16,6 +27,7 @@ export const useCartStore = defineStore('cart', () => {
         productId,
         quantity
       })
+      alert('Đã thêm vào giỏ hàng!')
     } catch (err) {
       console.error('Add to cart failed:', err)
       throw err

@@ -63,6 +63,7 @@
 
       <!-- Button -->
       <button
+        v-if="isCustomer"
         class="w-full py-3 bg-transparent border-2 border-blue-500 text-blue-500 font-semibold rounded-lg hover:bg-blue-500 hover:text-white transition-colors"
         @click="addToCart"
       >
@@ -75,13 +76,19 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+import { useCartStore } from '@/stores/cart'
 
+const authStore = useAuthStore() 
+const cartStore = useCartStore()
 const props = defineProps({
   product: {
     type: Object,
     required: true
   }
 })
+
+const isCustomer = computed(() => authStore.user?.role === 'Customer')
 
 const formatCurrency = (val) => {
   if (!val) return '0 ₫'
@@ -94,6 +101,6 @@ const discountedPrice = computed(() => {
 })
 
 const addToCart = () => {
-  console.log(`Added ${props.product.name}`)
+  cartStore.addToCart(props.product.id, 1)
 }
 </script>
