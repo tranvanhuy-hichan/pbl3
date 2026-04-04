@@ -141,7 +141,7 @@ namespace pbl3_web_api.Service
             if (!order.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Only pending orders can be canceled.");
 
-            order.Status = "Cancel";
+            order.Status = "Cancelled";
             order.UpdatedAt = DateTime.UtcNow;
             await _repo.SaveAsync();
         }
@@ -326,7 +326,8 @@ namespace pbl3_web_api.Service
                 productName = i.Product.ProductName,
                 quantity = i.Quantity,
                 unitPrice = i.UnitPrice,
-                subtotal = i.Subtotal
+                subtotal = i.Subtotal,
+                imageURL = i.Product.ImageUrl
             }).ToList();
 
             return new MyOrderDetailResponse
