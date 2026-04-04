@@ -77,9 +77,54 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [HttpGet("admin")]
+        public async Task<IActionResult> AdminGetProducts(
+            int page = 1,
+            int pageSize = 12,
+            string? search = null,
+            int? categoryId = null,
+            int? brandId = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null)
+        {
+            try
+            {
+                var result = await _service.AdminGetProductsAsync(page, pageSize, search, categoryId, brandId, minPrice, maxPrice);
+
+                var data = result.products;
+
+                return Ok(new
+                {
+                    data,
+                    totalCount = result.totalCount,
+                    page,
+                    pageSize
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("deleted")]
+        public async Task<ActionResult> GetDeletedProducts()
+        {
+            try
+            {
+                var products = await _service.GetDeletedProductsAsync();
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+        }
+
+        //[Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> AddProduct(AddProductRequest request)
+        public async Task<IActionResult> AddProduct([FromForm] AddProductRequest request)
         {
             try
             {
@@ -88,7 +133,7 @@ namespace pbl3_web_api.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new {message = ex.Message});
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -96,7 +141,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -119,22 +164,37 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> EditProduct(int id, EditProductRequest request)
+        //[Authorize(Roles = "Admin")]
+        [HttpPut("{id}/restore")]
+        public async Task<IActionResult> RestoreProduct(int id)
         {
             try
             {
-                await _service.EditProductAsync(id, request);
-                return Ok(new { message = "Product updated successfully" });
+                await _service.RestoreProductAsync(id);
+                return Ok(new { message = "Product deleted successfully" });
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
             }
-            catch(ArgumentException ex)
+            catch (ArgumentException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        //[Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditProduct(int id, [FromForm] EditProductRequest request)
+        {
+            try
+            {
+                await _service.EditProductAsync(id, request);
+                return Ok(new { message = "Product updated successfully" });
             }
             catch (Exception ex)
             {

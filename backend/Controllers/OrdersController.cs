@@ -10,10 +10,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace pbl3_web_api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/orders")]
     [ApiController]
     public class OrdersController : ControllerBase
@@ -25,20 +26,26 @@ namespace pbl3_web_api.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Get(
             int page = 1,
             int pageSize = 20,
+            string? search = null,
             string? status = null,
-            int? userId = null,
+            string? paymentStatus = null,
             DateTime? fromDate = null,
-            DateTime? toDate = null)
+            DateTime? toDate = null,
+            string? sortOrder = null)
         {
             try
             {
-                var orders = await _service.GetOrdersAsync(page, pageSize, status, userId, fromDate, toDate);
-                return Ok(orders);
+                var (data, totalCount) = await _service.GetOrdersAsync(page, pageSize, search, status, paymentStatus, fromDate, toDate, sortOrder);
+                return Ok(new        
+                {
+                    data = data,
+                    totalCount = totalCount,
+                });
             }
             catch (Exception ex)
             {
@@ -46,7 +53,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet("{orderId}")]
         public async Task<ActionResult> AdminGetOrderDetail(int orderId)
         {
@@ -69,7 +76,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPatch("{orderId}/status")]
         public async Task<ActionResult> UpdateOrserStutus([FromRoute] int orderId, [FromBody] string newStatus)
         {
@@ -77,6 +84,31 @@ namespace pbl3_web_api.Controllers
             {
                 await _service.UpdateOrderStatusAsync(orderId, newStatus);
                 return Ok(new { message = "Order status updated successfully.", newStatus = newStatus });
+
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+
+        //[Authorize(Roles = "Admin")]
+        [HttpPatch("{orderId}/payment-status")]
+        public async Task<ActionResult> UpdatePaymentStutus([FromRoute] int orderId, [FromBody] string newStatus)
+        {
+            try
+            {
+                await _service.UpdatePaymentStatusAsync(orderId, newStatus);
+                return Ok(new { message = "Payment status updated successfully.", newStatus = newStatus });
 
             }
             catch (ArgumentException ex)

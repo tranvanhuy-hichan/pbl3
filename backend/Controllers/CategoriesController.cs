@@ -5,103 +5,100 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using pbl3_web_api.DTO;
 using pbl3_web_api.Entities;
+using pbl3_web_api.Service;
 
 namespace pbl3_web_api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/categories")]
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ShopPbl3Context _context;
+        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(ShopPbl3Context context)
+        public CategoriesController(ICategoryService categoryService)
         {
-            _context = context;
+            _categoryService = categoryService;
         }
 
         // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<IActionResult> GetAllCategories()
         {
-            return await _context.Categories.ToListAsync();
+            var result = await _categoryService.GetAllCategoriesAsync();
+            return Ok(result);
         }
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var result = await _categoryService.GetCategoryByIdAsync(id);
 
-            if (category == null)
+            // Nếu Service báo về là null -> Trả về lỗi 404 (đúng theo API Contract)
+            if (result == null)
             {
-                return NotFound();
+                return NotFound(new { message = $"Không tìm thấy danh mục với ID = {id}" });
             }
 
-            return category;
+            // Nếu tìm thấy -> Trả về data kèm mã 200 OK
+            return Ok(result);
         }
 
         // PUT: api/Categories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryRequest request)
         {
-            if (id != category.CategoryId)
+            // Gọi Service thực hiện cập nhật
+            var isSuccess = await _categoryService.UpdateCategoryAsync(id, request);
+
+            // Nếu Service trả về false -> Không tìm thấy ID
+            if (!isSuccess)
             {
-                return BadRequest();
+                return NotFound(new { message = $"Không tìm thấy danh mục với ID = {id} để cập nhật" });
             }
 
-            _context.Entry(category).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CategoryExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            // Nếu thành công -> Trả về 200 OK cùng message theo chuẩn Contract
+            return Ok(new { message = "Cập nhật danh mục thành công" });
         }
 
         // POST: api/Categories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<IActionResult> AddCategory([FromBody] AddCategoryRequest request)
         {
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
+            // Kiểm tra xem dữ liệu gửi lên có hợp lệ không (ví dụ: thiếu CategoryName)
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // Mã 400 Bad Request
+            }
 
-            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+            var categoryId = await _categoryService.AddCategoryAsync(request);
+
+            // Trả về mã 201 Created cùng JSON đúng chuẩn bản thiết kế (API Contract)
+            return StatusCode(201, new
+            {
+                message = "Thêm danh mục mới thành công",
+                categoryId = categoryId
+            });
         }
 
         // DELETE: api/Categories/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var isSuccess = await _categoryService.DeleteCategoryAsync(id);
+
+            // Nếu Service trả về false (không tìm thấy) -> Mã 404
+            if (!isSuccess)
             {
-                return NotFound();
+                return NotFound(new { message = $"Không tìm thấy danh mục với ID = {id} để xoá" });
             }
 
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool CategoryExists(int id)
-        {
-            return _context.Categories.Any(e => e.CategoryId == id);
+            // Nếu xoá thành công -> Mã 200 OK kèm message
+            return Ok(new { message = "Xoá danh mục thành công" });
         }
     }
 }
