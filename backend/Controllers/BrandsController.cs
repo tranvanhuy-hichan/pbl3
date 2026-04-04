@@ -69,19 +69,5 @@ namespace pbl3_web_api.Controllers
             }
             return Ok(new { message = "Xoá thương hiệu thành công" });
         }
-
-        [HttpGet("test")]
-        public IActionResult Test()
-        {
-            try
-            {
-                bool canConnect = _context.Database.CanConnect();
-                return Ok(canConnect);
-            }
-            catch (Exception ex)
-            {
-                return Ok(ex.Message);
-            }
-        }
     }
 }
