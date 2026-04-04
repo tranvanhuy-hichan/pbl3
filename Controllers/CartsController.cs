@@ -1,107 +1,132 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using pbl3_web_api.Entities;
+using pbl3_web_api.DTO;
+using pbl3_web_api.Service;
 
 namespace pbl3_web_api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/cart")]
     [ApiController]
     public class CartsController : ControllerBase
     {
-        private readonly ShopPbl3Context _context;
+        private readonly ICartService _cartService;
 
-        public CartsController(ShopPbl3Context context)
+        public CartsController(ICartService cartService)
         {
-            _context = context;
+            _cartService = cartService;
         }
 
-        // GET: api/Carts
+        private int? GetUserIdFromClaim()
+        {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                    ?? User.FindFirst("sub")?.Value
+                    ?? User.FindFirst("userid")?.Value
+                    ?? User.FindFirst("UserId")?.Value;
+
+                if (int.TryParse(userIdClaim, out var userId))
+                {
+                    return userId;
+                }
+            }
+
+            if (HttpContext.Request.Query.TryGetValue("userId", out var userIdFromQuery) && int.TryParse(userIdFromQuery, out var userIdQuery))
+            {
+                return userIdQuery;
+            }
+
+            return null;
+        }
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cart>>> GetCarts()
+        public async Task<IActionResult> GetCartItems()
         {
-            return await _context.Carts.ToListAsync();
+            var userId = GetUserIdFromClaim();
+            if (!userId.HasValue)
+            {
+                return BadRequest(new { message = "UserId không xác định. Thêm userId query hoặc xác thực Bearer" });
+            }
+
+            var cartItems = await _cartService.GetCartItemsAsync(userId.Value);
+            return Ok(cartItems);
         }
 
-        // GET: api/Carts/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Cart>> GetCart(int id)
-        {
-            var cart = await _context.Carts.FindAsync(id);
-
-            if (cart == null)
-            {
-                return NotFound();
-            }
-
-            return cart;
-        }
-
-        // PUT: api/Carts/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCart(int id, Cart cart)
-        {
-            if (id != cart.CartId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(cart).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CartExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Carts
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Cart>> PostCart(Cart cart)
+        public async Task<IActionResult> AddToCart([FromBody] AddCartRequest request)
         {
-            _context.Carts.Add(cart);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCart", new { id = cart.CartId }, cart);
-        }
-
-        // DELETE: api/Carts/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCart(int id)
-        {
-            var cart = await _context.Carts.FindAsync(id);
-            if (cart == null)
+            var userId = GetUserIdFromClaim() ?? request.UserId;
+            if (!userId.HasValue)
             {
-                return NotFound();
+                return BadRequest(new { message = "UserId không xác định. Thêm userId query hoặc xác thực Bearer" });
             }
 
-            _context.Carts.Remove(cart);
-            await _context.SaveChangesAsync();
+            if (request.Quantity <= 0)
+            {
+                return BadRequest(new { message = "Quantity phải lớn hơn 0" });
+            }
 
-            return NoContent();
+            var (isSuccess, message, item) = await _cartService.AddItemAsync(userId.Value, request);
+            if (!isSuccess)
+            {
+                return BadRequest(new { message });
+            }
+
+            return Ok(new { message, cartItem = item });
         }
 
-        private bool CartExists(int id)
+        [HttpPut("{cartId}")]
+        public async Task<IActionResult> UpdateCartItem(int cartId, [FromBody] UpdateCartRequest request)
         {
-            return _context.Carts.Any(e => e.CartId == id);
+            var userId = GetUserIdFromClaim();
+            if (!userId.HasValue)
+            {
+                return BadRequest(new { message = "UserId không xác định. Thêm userId query hoặc xác thực Bearer" });
+            }
+
+            var (isSuccess, message) = await _cartService.UpdateItemAsync(userId.Value, cartId, request);
+            if (!isSuccess)
+            {
+                return BadRequest(new { message });
+            }
+
+            return Ok(new { message });
+        }
+
+        [HttpDelete("{cartId}")]
+        public async Task<IActionResult> DeleteCartItem(int cartId)
+        {
+            var userId = GetUserIdFromClaim();
+            if (!userId.HasValue)
+            {
+                return BadRequest(new { message = "UserId không xác định. Thêm userId query hoặc xác thực Bearer" });
+            }
+
+            var (isSuccess, message) = await _cartService.RemoveItemAsync(userId.Value, cartId);
+            if (!isSuccess)
+            {
+                return NotFound(new { message });
+            }
+
+            return Ok(new { message });
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> ClearCart()
+        {
+            var userId = GetUserIdFromClaim();
+            if (!userId.HasValue)
+            {
+                return BadRequest(new { message = "UserId không xác định. Thêm userId query hoặc xác thực Bearer" });
+            }
+
+            await _cartService.ClearCartAsync(userId.Value);
+            return Ok(new { message = "Xoá toàn bộ giỏ hàng thành công" });
         }
     }
 }
+
