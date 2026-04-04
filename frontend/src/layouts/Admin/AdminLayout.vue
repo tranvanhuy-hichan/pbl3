@@ -1,3 +1,4 @@
+```vue
 <template>
   <div class="h-screen flex flex-col bg-slate-50 text-slate-800">
 
@@ -9,7 +10,7 @@
         Admin<span class="text-brand-500">Panel</span>
       </div>
 
-      <!-- Menu (responsive) -->
+      <!-- Menu -->
       <nav class="flex flex-wrap sm:flex-nowrap gap-2 overflow-x-auto">
         <router-link to="/admin" class="nav-item" exact-active-class="nav-active">
           Thống kê
@@ -33,15 +34,30 @@
 
       <!-- Right -->
       <div class="flex items-center gap-3">
+
         <!-- Back Home -->
-        <router-link to="/" class="text-sm text-slate-500 hover:text-brand-500">
+        <router-link 
+          v-if="authStore.user?.role === 'Admin'"
+          to="/"
+          class="px-3 py-1.5 bg-indigo-500 text-white rounded-lg text-sm font-semibold hover:bg-indigo-600 transition">
           Trang chủ
         </router-link>
 
+        <!-- User Info -->
+        <div class="text-right hidden sm:block">
+          <div class="text-sm font-semibold text-slate-700">
+            {{ user?.fullName || 'Admin' }}
+          </div>
+          <div class="text-xs text-indigo-500 font-medium">
+            {{ user?.role || 'Role' }}
+          </div>
+        </div>
+
         <!-- Avatar -->
         <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold">
-          A
+          {{ user?.fullName?.charAt(0) || 'A' }}
         </div>
+
       </div>
 
     </header>
@@ -59,9 +75,15 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, RouterView } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore'
 
 const route = useRoute()
+const authStore = useAuthStore()
+
 const currentRouteName = computed(() => route.meta.title || route.name || 'Dashboard')
+
+// lấy user từ store
+const user = computed(() => authStore.user)
 </script>
 
 <style scoped>
@@ -72,7 +94,7 @@ const currentRouteName = computed(() => route.meta.title || route.name || 'Dashb
   color: #475569;
   transition: all 0.2s;
   white-space: nowrap;
-  flex-shrink: 0; /* tránh bị thu nhỏ trên mobile */
+  flex-shrink: 0;
 }
 
 .nav-item:hover {
@@ -86,3 +108,4 @@ const currentRouteName = computed(() => route.meta.title || route.name || 'Dashb
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 </style>
+
