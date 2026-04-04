@@ -30,28 +30,36 @@ namespace pbl3_web_api.Repository
         {
             return await _context.Orders
                 .Where(o => o.UserId == id)
-                .Include(o => o.OrderDetails)
+                .Include(o => o.User)
+                .Include(o  => o.OrderDetails)
+                .ThenInclude(od => od.Product)
                 .ToListAsync();
         }
 
         public async Task<Order?> GetOrderByIdAsync(int id)
         {
             return await _context.Orders
+                .Include(o => o.User)                  
                 .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
         public async Task<Order?> GetOrderByIdAndUserIdAsync(int userId, int orderId)
         {
             return await _context.Orders
+                .Include(o => o.User)              
                 .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)       
                 .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == userId);
         }
 
         public IQueryable<Order> GetOrdersQuery()
         {
             return _context.Orders
-                        .Include(p => p.OrderDetails);
+                        .Include(o => o.User)
+                        .Include(o => o.OrderDetails)
+                        .ThenInclude(od => od.Product);
         }
 
         public async Task AddOrderAsync(Order order)

@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.DTO.Order;
 using pbl3_web_api.Entities;
@@ -12,12 +13,15 @@ namespace pbl3_web_api.Service
         Task<(IEnumerable<AdminOrdersResponse> orders, int totalCount)> GetOrdersAsync(
             int page,
             int pageSize,
+            string? search,
             string? status,
-            int? userId,
+            string? paymentStatus,
             DateTime? fromDate,
-            DateTime? toDate);
+            DateTime? toDate,
+            string? sortOrder);
         Task<AdminOrderDetailResponse> GetOrderDetailAsync(int orderId);
         Task UpdateOrderStatusAsync(int orderId, string newStatus);
+        Task UpdatePaymentStatusAsync(int orderId, string newStatus);
         Task<(IEnumerable<HistoryOrderResponse> order, int totalCount)> GetHistoryOrdersAsync(
             int userId,
             int page,
@@ -39,14 +43,16 @@ namespace pbl3_web_api.Service
         public async Task<(IEnumerable<AdminOrdersResponse> orders, int totalCount)> GetOrdersAsync(
             int page,
             int pageSize,
+            string? search,
             string? status,
-            int? userId,
+            string? paymentStatus,
             DateTime? fromDate,
-            DateTime? toDate)
+            DateTime? toDate,
+            string? sortOrder)
         {
             var baseQuery = _repo.GetOrdersQuery();
 
-            var filteredQuery = ApplyFilters(baseQuery, status, userId, fromDate, toDate);
+            var filteredQuery = ApplyFilters(baseQuery, search, status, paymentStatus, fromDate, toDate, sortOrder);
 
             var totalCount = await filteredQuery.CountAsync();
 
@@ -58,7 +64,6 @@ namespace pbl3_web_api.Service
         public async Task<AdminOrderDetailResponse> GetOrderDetailAsync(int orderId)
         {
             ValidateId(orderId, "OrderId");
-
 
             var order = await _repo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found.");
@@ -74,6 +79,22 @@ namespace pbl3_web_api.Service
                 ?? throw new KeyNotFoundException("Order not found.");
 
             order.Status = newStatus;
+
+            if (newStatus == "Delivered")
+                order.PaymentStatus = "Paid";
+
+            order.UpdatedAt = DateTime.UtcNow;
+            await _repo.SaveAsync();
+        }
+
+        public async Task UpdatePaymentStatusAsync(int orderId, string newStatus)
+        {
+            ValidateId(orderId, "OrderId");
+
+            var order = await _repo.GetOrderByIdAsync(orderId)
+                ?? throw new KeyNotFoundException("Order not found.");
+
+            order.PaymentStatus = newStatus;
             order.UpdatedAt = DateTime.UtcNow;
             await _repo.SaveAsync();
         }
@@ -164,22 +185,46 @@ namespace pbl3_web_api.Service
 
         private IQueryable<Order> ApplyFilters(
             IQueryable<Order> query,
+            string? search,
             string? status,
-            int? userId,
+            string? paymentStatus,
             DateTime? fromDate,
-            DateTime? toDate)
+            DateTime? toDate,
+            string? sortOrder)
         {
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var keyword = $"%{search.Trim()}%";
+
+                query = query.Where(p =>
+                    EF.Functions.Like(p.OrderId.ToString(), keyword) ||
+                    EF.Functions.Like(p.UserId.ToString(), keyword) ||
+                    EF.Functions.Like(p.User.PhoneNumber, keyword)
+                );
+            }
+
             if (!string.IsNullOrEmpty(status))
                 query = query.Where(o => o.Status.ToLower() == status.ToLower());
 
-            if (userId.HasValue)
-                query = query.Where(o => o.UserId == userId.Value);
+            if (!string.IsNullOrEmpty(paymentStatus))
+                query = query.Where(o => o.PaymentStatus.ToLower() == paymentStatus.ToLower());
 
             if (fromDate.HasValue)
                 query = query.Where(o => o.OrderDate >= fromDate.Value);
 
             if (toDate.HasValue)
                 query = query.Where(o => o.OrderDate <= toDate.Value);
+
+            if (!string.IsNullOrEmpty(sortOrder))
+            {
+                query = sortOrder switch
+                {
+                    "asc" => query.OrderBy(p => p.OrderDate),
+                    "desc" => query.OrderByDescending(p => p.OrderDate),
+                    _ => query
+                };
+            }
 
             return query;
         }
@@ -196,10 +241,11 @@ namespace pbl3_web_api.Service
                 {
                     orderId = o.OrderId,
                     userId = o.UserId,
-                    userName = o.User.Username,
+                    fullName = o.User.FullName,
                     orderDate = o.OrderDate,
                     totalAmount = o.TotalAmount,
                     status = o.Status,
+                    paymentStatus = o.PaymentStatus
                 })
                 .ToListAsync();
         }
@@ -243,11 +289,13 @@ namespace pbl3_web_api.Service
         {
             var items = order.OrderDetails.Select(i => new OrderDetailItem
                 {
+                    imageURL = i.Product.ImageUrl,
                     productId = i.ProductId,
                     productName = i.Product.ProductName,
                     quantity = i.Quantity,
                     unitPrice = i.UnitPrice,
-                    subtotal = i.Subtotal
+                    subtotal = i.Subtotal,
+                    productCode = i.Product.ProductCode,
                 })
                 .ToList();
 
@@ -256,7 +304,7 @@ namespace pbl3_web_api.Service
             {
                 orderId = order.OrderId,
                 userId = order.UserId,
-                userName = order.User.Username,
+                userName = order.User.FullName,
                 orderDate = order.OrderDate,
                 totalAmount = order.TotalAmount,
                 status = order.Status,
