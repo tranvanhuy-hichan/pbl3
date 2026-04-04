@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "http": {
+    "pbl3-web-api": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
