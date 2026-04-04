@@ -4,7 +4,21 @@
       
       <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-8">Shopping Cart</h1>
 
-      <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Error Alert -->
+      <div v-if="cartStore.error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center justify-between mb-6">
+        <span>{{ cartStore.error }}</span>
+        <button @click="cartStore.clearError" class="text-red-500 hover:text-red-700">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="cartStore.loading && !cartStore.cartItems.length" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+        <p class="text-slate-500">Loading your cart...</p>
+      </div>
+
+      <div v-else class="flex flex-col lg:flex-row gap-8">
         
         <!-- Cart Items List -->
         <div class="lg:w-2/3">
@@ -19,46 +33,75 @@
 
             <!-- Cart Items -->
             <div class="divide-y divide-slate-100">
-              <!-- Item 1 -->
-              <div v-for="item in cartItems" :key="item.id" class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center hover:bg-slate-50 transition-colors">
+              <div v-for="item in cartStore.cartItems" :key="item.cartId" class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center hover:bg-slate-50 transition-colors">
                 
                 <!-- Product Info -->
                 <div class="col-span-1 sm:col-span-6 flex items-center gap-4">
-                  <button class="text-slate-400 hover:text-red-500 transition-colors p-1" title="Remove item">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  <button 
+                    @click="handleRemoveItem(item.cartId)" 
+                    :disabled="removingItemId === item.cartId"
+                    class="text-slate-400 hover:text-red-500 transition-colors p-1 disabled:opacity-50" 
+                    title="Remove item"
+                  >
+                    <svg v-if="removingItemId !== item.cartId" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg v-else class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                   </button>
                   <div class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-200">
-                    <img :src="item.image" :alt="item.name" class="w-full h-full object-contain mix-blend-multiply p-2">
+                    <img 
+                      :src="item.imageURL ? `https://localhost:7010${item.imageURL}` : 'https://via.placeholder.com/100'" 
+                      :alt="item.productName" 
+                      class="w-full h-full object-contain mix-blend-multiply p-2"
+                    >
                   </div>
                   <div>
-                    <h3 class="font-bold text-slate-800 line-clamp-2"><router-link :to="`/product/${item.id}`" class="hover:text-brand-600">{{ item.name }}</router-link></h3>
-                    <p class="text-sm text-slate-500 mt-1">Category: {{ item.category }}</p>
-                    <div class="sm:hidden mt-2 font-semibold text-brand-600">${{ item.price.toFixed(2) }}</div>
+                    <h3 class="font-bold text-slate-800 line-clamp-2">
+                      <router-link :to="`/product/${item.productId}`" class="hover:text-brand-600">{{ item.productName }}</router-link>
+                    </h3>
+                    <p class="text-sm text-slate-500 mt-1">ID: {{ item.productId }}</p>
+                    <div class="sm:hidden mt-2 font-semibold text-brand-600">{{ formatCurrency(item.price) }}</div>
                   </div>
                 </div>
 
                 <!-- Price (Desktop) -->
                 <div class="hidden sm:block col-span-2 text-center font-semibold text-slate-700">
-                  ${{ item.price.toFixed(2) }}
+                  {{ formatCurrency(item.price) }}
                 </div>
 
                 <!-- Quantity Control -->
                 <div class="col-span-1 sm:col-span-2 flex justify-center">
                   <div class="flex items-center border border-slate-300 rounded-lg overflow-hidden bg-white w-28">
-                    <button class="px-3 py-2 text-slate-500 hover:bg-slate-50 transition-colors">&minus;</button>
-                    <input type="number" :value="item.quantity" class="w-full text-center font-semibold text-slate-800 focus:outline-none text-sm" readonly>
-                    <button class="px-3 py-2 text-slate-500 hover:bg-slate-50 transition-colors">&plus;</button>
+                    <button 
+                      @click="handleDecreaseQuantity(item)" 
+                      :disabled="updatingItemId === item.cartId"
+                      class="px-3 py-2 text-slate-500 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                    >
+                      &minus;
+                    </button>
+                    <input 
+                      type="number" 
+                      :value="item.quantity" 
+                      @change="handleQuantityChange(item, $event)"
+                      class="w-full text-center font-semibold text-slate-800 focus:outline-none text-sm" 
+                      min="1"
+                    >
+                    <button 
+                      @click="handleIncreaseQuantity(item)" 
+                      :disabled="updatingItemId === item.cartId"
+                      class="px-3 py-2 text-slate-500 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                    >
+                      &plus;
+                    </button>
                   </div>
                 </div>
 
                 <!-- Item Total -->
                 <div class="hidden sm:block col-span-2 text-right font-bold text-slate-900">
-                  ${{ (item.price * item.quantity).toFixed(2) }}
+                  {{ formatCurrency(item.subtotal || item.price * item.quantity) }}
                 </div>
               </div>
             </div>
 
-            <div v-if="cartItems.length === 0" class="p-12 text-center text-slate-500">
+            <div v-if="cartStore.isEmpty && !cartStore.loading" class="p-12 text-center text-slate-500">
                <svg class="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                <h3 class="text-xl font-bold text-slate-700 mb-2">Your cart is empty</h3>
                <p class="mb-6 text-sm">Looks like you haven't added anything to your cart yet.</p>
@@ -68,13 +111,17 @@
             </div>
 
             <!-- Cart Footer Actions -->
-            <div v-if="cartItems.length > 0" class="p-4 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
+            <div v-if="!cartStore.isEmpty" class="p-4 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
               <div class="relative max-w-xs w-full hidden sm:block">
-                <input type="text" placeholder="Promo code" class="w-full pl-4 pr-20 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+                <input type="text" v-model="promoCode" placeholder="Promo code" class="w-full pl-4 pr-20 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
                 <button class="absolute right-1 top-1 bottom-1 px-3 bg-slate-800 text-white rounded text-xs font-semibold hover:bg-slate-700 transition-colors">APPLY</button>
               </div>
-              <button class="text-sm font-semibold text-slate-500 hover:text-red-500 transition-colors">
-                Clear Cart
+              <button 
+                @click="handleClearCart" 
+                :disabled="clearingCart"
+                class="text-sm font-semibold text-slate-500 hover:text-red-500 transition-colors disabled:opacity-50"
+              >
+                {{ clearingCart ? 'Clearing...' : 'Clear Cart' }}
               </button>
             </div>
           </div>
@@ -87,27 +134,27 @@
             
             <div class="space-y-4 text-slate-600 border-b border-slate-100 pb-4 mb-4">
               <div class="flex justify-between">
-                <span>Subtotal ({{ cartItems.reduce((acc, item) => acc + item.quantity, 0) }} items)</span>
-                <span class="font-medium text-slate-800">${{ cartSubtotal.toFixed(2) }}</span>
+                <span>Subtotal ({{ cartStore.cartCount }} items)</span>
+                <span class="font-medium text-slate-800">{{ formatCurrency(cartStore.cartSubtotal) }}</span>
               </div>
               <div class="flex justify-between">
                 <span>Shipping Estimate</span>
-                <span class="font-medium text-slate-800">{{ shippingCost === 0 ? 'Free' : '$' + shippingCost.toFixed(2) }}</span>
+                <span class="font-medium text-slate-800">{{ shippingCost === 0 ? 'Free' : formatCurrency(shippingCost) }}</span>
               </div>
               <div class="flex justify-between">
                 <span>Tax (8%)</span>
-                <span class="font-medium text-slate-800">${{ taxAmount.toFixed(2) }}</span>
+                <span class="font-medium text-slate-800">{{ formatCurrency(taxAmount) }}</span>
               </div>
             </div>
 
             <div class="flex justify-between items-end mb-8">
               <span class="font-bold text-slate-800 text-lg">Total</span>
-              <span class="font-extrabold text-2xl text-brand-600">${{ orderTotal.toFixed(2) }}</span>
+              <span class="font-extrabold text-2xl text-brand-600">{{ formatCurrency(orderTotal) }}</span>
             </div>
 
             <router-link to="/checkout" :class="[
               'w-full py-4 rounded-xl font-bold flex justify-center items-center shadow-sm transition-all text-center',
-              cartItems.length > 0 ? 'bg-brand-500 hover:bg-brand-600 text-white shadow-brand-200' : 'bg-slate-200 text-slate-400 cursor-not-allowed pointer-events-none'
+              !cartStore.isEmpty ? 'bg-brand-500 hover:bg-brand-600 text-white shadow-brand-200' : 'bg-slate-200 text-slate-400 cursor-not-allowed pointer-events-none'
             ]">
               Proceed to Checkout
             </router-link>
@@ -125,19 +172,106 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useCartStore } from '../../stores/cart'
 
-// Mock Data for UI Preview
-const cartItems = ref([
-  { id: 'P001', name: 'MacBook Pro 16" M3 Max', category: 'Laptops', price: 3499.00, quantity: 1, image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=100&auto=format&fit=crop' },
-  { id: 'P002', name: 'Sony WH-1000XM5 Noise Cancelling Headphones', category: 'Audio', price: 398.00, quantity: 2, image: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=100&auto=format&fit=crop' },
-])
+const cartStore = useCartStore()
 
-const cartSubtotal = computed(() => {
-  return cartItems.value.reduce((total, item) => total + (item.price * item.quantity), 0)
+// Local state
+const promoCode = ref('')
+const updatingItemId = ref(null)
+const removingItemId = ref(null)
+const clearingCart = ref(false)
+
+// Computed values
+const shippingCost = computed(() => cartStore.cartSubtotal > 1000000 ? 0 : 50000) // Free shipping over 1M VND
+const taxAmount = computed(() => cartStore.cartSubtotal * 0.08)
+const orderTotal = computed(() => cartStore.cartSubtotal + shippingCost.value + taxAmount.value)
+
+// Format currency as VND
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0)
+}
+
+// Handle increase quantity
+const handleIncreaseQuantity = async (item) => {
+  updatingItemId.value = item.cartId
+  try {
+    await cartStore.increaseQuantity(item.cartId)
+  } catch (error) {
+    alert(cartStore.error || 'Failed to update quantity')
+  } finally {
+    updatingItemId.value = null
+  }
+}
+
+// Handle decrease quantity
+const handleDecreaseQuantity = async (item) => {
+  updatingItemId.value = item.cartId
+  try {
+    await cartStore.decreaseQuantity(item.cartId)
+  } catch (error) {
+    alert(cartStore.error || 'Failed to update quantity')
+  } finally {
+    updatingItemId.value = null
+  }
+}
+
+// Handle quantity change via input
+const handleQuantityChange = async (item, event) => {
+  const newQuantity = parseInt(event.target.value)
+  if (isNaN(newQuantity) || newQuantity < 0) {
+    event.target.value = item.quantity
+    return
+  }
+  
+  updatingItemId.value = item.cartId
+  try {
+    if (newQuantity === 0) {
+      await cartStore.removeFromCart(item.cartId)
+    } else {
+      await cartStore.updateCartItem(item.cartId, newQuantity)
+    }
+  } catch (error) {
+    event.target.value = item.quantity
+    alert(cartStore.error || 'Failed to update quantity')
+  } finally {
+    updatingItemId.value = null
+  }
+}
+
+// Handle remove item
+const handleRemoveItem = async (cartId) => {
+  removingItemId.value = cartId
+  try {
+    await cartStore.removeFromCart(cartId)
+  } catch (error) {
+    alert(cartStore.error || 'Failed to remove item')
+  } finally {
+    removingItemId.value = null
+  }
+}
+
+// Handle clear cart
+const handleClearCart = async () => {
+  if (!confirm('Are you sure you want to clear your entire cart?')) return
+  
+  clearingCart.value = true
+  try {
+    await cartStore.clearCart()
+  } catch (error) {
+    alert(cartStore.error || 'Failed to clear cart')
+  } finally {
+    clearingCart.value = false
+  }
+}
+
+// Fetch cart on mount
+onMounted(() => {
+  // Check if user is logged in before fetching cart
+  const token = localStorage.getItem('token')
+  if (token) {
+    cartStore.fetchCart()
+  }
 })
-
-const shippingCost = computed(() => cartSubtotal.value > 1000 ? 0 : 25)
-const taxAmount = computed(() => cartSubtotal.value * 0.08)
-const orderTotal = computed(() => cartSubtotal.value + shippingCost.value + taxAmount.value)
 </script>
