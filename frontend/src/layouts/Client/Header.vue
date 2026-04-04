@@ -32,9 +32,6 @@
           Đăng nhập
         </router-link>
 
-          <span class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-brand-500 rounded-full border-2 border-white">2</span>
-        </router-link>
-
         <div v-if="authStore.isAuthenticated()" class="flex items-center gap-3">
           <div class="hidden sm:flex flex-col items-end">
             <span class="text-sm font-bold text-slate-800">{{ authStore.user?.fullName || 'User' }}</span>
