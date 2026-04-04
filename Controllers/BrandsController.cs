@@ -103,5 +103,19 @@ namespace pbl3_web_api.Controllers
         {
             return _context.Brands.Any(e => e.BrandId == id);
         }
+
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            try
+            {
+                bool canConnect = _context.Database.CanConnect();
+                return Ok(canConnect);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
     }
 }
