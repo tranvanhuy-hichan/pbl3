@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/authStore'
 import ClientLayout from '../layouts/Client/ClientLayout.vue'
 import AdminLayout from '../layouts/Admin/AdminLayout.vue'
 
@@ -135,5 +136,22 @@ const router = createRouter({
     return { top: 0, behavior: 'smooth' }
   }
 })
+
+router.beforeEach((to, from, next) => {
+  // Gọi store bên trong guard
+  const authStore = useAuthStore();
+  const isAuthenticated = authStore.isAuthenticated();
+
+  // Chặn user đã đăng nhập không cho vào Login/Register
+  if ((to.name === 'login' || to.name === 'register') && isAuthenticated) {
+    if (authStore.user?.role === 'Admin') {
+      next({ name: 'admin-dashboard' });
+    } else {
+      next({ name: 'home' });
+    }
+  } else {
+    next();
+  }
+});
 
 export default router
