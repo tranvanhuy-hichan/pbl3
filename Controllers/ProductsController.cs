@@ -122,7 +122,7 @@ namespace pbl3_web_api.Controllers
 
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddProduct([FromForm] AddProductRequest request)
         {
@@ -141,7 +141,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -164,7 +164,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}/restore")]
         public async Task<IActionResult> RestoreProduct(int id)
         {
@@ -187,7 +187,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> EditProduct(int id, [FromForm] EditProductRequest request)
         {

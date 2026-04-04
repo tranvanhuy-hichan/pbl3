@@ -1,4 +1,3 @@
-using pbl3_web_api.DTO.Auth;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
 using Microsoft.IdentityModel.Tokens;
@@ -8,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Configuration;
+using pbl3_web_api.DTO.Auth;
 
 namespace pbl3_web_api.Service;
 

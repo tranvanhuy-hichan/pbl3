@@ -14,7 +14,7 @@ using static NuGet.Packaging.PackagingConstants;
 
 namespace pbl3_web_api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/orders")]
     [ApiController]
     public class OrdersController : ControllerBase
@@ -26,7 +26,7 @@ namespace pbl3_web_api.Controllers
             _service = service;
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Get(
             int page = 1,
@@ -53,7 +53,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("{orderId}")]
         public async Task<ActionResult> AdminGetOrderDetail(int orderId)
         {
@@ -76,7 +76,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{orderId}/status")]
         public async Task<ActionResult> UpdateOrserStutus([FromRoute] int orderId, [FromBody] string newStatus)
         {
@@ -101,7 +101,7 @@ namespace pbl3_web_api.Controllers
         }
 
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{orderId}/payment-status")]
         public async Task<ActionResult> UpdatePaymentStutus([FromRoute] int orderId, [FromBody] string newStatus)
         {
@@ -129,24 +129,28 @@ namespace pbl3_web_api.Controllers
         public async Task<ActionResult> GetMyOrders(
             int page = 1,
             int pageSize = 10,
-            string? status = "Pending"
-            )
-        {
-            try
-            {
-                int userId = GetUserIdFromToken();
-                var orders = await _service.GetHistoryOrdersAsync(userId, page, pageSize, status);
-                return Ok(orders);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
+            string? status = null
+        )
+                {
+                    try
+                    {
+                        int userId = GetUserIdFromToken();
+
+                        var (data, totalCount) = await _service
+                            .GetHistoryOrdersAsync(userId, page, pageSize, status);
+
+                        return Ok(new
+                        {
+                            data = data,
+                            totalCount = totalCount
+                        });
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        return Unauthorized(new { message = ex.Message });
+                    }
+                }
+
 
         [HttpGet("my/{orderId}")]
         public async Task<ActionResult> GetMyOrderDetail(int orderId)
