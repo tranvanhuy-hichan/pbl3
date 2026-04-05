@@ -5,6 +5,7 @@ using pbl3_web_api.DTO.Order;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using QuestPDF.Fluent;
 
 namespace pbl3_web_api.Service
 {
@@ -30,10 +31,12 @@ namespace pbl3_web_api.Service
         Task<MyOrderDetailResponse> GetMyOrderDetailAsync(int userId, int orderId);
         Task CancelOrderAsync(int userId, int orderId);
         Task<CreateOrderResponse> CreateOrderAsync(int userId, CreateOrderRequest request);
+        Task<byte[]> ExportOrderPdfAsync(int orderId);
     }
 
     public class OrderService : IOrderService
     {
+
         public readonly IOrderRepo _repo;
         public OrderService(IOrderRepo repo)
         {
@@ -159,6 +162,7 @@ namespace pbl3_web_api.Service
                 throw new InvalidOperationException("Cart is empty.");
 
             var order = MapToOrder(userId, request);
+            order.TotalAmount = request.shippingFee ?? 0;
 
             using var transaction = await _repo.BeginTransactionAsync();
             try
@@ -182,6 +186,118 @@ namespace pbl3_web_api.Service
                 totalAmount = order.TotalAmount,
             };
         }
+
+        public async Task<byte[]> ExportOrderPdfAsync(int orderId)
+        {
+            var order = await _repo.GetOrderByIdAsync(orderId)
+                ?? throw new KeyNotFoundException("Order not found");
+
+            if (order.Status != "Processing") throw new InvalidOperationException("Đơn hàng không thể xuất pdf");
+
+            var userName = order.User?.FullName ?? "Không có";
+            var shippingAddress = order.ShippingAddress ?? "Không có";
+            var phoneNumber = order.User?.PhoneNumber ?? "Không có";
+            var orderDetails = order.OrderDetails ?? Enumerable.Empty<OrderDetail>();
+
+            var pdf = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(20);
+
+                    // Header phiếu vận chuyển
+                    page.Header().Column(header =>
+                    {
+                        header.Item().Text("PHIẾU VẬN CHUYỂN").FontSize(18).Bold().AlignCenter();
+                        header.Item().Text($"Mã đơn: {order.OrderId}").FontSize(12).AlignCenter();
+                        header.Item().Text($"Ngày: {order.OrderDate:dd/MM/yyyy}").FontSize(12).AlignCenter();
+                        header.Spacing(5);
+                    });
+
+                    // Footer: số trang
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("Trang ");
+                        x.CurrentPageNumber();
+                        x.Span(" / ");
+                        x.TotalPages();
+                    });
+
+                    // Nội dung chính
+                    page.Content().Column(col =>
+                    {
+                        col.Spacing(5); // khoảng cách giữa các item
+
+                        col.Item().Text($"Khách hàng: {userName}").FontSize(12);
+                        col.Item().Text($"Địa chỉ: {shippingAddress}").FontSize(12);
+                        col.Item().Text($"SDT: {phoneNumber}").FontSize(12);
+
+                        col.Item().LineHorizontal(1); // dòng phân cách
+
+                        // Bảng sản phẩm
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn();      // Tên sản phẩm
+                                columns.ConstantColumn(50);   // Số lượng
+                                columns.ConstantColumn(80);   // Giá
+                                columns.ConstantColumn(100);  // Thành tiền
+                            });
+
+                            // Header bảng
+                            table.Header(header =>
+                            {
+                                header.Cell().Border(1).Padding(5).Text("Sản phẩm").Bold();
+                                header.Cell().Border(1).Padding(5).Text("SL").Bold().AlignCenter();
+                                header.Cell().Border(1).Padding(5).Text("Giá").Bold().AlignRight();
+                                header.Cell().Border(1).Padding(5).Text("Thành tiền").Bold().AlignRight();
+                            });
+
+                            // Dữ liệu sản phẩm
+                            foreach (var item in orderDetails)
+                            {
+                                table.Cell().Border(1).Padding(5).Text(item.Product?.ProductName ?? "N/A");
+                                table.Cell().Border(1).Padding(5).AlignCenter().Text(item.Quantity.ToString());
+                                table.Cell().Border(1).Padding(5).AlignRight().Text((item.Product?.Price ?? 0).ToString("N0") + " VNĐ");
+                                table.Cell().Border(1).Padding(5).AlignRight().Text((item.Subtotal).ToString("N0") + " VNĐ");
+                            }
+                        });
+
+                        col.Item().LineHorizontal(1); // phân cách cuối bảng
+
+                        // Tổng tiền
+                        col.Item().AlignRight()
+                            .Text($"Tổng: {(order.TotalAmount):N0} VNĐ")
+                            .Bold()
+                            .FontSize(14);
+
+                        // Trạng thái thanh toán
+                        if (order.PaymentStatus == "Unpaid")
+                        {
+                            col.Item().AlignRight()
+                            .Text($"Chưa thanh toán")
+                            .Bold()
+                            .FontSize(12);
+                        }
+                        else
+                        {
+                            col.Item().AlignRight()
+                            .Text($"Đã thanh toán")
+                            .Bold()
+                            .FontSize(12);
+                        }
+                        col.Item().Text(" ");
+                        // Lời cảm ơn
+                        col.Item().AlignLeft().Text("Cảm ơn quý khách đã mua hàng!").FontSize(12).Italic();
+                    });
+                });
+            }).GeneratePdf();
+
+            return pdf;
+        }
+
+
 
         private IQueryable<Order> ApplyFilters(
             IQueryable<Order> query,
@@ -268,6 +384,7 @@ namespace pbl3_web_api.Service
             return await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .OrderByDescending(o => o.OrderDate)
                 .Select(o => new HistoryOrderResponse
                 {
                     orderId = o.OrderId,
@@ -372,8 +489,17 @@ namespace pbl3_web_api.Service
                 Subtotal = item.Quantity * item.Product.Price
             }).ToList();
 
-            order.TotalAmount = orderDetails.Sum(x => x.Subtotal);
+            order.TotalAmount += orderDetails.Sum(x => x.Subtotal);
 
+            foreach (var item in items)
+            {
+                if (item.Product.StockQuantity < item.Quantity)
+                    throw new InvalidOperationException($"{item.Product.ProductName} không đủ hàng :)))");
+
+                item.Product.StockQuantity -= item.Quantity;
+            }
+            await _repo.UpdateProductsAsync(items.Select(i => i.Product).ToList());
+            await _repo.DeleteCartItem(items);
             await _repo.AddRangeOrderDetailsAsync(orderDetails);
         }
     }

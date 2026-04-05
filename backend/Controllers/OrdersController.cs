@@ -208,8 +208,8 @@ namespace pbl3_web_api.Controllers
             try
             {
                 int userId = GetUserIdFromToken();
-                var orderId = await _service.CreateOrderAsync(userId, request);
-                return Created("", new { message = "Order created successfully.", orderId = orderId });
+                var data = await _service.CreateOrderAsync(userId, request);
+                return Created("", data);
             }
             catch (ArgumentException ex)
             {
@@ -226,6 +226,26 @@ namespace pbl3_web_api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{orderId}/export")]
+        public async Task<IActionResult> ExportOrder(int orderId)
+        {
+            try
+            {
+                var pdf = await _service.ExportOrderPdfAsync(orderId);
+
+                return File(pdf, "application/pdf", $"order_{orderId}.pdf");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.ToString());
             }
         }
 
