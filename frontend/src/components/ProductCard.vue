@@ -1,10 +1,9 @@
 <template>
-  <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col border border-slate-100">
+  <div class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 h-full flex flex-col border border-slate-200">
     
-    <!-- Image -->
     <router-link
       :to="`/product/${product.id}`"
-      class="block relative h-64 overflow-hidden bg-slate-50 border-b border-slate-100 flex items-center justify-center p-6 group"
+      class="block relative h-48 overflow-hidden bg-slate-50 border-b border-slate-100 flex items-center justify-center p-4 group"
     >
       <img
         :src="product.image ? `https://localhost:7010${product.image}` : 'https://via.placeholder.com/150'"
@@ -12,62 +11,52 @@
         class="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
       />
 
-      <!-- Badges -->
-      <div class="absolute top-4 left-4 flex flex-col gap-2">
+      <div class="absolute top-2 left-2 flex flex-col gap-1">
         <span
           v-if="product.isNew"
-          class="bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm"
+          class="bg-indigo-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm"
         >
           NEW
         </span>
-
         <span
           v-if="product.discount"
-          class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm"
+          class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm"
         >
           -{{ product.discount }}%
         </span>
       </div>
     </router-link>
 
-    <!-- Content -->
-    <div class="p-6 flex flex-col flex-grow">
+    <div class="p-4 flex flex-col flex-grow">
 
-      <!-- Category Brand Stock -->
-      <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-        <span class="text-blue-600 font-bold">{{ product.category }}</span>
-        <span>•</span>
-        <span class="text-yellow-600 font-bold">{{ product.brand }}</span>
-        <span>•</span>
-        <span class="text-green-600 font-bold">Còn {{ product.stock }}</span>
+      <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-tight mb-1.5">
+        <span class="text-blue-600">{{ product.category }}</span>
+        <span class="text-slate-300">•</span>
+        <span class="text-amber-600">{{ product.brand }}</span>
+        <span class="text-slate-300">•</span>
+        <span class="text-green-600">Kho: {{ product.stock }}</span>
       </div>
 
-
-      <!-- Name -->
-      <router-link :to="`/product/${product.id}`">
-        <h3 class="font-bold text-slate-800 text-lg mb-2 line-clamp-2 hover:text-indigo-600 transition-colors ">
+      <router-link :to="`/product/${product.id}`" class="mb-1">
+        <h3 class="font-bold text-slate-800 text-sm leading-snug line-clamp-2 h-10 hover:text-blue-600 transition-colors">
           {{ product.name }}
         </h3>
       </router-link>
 
-      <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-        <span>{{ product.specifications }}</span>
-      </div>
-
-      <!-- Price -->
-      <div class="flex items-center gap-3 mt-auto mb-5 ">
-        <span class="text-xl font-extrabold text-slate-900">
+      <div class="flex items-center gap-2 mt-auto mb-3">
+        <span class="text-base font-bold text-slate-900">
           {{ formatCurrency(product.price) }}
         </span>
+        <span v-if="product.discount" class="text-[10px] text-slate-400 line-through">
+           {{ formatCurrency(product.price * 1.2) }} 
+        </span>
       </div>
-
-      <!-- Button -->
       <button
         v-if="isCustomer"
-        class="w-full py-3 bg-transparent border-2 border-blue-500 text-blue-500 font-semibold rounded-lg hover:bg-blue-500 hover:text-white transition-colors"
+        class="w-full py-2 bg-white border border-blue-500 text-blue-500 text-sm font-bold rounded-md hover:bg-blue-500 hover:text-white transition-all active:scale-95"
         @click="addToCart"
       >
-        Thêm vào giỏ hàng
+        Thêm vào giỏ
       </button>
 
     </div>
@@ -91,16 +80,11 @@ const props = defineProps({
 const isCustomer = computed(() => authStore.user?.role === 'Customer')
 
 const formatCurrency = (val) => {
-  if (!val) return '0 ₫'
-  return new Intl.NumberFormat('vi-VN').format(val) + ' ₫'
+  if (!val) return '0₫'
+  return new Intl.NumberFormat('vi-VN').format(val) + '₫'
 }
 
-const discountedPrice = computed(() => {
-  if (!props.product.discount) return props.product.price
-  return props.product.price * (1 - props.product.discount / 100)
-})
-
 const addToCart = () => {
-  cartStore.addToCart(props.product.id, 1)
+  // Logic thêm vào giỏ hàng
 }
 </script>

@@ -11,6 +11,8 @@ import ProductDetailView from '@/views/client/ProductDetailView.vue'
 import CartView from '@/views/client/CartView.vue'
 import CheckoutView from '@/views/client/CheckoutView.vue'
 import ProductView from '@/views/client/ProductView.vue'
+import OrderHistoryView from '@/views/client/OrderHistoryView.vue'
+import OrderView from '@/views/client/OrderHistoryView.vue'
 
 import DashboardView from '@/views/admin/DashboardView.vue'
 import ProductManagementView from '@/views/admin/ProductManagementView.vue'
@@ -50,7 +52,9 @@ const router = createRouter({
 
         { path: 'login', name: 'login', component: LoginView },
 
-        { path: 'register', name: 'register', component: RegisterView }
+        { path: 'register', name: 'register', component: RegisterView },
+
+        { path: 'my/orders', name: 'my/orders', component: OrderHistoryView }
       ]
     },
 

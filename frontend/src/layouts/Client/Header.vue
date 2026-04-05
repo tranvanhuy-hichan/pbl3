@@ -10,10 +10,66 @@
 
       <!-- Menu -->
       <nav class="hidden md:flex gap-6">
-        <router-link to="/" class="text-blue-600 font-medium hover:text-blue-800 transition-colors">Trang chủ</router-link>
-        <router-link to="/products" class="text-blue-600 font-medium hover:text-blue-800 transition-colors">Sản phẩm</router-link>
-        <router-link to="/categories" class="text-blue-600 font-medium hover:text-blue-800 transition-colors">Danh mục</router-link>
-        <router-link to="/brands" class="text-blue-600 font-medium hover:text-blue-800 transition-colors">Nhãn hàng</router-link>
+        <router-link 
+          to="/"
+          :class="[
+            'font-medium transition-colors',
+            $route.path === '/'
+              ? 'text-blue-800 font-bold underline'
+              : 'text-blue-600 hover:text-blue-800'
+          ]"
+        >
+          Trang chủ
+        </router-link>
+
+        <router-link 
+          to="/products"
+          :class="[
+            'font-medium transition-colors',
+            $route.path.startsWith('/products')
+              ? 'text-blue-800 font-bold underline'
+              : 'text-blue-600 hover:text-blue-800'
+          ]"
+        >
+          Sản phẩm
+        </router-link>
+
+        <router-link 
+          to="/categories"
+          :class="[
+            'font-medium transition-colors',
+            $route.path.startsWith('/categories')
+              ? 'text-blue-800 font-bold underline'
+              : 'text-blue-600 hover:text-blue-800'
+          ]"
+        >
+          Danh mục
+        </router-link>
+
+        <router-link 
+          to="/brands"
+          :class="[
+            'font-medium transition-colors',
+            $route.path.startsWith('/brands')
+              ? 'text-blue-800 font-bold underline'
+              : 'text-blue-600 hover:text-blue-800'
+          ]"
+        >
+          Nhãn hàng
+        </router-link>
+
+        <router-link
+          v-if="authStore.user?.role === 'Customer'"
+          to="/my/orders"
+          :class="[
+            'font-medium transition-colors',
+            $route.path.startsWith('/my/orders')
+              ? 'text-blue-800 font-bold underline'
+              : 'text-blue-600 hover:text-blue-800'
+          ]"
+        >
+          Đơn hàng
+        </router-link>
       </nav>
 
       <!-- Cart & Auth -->
@@ -44,11 +100,6 @@
             </span>
           </div>
 
-          <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold">
-            {{ authStore.user?.fullName?.charAt(0) || 'A' }}
-          </div>
-
-          <!-- 👑 ADMIN BUTTON -->
           <router-link 
             v-if="authStore.user?.role === 'Admin'"
             to="/admin"
@@ -66,13 +117,15 @@
               <path stroke-linecap="round" stroke-linejoin="round" 
                 d="M3 3h7v7H3V3zm11 0h7v4h-7V3zM14 10h7v11h-7V10zM3 14h7v7H3v-7z" />
             </svg>
-
           </router-link>
 
+          <!-- 🚪 LOGOUT ICON -->
           <button 
             @click="handleLogout" 
             title="Đăng xuất"
-            class="w-9 h-9 flex items-center justify-center text-red-500 hover:text-white hover:bg-red-500 rounded-full transition">
+            class="w-9 h-9 flex items-center justify-center 
+                  text-red-500 hover:text-white 
+                  hover:bg-red-500 rounded-full transition">
 
             <svg xmlns="http://www.w3.org/2000/svg" 
                 fill="none" 
@@ -87,6 +140,7 @@
             </svg>
           </button>
         </div>
+
         <!-- Login -->
         <router-link 
           v-else 
