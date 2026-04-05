@@ -58,7 +58,7 @@ public partial class ShopPbl3Context : DbContext
         {
             entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD79753351ECC");
 
-            entity.ToTable("Cart");
+            entity.ToTable("Carts");
 
             entity.HasIndex(e => e.ProductId, "IX_Cart_ProductID");
 

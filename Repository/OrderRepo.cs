@@ -16,6 +16,8 @@ namespace pbl3_web_api.Repository
         Task AddRangeOrderDetailsAsync(IEnumerable<OrderDetail> orderDetails);
         Task<IDbContextTransaction> BeginTransactionAsync();
         Task SaveAsync();
+        Task UpdateProductsAsync(List<Product> products);
+        Task DeleteCartItem(IEnumerable<Cart> carts);
     }
 
     public class OrderRepo : IOrderRepo
@@ -41,7 +43,8 @@ namespace pbl3_web_api.Repository
             return await _context.Orders
                 .Include(o => o.User)                  
                 .Include(o => o.OrderDetails)
-                .ThenInclude(od => od.Product)
+                .ThenInclude(od => od.Product)  
+                .ThenInclude(p => p.Category)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
@@ -95,6 +98,24 @@ namespace pbl3_web_api.Repository
         public async Task SaveAsync()
         {
             await _context.SaveChangesAsync(); 
+        }
+
+        public async Task UpdateProductsAsync(List<Product> products)
+        {
+            foreach (var product in products)
+            {
+                _context.Products.Update(product); 
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteCartItem(IEnumerable<Cart> carts)
+        {
+            if (carts == null || !carts.Any())
+                return;
+
+            _context.Carts.RemoveRange(carts);
+            await _context.SaveChangesAsync();
         }
     }
 }
