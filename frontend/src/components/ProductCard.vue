@@ -29,12 +29,22 @@
 
     <div class="p-4 flex flex-col flex-grow">
 
-      <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-tight mb-1.5">
-        <span class="text-blue-600">{{ product.category }}</span>
-        <span class="text-slate-300">•</span>
-        <span class="text-amber-600">{{ product.brand }}</span>
-        <span class="text-slate-300">•</span>
-        <span class="text-green-600">Kho: {{ product.stock }}</span>
+      <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-tight mb-1.5">
+  
+        <div class="flex items-center gap-1.5">
+          <span class="text-blue-600">{{ product.category }}</span>
+          <span class="text-slate-300">•</span>
+          <span class="text-amber-600">{{ product.brand }}</span>
+        </div>
+
+        <div>
+          <span v-if="product.stock > 0" class="text-green-600">
+            Còn: {{ product.stock }}
+          </span>
+          <span v-else class="text-red-500">
+            Hết hàng
+          </span>
+        </div>
       </div>
 
       <router-link :to="`/product/${product.id}`" class="mb-1">
@@ -51,13 +61,25 @@
            {{ formatCurrency(product.price * 1.2) }} 
         </span>
       </div>
+
       <button
-        v-if="isCustomer"
+        v-if="!isAdmin && product.stock > 0"
         class="w-full py-2 bg-white border border-blue-500 text-blue-500 text-sm font-bold rounded-md hover:bg-blue-500 hover:text-white transition-all active:scale-95"
         @click="addToCart"
       >
         Thêm vào giỏ
       </button>
+
+      <div
+        v-else-if="!isAdmin && product.stock <= 0"
+        class="w-full py-2 text-center text-sm text-red-500 italic border border-gray-300 rounded-md"
+      >
+        Hết hàng
+      </div>        
+
+      <div v-else-if="isAdmin" class="text-sm text-slate-500 italic">
+        Đăng nhập với tài khoản khách hàng để mua sản phẩm này.
+      </div>
 
     </div>
   </div>
@@ -67,8 +89,11 @@
 import { computed } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useCartStore } from '@/stores/cart'
+import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore() 
+const router = useRouter()
+
 const cartStore = useCartStore()
 const props = defineProps({
   product: {
@@ -77,7 +102,8 @@ const props = defineProps({
   }
 })
 
-const isCustomer = computed(() => authStore.user?.role === 'Customer')
+const isGuest = computed(() => !authStore.user)
+const isAdmin = computed(() => authStore.user?.role === 'Admin')
 
 const formatCurrency = (val) => {
   if (!val) return '0₫'
@@ -85,6 +111,10 @@ const formatCurrency = (val) => {
 }
 
 const addToCart = () => {
-  // Logic thêm vào giỏ hàng
+  if (isGuest.value) {
+    router.push('/login')
+    return
+  }
+  cartStore.addToCart(props.product.id, 1)
 }
 </script>

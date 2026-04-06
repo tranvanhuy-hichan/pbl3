@@ -13,7 +13,7 @@
       <!-- Menu -->
       <nav class="flex flex-wrap sm:flex-nowrap gap-2 overflow-x-auto">
         <router-link to="/admin" class="nav-item" exact-active-class="nav-active">
-          Thống kê
+          Dashboard
         </router-link>
         <router-link to="/admin/products" class="nav-item" active-class="nav-active">
           Sản phẩm

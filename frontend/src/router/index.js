@@ -92,7 +92,7 @@ const router = createRouter({
   }
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   const authStore = useAuthStore()
 
   const isLoggedIn = authStore.isAuthenticated()
@@ -100,26 +100,25 @@ router.beforeEach((to, from, next) => {
 
   //chưa login mà vào trang cần auth
   if (to.meta.requiresAuth && !isLoggedIn) {
-    return next('/login')
+    return '/login'
   }
 
   //đã login mà vào login/register
   if ((to.name === 'login' || to.name === 'register') && isLoggedIn) {
-    if (role === 'Admin') return next('/admin')
-    return next('/')
+    if (role === 'Admin') return '/admin'
+    return '/'
   }
 
   //chỉ 1 role
   if (to.meta.role && role !== to.meta.role) {
-    return next('/')
+    return '/'
   }
 
   //nhiều role
   if (to.meta.roles && !to.meta.roles.includes(role)) {
-    return next('/')
+    return '/'
   }
-
-  next()
+  return true
 })
 
 export default router
