@@ -11,6 +11,8 @@ import ProductDetailView from '@/views/client/ProductDetailView.vue'
 import CartView from '@/views/client/CartView.vue'
 import CheckoutView from '@/views/client/CheckoutView.vue'
 import ProductView from '@/views/client/ProductView.vue'
+import OrderHistoryView from '@/views/client/OrderHistoryView.vue'
+import OrderView from '@/views/client/OrderHistoryView.vue'
 
 import DashboardView from '@/views/admin/DashboardView.vue'
 import ProductManagementView from '@/views/admin/ProductManagementView.vue'
@@ -50,7 +52,9 @@ const router = createRouter({
 
         { path: 'login', name: 'login', component: LoginView },
 
-        { path: 'register', name: 'register', component: RegisterView }
+        { path: 'register', name: 'register', component: RegisterView },
+
+        { path: 'my/orders', name: 'my/orders', component: OrderHistoryView }
       ]
     },
 
@@ -88,7 +92,7 @@ const router = createRouter({
   }
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   const authStore = useAuthStore()
 
   const isLoggedIn = authStore.isAuthenticated()
@@ -96,26 +100,25 @@ router.beforeEach((to, from, next) => {
 
   //chưa login mà vào trang cần auth
   if (to.meta.requiresAuth && !isLoggedIn) {
-    return next('/login')
+    return '/login'
   }
 
   //đã login mà vào login/register
   if ((to.name === 'login' || to.name === 'register') && isLoggedIn) {
-    if (role === 'Admin') return next('/admin')
-    return next('/')
+    if (role === 'Admin') return '/admin'
+    return '/'
   }
 
   //chỉ 1 role
   if (to.meta.role && role !== to.meta.role) {
-    return next('/')
+    return '/'
   }
 
   //nhiều role
   if (to.meta.roles && !to.meta.roles.includes(role)) {
-    return next('/')
+    return '/'
   }
-
-  next()
+  return true
 })
 
 export default router

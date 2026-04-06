@@ -371,6 +371,12 @@
         </div>
 
         <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+          <button 
+            @click="exportPDF(selectedOrder.orderId)"
+            class="px-6 py-2.5 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all"
+          >
+            Xuất PDF
+          </button>
           <button @click="selectedOrder = null" class="px-6 py-2.5 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 transition-all">
             Đóng
           </button>
@@ -433,6 +439,7 @@ const loading = ref(false)
 const error = ref(null)
 const updatingId = ref(null) 
 const selectedOrder = ref(null) 
+const canExportPDF = computed(() => selectedOrder.value && selectedOrder.value.status === 'Processing')
 
 // --- Dialogs (Xác nhận) ---
 const showStatusDialog = ref(false)
@@ -589,6 +596,19 @@ const formatDate = (dateString, includeTime = false) => {
     ...(includeTime && { hour: '2-digit', minute: '2-digit' })
   })
 }
+
+const exportPDF = async (id) => {
+  try {
+    if (!canExportPDF.value) {
+      alert("Chỉ có thể xuất PDF cho đơn hàng ở trạng thái đang xử lý")
+      return
+    }
+    await orderStore.exportPDF(id)
+  } catch {
+    alert("Xuất PDF thất bại")
+  }
+}
+
 
 const getStatusClass = (status) => {
   switch (String(status).toLowerCase()) {

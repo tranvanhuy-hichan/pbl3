@@ -77,7 +77,7 @@ export function useAuth() {
    */
   const logout = () => {
     authStore.clearAuth();
-    router.push('/login');
+    router.push('/');
   };
 
   return {

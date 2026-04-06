@@ -10,10 +10,66 @@
 
       <!-- Menu -->
       <nav class="hidden md:flex gap-6">
-        <router-link to="/" class="text-blue-600 font-medium hover:text-blue-800 transition-colors">Trang chủ</router-link>
-        <router-link to="/products" class="text-blue-600 font-medium hover:text-blue-800 transition-colors">Sản phẩm</router-link>
-        <router-link to="/categories" class="text-blue-600 font-medium hover:text-blue-800 transition-colors">Danh mục</router-link>
-        <router-link to="/brands" class="text-blue-600 font-medium hover:text-blue-800 transition-colors">Nhãn hàng</router-link>
+        <router-link 
+          to="/"
+          :class="[
+            'font-medium transition-colors',
+            $route.path === '/'
+              ? 'text-blue-800 font-bold underline'
+              : 'text-blue-600 hover:text-blue-800'
+          ]"
+        >
+          Trang chủ
+        </router-link>
+
+        <router-link 
+          to="/products"
+          :class="[
+            'font-medium transition-colors',
+            $route.path.startsWith('/products')
+              ? 'text-blue-800 font-bold underline'
+              : 'text-blue-600 hover:text-blue-800'
+          ]"
+        >
+          Sản phẩm
+        </router-link>
+
+        <router-link 
+          to="/categories"
+          :class="[
+            'font-medium transition-colors',
+            $route.path.startsWith('/categories')
+              ? 'text-blue-800 font-bold underline'
+              : 'text-blue-600 hover:text-blue-800'
+          ]"
+        >
+          Danh mục
+        </router-link>
+
+        <router-link 
+          to="/brands"
+          :class="[
+            'font-medium transition-colors',
+            $route.path.startsWith('/brands')
+              ? 'text-blue-800 font-bold underline'
+              : 'text-blue-600 hover:text-blue-800'
+          ]"
+        >
+          Nhãn hàng
+        </router-link>
+
+        <router-link
+          v-if="authStore.user?.role === 'Customer'"
+          to="/my/orders"
+          :class="[
+            'font-medium transition-colors',
+            $route.path.startsWith('/my/orders')
+              ? 'text-blue-800 font-bold underline'
+              : 'text-blue-600 hover:text-blue-800'
+          ]"
+        >
+          Đơn hàng
+        </router-link>
       </nav>
 
       <!-- Cart & Auth -->
@@ -44,18 +100,44 @@
             </span>
           </div>
 
-          <!-- 👑 ADMIN BUTTON -->
-        <router-link 
-          v-if="authStore.user?.role === 'Admin'"
-          to="/admin"
-          class="px-3 py-1.5 bg-indigo-500 text-white rounded-lg text-sm font-semibold hover:bg-indigo-600 transition">
-          Admin
-        </router-link>
+          <router-link 
+            v-if="authStore.user?.role === 'Admin'"
+            to="/admin"
+            title="Trang quản trị"
+            class="w-9 h-9 flex items-center justify-center 
+                  text-indigo-500 hover:text-white 
+                  hover:bg-indigo-500 rounded-full transition">
 
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke-width="2" 
+                stroke="currentColor" 
+                class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" 
+                d="M3 3h7v7H3V3zm11 0h7v4h-7V3zM14 10h7v11h-7V10zM3 14h7v7H3v-7z" />
+            </svg>
+          </router-link>
+
+          <!-- 🚪 LOGOUT ICON -->
           <button 
             @click="handleLogout" 
-            class="px-3 py-1.5 text-sm font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition">
-            Log out
+            title="Đăng xuất"
+            class="w-9 h-9 flex items-center justify-center 
+                  text-red-500 hover:text-white 
+                  hover:bg-red-500 rounded-full transition">
+
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke-width="2" 
+                stroke="currentColor" 
+                class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" 
+                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-7.5A2.25 2.25 0 003.75 5.25v13.5A2.25 2.25 0 006 21h7.5a2.25 2.25 0 002.25-2.25V15" />
+              <path stroke-linecap="round" stroke-linejoin="round" 
+                d="M18 12h-9m0 0l3-3m-3 3l3 3" />
+            </svg>
           </button>
         </div>
 
