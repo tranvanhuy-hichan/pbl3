@@ -9,38 +9,16 @@ using QuestPDF.Fluent;
 
 namespace pbl3_web_api.Service
 {
-    public interface IOrderService
-    {
-        Task<(IEnumerable<AdminOrdersResponse> orders, int totalCount)> GetOrdersAsync(
-            int page,
-            int pageSize,
-            string? search,
-            string? status,
-            string? paymentStatus,
-            DateTime? fromDate,
-            DateTime? toDate,
-            string? sortOrder);
-        Task<AdminOrderDetailResponse> GetOrderDetailAsync(int orderId);
-        Task UpdateOrderStatusAsync(int orderId, string newStatus);
-        Task UpdatePaymentStatusAsync(int orderId, string newStatus);
-        Task<(IEnumerable<HistoryOrderResponse> order, int totalCount)> GetHistoryOrdersAsync(
-            int userId,
-            int page,
-            int pageSize,
-            string? status);
-        Task<MyOrderDetailResponse> GetMyOrderDetailAsync(int userId, int orderId);
-        Task CancelOrderAsync(int userId, int orderId);
-        Task<CreateOrderResponse> CreateOrderAsync(int userId, CreateOrderRequest request);
-        Task<byte[]> ExportOrderPdfAsync(int orderId);
-    }
-
     public class OrderService : IOrderService
     {
-
-        public readonly IOrderRepo _repo;
-        public OrderService(IOrderRepo repo)
+        private readonly IOrderRepo _orderRepo;
+        private readonly ICartRepository _cartRepo;
+        private readonly IProductRepo _productRepo;
+        public OrderService(IOrderRepo orderRepo, ICartRepository cartRepo, IProductRepo productRepo)
         {
-            _repo = repo;
+            _orderRepo = orderRepo;
+            _cartRepo = cartRepo;
+            _productRepo = productRepo;
         }
 
         public async Task<(IEnumerable<AdminOrdersResponse> orders, int totalCount)> GetOrdersAsync(
@@ -53,7 +31,7 @@ namespace pbl3_web_api.Service
             DateTime? toDate,
             string? sortOrder)
         {
-            var baseQuery = _repo.GetOrdersQuery();
+            var baseQuery = _orderRepo.GetOrdersQuery();
 
             var filteredQuery = ApplyFilters(baseQuery, search, status, paymentStatus, fromDate, toDate, sortOrder);
 
@@ -68,7 +46,7 @@ namespace pbl3_web_api.Service
         {
             ValidateId(orderId, "OrderId");
 
-            var order = await _repo.GetOrderByIdAsync(orderId)
+            var order = await _orderRepo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found.");
 
             return MapToAdminOrderDetailResponse(order);
@@ -78,7 +56,7 @@ namespace pbl3_web_api.Service
         {
             ValidateId(orderId, "OrderId");
 
-            var order = await _repo.GetOrderByIdAsync(orderId)
+            var order = await _orderRepo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found.");
 
             order.Status = newStatus;
@@ -87,19 +65,19 @@ namespace pbl3_web_api.Service
                 order.PaymentStatus = "Paid";
 
             order.UpdatedAt = DateTime.UtcNow;
-            await _repo.SaveAsync();
+            await _orderRepo.SaveAsync();
         }
 
         public async Task UpdatePaymentStatusAsync(int orderId, string newStatus)
         {
             ValidateId(orderId, "OrderId");
 
-            var order = await _repo.GetOrderByIdAsync(orderId)
+            var order = await _orderRepo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found.");
 
             order.PaymentStatus = newStatus;
             order.UpdatedAt = DateTime.UtcNow;
-            await _repo.SaveAsync();
+            await _orderRepo.SaveAsync();
         }
 
         public async Task<(IEnumerable<HistoryOrderResponse> order, int totalCount)> GetHistoryOrdersAsync(
@@ -111,7 +89,7 @@ namespace pbl3_web_api.Service
             if (page < 0) page = 1;
             if (pageSize < 0) pageSize = 12;
 
-            var baseQuery = _repo.GetOrdersQuery();
+            var baseQuery = _orderRepo.GetOrdersQuery();
 
             var filteredQuery = ApplyUserFilters(baseQuery, userId, status);
 
@@ -127,7 +105,7 @@ namespace pbl3_web_api.Service
             ValidateId(orderId, "OrderId");
             ValidateId(userId, "UserId");
 
-            var order = await _repo.GetOrderByIdAndUserIdAsync(userId, orderId)
+            var order = await _orderRepo.GetOrderByIdAndUserIdAsync(userId, orderId)
                 ?? throw new KeyNotFoundException("Order not found."); ;
 
             return MapToMyOrderDetailResponse(order);
@@ -138,7 +116,7 @@ namespace pbl3_web_api.Service
             ValidateId(orderId, "OrderId");
             ValidateId(userId, "UserId");
 
-            var order = await _repo.GetOrderByIdAndUserIdAsync(userId, orderId)
+            var order = await _orderRepo.GetOrderByIdAndUserIdAsync(userId, orderId)
                 ?? throw new KeyNotFoundException("Order not found."); ;
 
             if (!order.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
@@ -146,7 +124,7 @@ namespace pbl3_web_api.Service
 
             order.Status = "Cancelled";
             order.UpdatedAt = DateTime.UtcNow;
-            await _repo.SaveAsync();
+            await _orderRepo.SaveAsync();
         }
 
         public async Task<CreateOrderResponse> CreateOrderAsync(int userId, CreateOrderRequest request)
@@ -156,7 +134,7 @@ namespace pbl3_web_api.Service
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null.");
 
-            var items = await _repo.GetCartItemsByUserIdAsync(userId);
+            var items = await _orderRepo.GetCartItemsByUserIdAsync(userId);
 
             if (items == null || !items.Any())
                 throw new InvalidOperationException("Cart is empty.");
@@ -164,12 +142,12 @@ namespace pbl3_web_api.Service
             var order = MapToOrder(userId, request);
             order.TotalAmount = request.shippingFee ?? 0;
 
-            using var transaction = await _repo.BeginTransactionAsync();
+            using var transaction = await _orderRepo.BeginTransactionAsync();
             try
             {
-                await _repo.AddOrderAsync(order);
+                await _orderRepo.AddOrderAsync(order);
                 await AddOrderDetailsAsync(order, items);
-                await _repo.SaveAsync();
+                await _orderRepo.SaveAsync();
 
                 await transaction.CommitAsync();
             }
@@ -189,7 +167,7 @@ namespace pbl3_web_api.Service
 
         public async Task<byte[]> ExportOrderPdfAsync(int orderId)
         {
-            var order = await _repo.GetOrderByIdAsync(orderId)
+            var order = await _orderRepo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found");
 
             if (order.Status != "Processing") throw new InvalidOperationException("Đơn hàng không thể xuất pdf");
@@ -296,8 +274,6 @@ namespace pbl3_web_api.Service
 
             return pdf;
         }
-
-
 
         private IQueryable<Order> ApplyFilters(
             IQueryable<Order> query,
@@ -498,9 +474,9 @@ namespace pbl3_web_api.Service
 
                 item.Product.StockQuantity -= item.Quantity;
             }
-            await _repo.UpdateProductsAsync(items.Select(i => i.Product).ToList());
-            await _repo.DeleteCartItem(items);
-            await _repo.AddRangeOrderDetailsAsync(orderDetails);
+            await _productRepo.UpdateProductsAsync(items.Select(i => i.Product).ToList());
+            await _cartRepo.DeleteRangeAsync(items);
+            await _orderRepo.AddRangeOrderDetailsAsync(orderDetails);
         }
     }
 }
