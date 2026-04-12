@@ -6,8 +6,8 @@
 
     <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden z-10 border border-slate-100 relative">
       <div class="bg-brand-500 px-6 py-8 text-center text-white">
-        <h2 class="text-3xl font-extrabold tracking-tight">Welcome Back</h2>
-        <p class="mt-2 text-brand-100">Log in to your ElectroShop account</p>
+        <h2 class="text-3xl font-extrabold tracking-tight">Chào mừng trở lại</h2>
+        <p class="mt-2 text-brand-100">Đăng nhập để sử dụng dịch vụ</p>
       </div>
       
       <div class="p-8">
@@ -18,14 +18,14 @@
 
         <form class="space-y-6" @submit.prevent="login(form)">
           <div>
-            <label for="username" class="block text-sm font-medium text-slate-700 mb-1">Username</label>
+            <label for="username" class="block text-sm font-medium text-slate-700 mb-1">Tên đăng nhập</label>
             <input id="username" v-model="form.username" type="text" required 
                    class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors" 
                    placeholder="Enter your username" />
           </div>
 
           <div>
-            <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
             <input id="password" v-model="form.password" type="password" autocomplete="current-password" required 
                    class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors" 
                    placeholder="••••••••" />
@@ -35,13 +35,13 @@
             <div class="flex items-center">
               <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-brand-500 focus:ring-brand-500 border-slate-300 rounded cursor-pointer" />
               <label for="remember-me" class="ml-2 block text-sm text-slate-700 cursor-pointer">
-                Remember me
+                Ghi nhớ đăng nhập
               </label>
             </div>
 
             <div class="text-sm">
               <a href="#" class="font-semibold text-brand-600 hover:text-brand-500 transition-colors">
-                Forgot your password?
+                Quên mật khẩu?
               </a>
             </div>
           </div>
@@ -53,16 +53,16 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              {{ isLoading ? 'Signing in...' : 'Sign in' }}
+              {{ isLoading ? 'Đang đăng nhập' : 'Đăng nhập' }}
             </button>
           </div>
         </form>
 
         <div class="mt-8 text-center">
           <p class="text-sm text-slate-600">
-            Don't have an account?
+            Bạn chưa có tài khoản?
             <router-link to="/register" class="font-bold text-brand-600 hover:text-brand-500 transition-colors">
-              Sign up now
+              Đăng ký ngay
             </router-link>
           </p>
         </div>
