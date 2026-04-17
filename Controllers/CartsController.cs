@@ -9,7 +9,7 @@ using pbl3_web_api.Service;
 
 namespace pbl3_web_api.Controllers
 {
-    [Route("api/cart")]
+    [Route("api/carts")]
     [ApiController]
     public class CartsController : ControllerBase
     {

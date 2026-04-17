@@ -29,9 +29,10 @@ public partial class ShopPbl3Context : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=shop_pbl3;Integrated Security=True;Trust Server Certificate=True");
+    => optionsBuilder.UseSqlServer("Data Source=localhost\\SQLEXPRESS;Initial Catalog=shop_pbl3;Integrated Security=True;Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -57,7 +58,7 @@ public partial class ShopPbl3Context : DbContext
         {
             entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD79753351ECC");
 
-            entity.ToTable("Cart");
+            entity.ToTable("Carts");
 
             entity.HasIndex(e => e.ProductId, "IX_Cart_ProductID");
 
