@@ -48,7 +48,7 @@
                   </div>
                   <div>
                     <div class="font-bold text-slate-800">{{ user.fullName || 'N/A' }}</div>
-                    <div class="text-xs text-slate-400">ID: {{ user.userID }} | @{{ user.username }}</div>
+                    <div class="text-xs text-slate-400">ID: {{ user.userId }}</div>
                   </div>
                 </div>
               </td>
@@ -171,8 +171,8 @@ const showDeleteDialog = ref(false)
 const userToDelete = ref(null)
 
 // CHÚ Ý: Đã bổ sung param phân trang cho giống hệt Swagger của bạn
-const FETCH_URL = 'https://localhost:7205/api/users?page=1&pageSize=30';
-const API_URL = 'https://localhost:7205/api/users';
+const FETCH_URL = 'https://localhost:7010/api/users?page=1&pageSize=30';
+const API_URL = 'https://localhost:7010/api/users';
 
 const formData = ref({
   userID: 0, username: '', password: '', fullName: '', email: '', phoneNumber: '', role: 'Customer', isActive: true

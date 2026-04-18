@@ -159,7 +159,7 @@ const orderStatusChartData = ref({
 
 // --- GỌI API KHI LOAD TRANG ---
 onMounted(() => {
-  const API_BASE = 'https://localhost:7205/api/statistics';
+  const API_BASE = 'https://localhost:7010/api/statistics';
 
   // 1. Lấy 4 ô số liệu
   fetch(`${API_BASE}/dashboard`)

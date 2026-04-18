@@ -2,12 +2,10 @@
   <header class="bg-blue-50 border-b border-blue-200 sticky top-0 z-50 shadow-sm">
     <div class="container mx-auto px-4 h-16 flex items-center">
 
-      <!-- Logo -->
       <div class="text-2xl font-extrabold text-blue-700">
         <router-link to="/">Cửa hàng điện tử</router-link>
       </div>
 
-      <!-- Menu -->
       <nav class="hidden md:flex items-center gap-6 ml-8">
         <router-link 
           to="/" 
@@ -46,10 +44,8 @@
         </router-link>
       </nav>
 
-      <!-- Right -->
       <div class="flex items-center gap-5 ml-auto">
 
-        <!-- Cart -->
         <router-link 
           v-if="authStore.user?.role === 'Customer'"
           to="/cart"
@@ -69,11 +65,9 @@
           </span>
         </router-link>
 
-        <!-- User -->
         <div v-if="authStore.isAuthenticated()" 
              class="flex items-center gap-3 border-l border-blue-200 pl-4">
 
-          <!-- Info -->
           <div class="hidden sm:flex flex-col text-right">
             <span class="text-sm font-semibold text-slate-800">
               {{ authStore.user?.fullName || 'User' }}
@@ -83,16 +77,13 @@
             </span>
           </div>
 
-          <!-- Avatar -->
           <div class="w-9 h-9 rounded-full bg-blue-600 text-white 
                       flex items-center justify-center font-bold shadow">
             {{ authStore.user?.fullName?.charAt(0) || 'U' }}
           </div>
 
-          <!-- Actions -->
           <div class="flex items-center gap-1 ml-2">
 
-            <!-- Admin -->
             <router-link 
               v-if="authStore.user?.role === 'Admin'"
               to="/admin"
@@ -110,7 +101,6 @@
               </svg>
             </router-link>
 
-            <!-- Logout -->
             <button 
               @click="handleLogout"
               title="Đăng xuất"
@@ -132,7 +122,6 @@
           </div>
         </div>
 
-        <!-- Login -->
         <router-link 
           v-else 
           to="/login" 
