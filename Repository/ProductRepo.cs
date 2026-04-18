@@ -4,19 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace pbl3_web_api.Repository
 {
-    public interface IProductRepo
-    {
-        IQueryable<Product> GetProductsQuery();
-        Task<Product?> GetProductByIdAsync(int id);
-        Task AddProductAsync(Product product);
-        Task<bool> CheckCategoryAndBrandExistAsync(int categoryId, int brandId);
-        Task SaveAsync();
-    }
-
     public class ProductRepo : IProductRepo
     {
         private readonly ShopPbl3Context _context;
-
         public ProductRepo(ShopPbl3Context context)
         {
             _context = context;
@@ -48,6 +38,15 @@ namespace pbl3_web_api.Repository
             var categoryExists = await _context.Categories.AnyAsync(c => c.CategoryId == categoryId);
             var brandExists = await _context.Brands.AnyAsync(b => b.BrandId == brandId);
             return categoryExists && brandExists;
+        }
+
+        public async Task UpdateProductsAsync(List<Product> products)
+        {
+            foreach (var product in products)
+            {
+                _context.Products.Update(product);
+            }
+            await _context.SaveChangesAsync();
         }
 
         public async Task SaveAsync()
