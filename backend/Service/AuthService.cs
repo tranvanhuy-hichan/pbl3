@@ -1,13 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using pbl3_web_api.DTO.Auth;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
-using Microsoft.IdentityModel.Tokens;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using System;
-using Microsoft.Extensions.Configuration;
-using pbl3_web_api.DTO.Auth;
 
 namespace pbl3_web_api.Service;
 
@@ -76,6 +77,28 @@ public class AuthService : IAuthService
             FullName = user.FullName
         };
     }
+
+    [Authorize]
+    public async Task ChangePasswordAsync(int id, string newPassword, string currentPassword)
+    {
+        var user = await _userRepo.GetUserByIdAsync(id);
+        if (user == null)
+        {
+            throw new ArgumentNullException(nameof(user), "User không tồn tại.");
+        }
+
+        bool isCorrectPassword = BCrypt.Net.BCrypt.Verify(currentPassword, user.Password);
+        if (!isCorrectPassword)
+        {
+            throw new Exception("Mật khẩu hiện tại không đúng.");
+        }
+
+        user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        user.UpdatedAt = DateTime.Now;
+
+        await _userRepo.UpdateUserAsync(user);
+    }
+
 
     private string GenerateJwtToken(User user)
     {
