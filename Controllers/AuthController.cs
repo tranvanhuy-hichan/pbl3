@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using pbl3_web_api.DTO.Auth;
+using pbl3_web_api.Entities;
 using pbl3_web_api.Service;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace pbl3_web_api.Controllers;
@@ -45,4 +48,30 @@ public class AuthController : ControllerBase
             fullName = result.FullName
         });
     }
+
+    [Authorize]
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return BadRequest();
+        int id = int.Parse(userId);
+
+        try
+        {
+            await _authService.ChangePasswordAsync(
+                id,
+                dto.newPassword,
+                dto.currentPassword
+            );
+
+            return Ok(new { message = "Đổi mật khẩu thành công." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
 }

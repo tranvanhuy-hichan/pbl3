@@ -29,3 +29,9 @@ public class AuthResultDto
     public int? UserId { get; set; }
     public string? FullName { get; set; }
 }
+
+public class ChangePasswordDto
+{
+    public string newPassword { get; set; } = null!;
+    public string currentPassword { get; set; } = null!;
+}
