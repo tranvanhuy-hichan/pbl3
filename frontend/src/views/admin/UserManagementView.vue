@@ -1,10 +1,10 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 bg-blue-50 p-6">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <h2 class="text-2xl font-bold text-slate-800 tracking-tight">User management</h2>
+      <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Quản lý người dùng</h2>
       <button @click="openAddModal" class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition-all flex items-center gap-2">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-        <span>Add account</span>
+        <span>Thêm</span>
       </button>
     </div>
 
@@ -20,7 +20,7 @@
       </div>
       <div class="flex items-center gap-2 w-full sm:w-auto">
         <select v-model="selectedRole" class="w-full sm:w-auto border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white text-slate-700">
-          <option value="">All roles</option>
+          <option value="">Tất cả</option>
           <option value="admin">Admin</option>
           <option value="customer">Customer</option>
         </select>
@@ -32,11 +32,11 @@
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Operation</th>
+              <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Người dùng</th>
+              <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Liên hệ</th>
+              <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Vai trò</th>
+              <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">trạng thái</th>
+              <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -71,10 +71,10 @@
               </td>
               <td class="py-4 px-6 text-right flex justify-end gap-2">
                 <button @click="openEditModal(user)" class="p-1.5 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 </button>
                 <button @click="confirmDelete(user)" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
               </td>
             </tr>

@@ -2,9 +2,17 @@
   <header class="bg-blue-50 border-b border-blue-200 sticky top-0 z-50 shadow-sm">
     <div class="container mx-auto px-4 h-16 flex items-center">
 
-      <div class="text-2xl font-extrabold text-blue-700">
-        <router-link to="/">Cửa hàng điện tử</router-link>
-      </div>
+      <div class="flex items-center gap-2 text-2xl font-extrabold text-blue-700">
+      <router-link to="/" class="flex items-center gap-2">
+        
+        <!-- Logo -->
+        <img src="/icon.ico" alt="logo" class="w-10 h-10 object-contain" />
+
+        <!-- Tên shop -->
+        <span>TechStore</span>
+      </router-link>
+    </div>
+
 
       <nav class="hidden md:flex items-center gap-6 ml-8">
         <router-link 
@@ -68,20 +76,27 @@
         <div v-if="authStore.isAuthenticated()" 
              class="flex items-center gap-3 border-l border-blue-200 pl-4">
 
-          <div class="hidden sm:flex flex-col text-right">
-            <span class="text-sm font-semibold text-slate-800">
-              {{ authStore.user?.fullName || 'User' }}
-            </span>
-            <span class="text-xs text-blue-600">
-              {{ authStore.user?.role }}
-            </span>
-          </div>
+          <router-link
+            to="/profile"
+            class="hidden sm:flex items-center gap-3 hover:opacity-80 cursor-pointer"
+          >
 
-          <div class="w-9 h-9 rounded-full bg-blue-600 text-white 
-                      flex items-center justify-center font-bold shadow">
-            {{ authStore.user?.fullName?.charAt(0) || 'U' }}
-          </div>
+            <div class="flex flex-col text-right">
+              <span class="text-sm font-semibold text-slate-800">
+                {{ authStore.user?.fullName || 'User' }}
+              </span>
 
+              <span class="text-xs text-blue-600">
+                {{ authStore.user?.role || '' }}
+              </span>
+            </div>
+
+            <div class="w-9 h-9 rounded-full bg-blue-600 text-white 
+                        flex items-center justify-center font-bold shadow ml-2">
+              {{ authStore.user?.fullName?.charAt(0) || 'U' }}
+            </div>
+          </router-link>
+          
           <div class="flex items-center gap-1 ml-2">
 
             <router-link 
@@ -100,24 +115,6 @@
                   d="M3 3h7v7H3V3zm11 0h7v4h-7V3zM14 10h7v11h-7V10zM3 14h7v7H3v-7z" />
               </svg>
             </router-link>
-
-            <button 
-              @click="handleLogout"
-              title="Đăng xuất"
-              class="w-9 h-9 flex items-center justify-center 
-                     text-red-500 hover:text-white 
-                     hover:bg-red-500 rounded-full transition">
-
-              <svg xmlns="http://www.w3.org/2000/svg" 
-                   fill="none" viewBox="0 0 24 24" 
-                   stroke-width="2" stroke="currentColor" 
-                   class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" 
-                  d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-7.5A2.25 2.25 0 003.75 5.25v13.5A2.25 2.25 0 006 21h7.5a2.25 2.25 0 002.25-2.25V15" />
-                <path stroke-linecap="round" stroke-linejoin="round" 
-                  d="M18 12h-9m0 0l3-3m-3 3l3 3" />
-              </svg>
-            </button>
 
           </div>
         </div>
@@ -138,14 +135,9 @@
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore'
-import { useAuth } from '@/composables/useAuth'
 
 const authStore = useAuthStore()
-const { logout } = useAuth()
 
-const handleLogout = () => {
-  logout()
-}
 </script>
 
 <style scoped>

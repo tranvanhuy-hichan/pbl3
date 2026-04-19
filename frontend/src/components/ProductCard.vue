@@ -8,7 +8,7 @@
       <img
         :src="product.image ? `https://localhost:7010${product.image}` : 'https://via.placeholder.com/150'"
         :alt="product.name"
-        class="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+        class="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105 dark:mix-blend-normal"
       />
 
       <div class="absolute top-2 left-2 flex flex-col gap-1">

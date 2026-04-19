@@ -1,162 +1,239 @@
 <template>
-  <div class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-sky-50 relative overflow-hidden">
-    <!-- Các phần tử nền trang trí -->
-    <div class="absolute -top-32 right-10 w-96 h-96 bg-sky-200 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-    <div class="absolute -bottom-10 left-10 w-80 h-80 bg-blue-300 rounded-full blur-3xl opacity-10 pointer-events-none"></div>
+  <div class="min-h-screen flex items-center justify-center bg-sky-50 px-4">
 
-    <div class="max-w-2xl w-full bg-white rounded-3xl shadow-xl overflow-hidden z-10 border border-sky-100 relative">
-      <div class="bg-sky-700 px-6 py-8 text-center text-white">
-        <h2 class="text-3xl font-extrabold tracking-tight">Tạo Tài Khoản</h2>
-        <p class="mt-2 text-sky-200">Tham gia ngay hôm nay</p>
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden">
+
+      <!-- HEADER -->
+      <div class="bg-sky-700 text-white text-center p-6">
+        <h1 class="text-2xl font-bold">Đăng ký tài khoản</h1>
+
+        <div class="flex justify-center gap-2 mt-4">
+          <div
+            v-for="s in 3"
+            :key="s"
+            class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+            :class="step >= s ? 'bg-white text-sky-700' : 'bg-sky-400 text-white opacity-60'"
+          >
+            {{ s }}
+          </div>
+        </div>
       </div>
-      
-      <div class="p-8">
-        <!-- Thông báo lỗi & thành công -->
-        <div v-if="error" class="mb-5 bg-red-50 text-red-600 p-3 border border-red-200 rounded-lg text-sm font-medium text-center shadow-sm">
+
+      <!-- BODY -->
+      <div class="p-6 space-y-4">
+
+        <div v-if="error" class="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
           {{ error }}
         </div>
-        <div v-if="successMsg" class="mb-5 bg-emerald-50 text-emerald-600 border border-emerald-200 p-3 rounded-lg text-sm font-medium text-center shadow-sm">
+
+        <div v-if="successMsg" class="bg-green-50 text-green-600 p-3 rounded-lg text-sm">
           {{ successMsg }}
         </div>
 
-        <form class="space-y-5" @submit.prevent="handleRegister">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label for="username" class="block text-sm font-medium text-slate-700 mb-1">Tên đăng nhập</label>
-              <input id="username" v-model="form.username" type="text" required 
-                     class="appearance-none block w-full px-4 py-3 border border-sky-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-200 ease-in-out" 
-                     placeholder="nguyenvana" />
-            </div>
+        <!-- STEP 1 -->
+        <div v-if="step === 1" class="space-y-4">
 
-            <div>
-              <label for="fullName" class="block text-sm font-medium text-slate-700 mb-1">Họ và tên</label>
-              <input id="fullName" v-model="form.fullName" type="text" required 
-                     class="appearance-none block w-full px-4 py-3 border border-sky-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-200 ease-in-out" 
-                     placeholder="Nguyễn Văn A" />
-            </div>
-
-            <div>
-              <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Địa chỉ Email</label>
-              <input id="email" v-model="form.email" type="email" autocomplete="email" required 
-                     class="appearance-none block w-full px-4 py-3 border border-sky-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-200 ease-in-out" 
-                     placeholder="ban@email.com" />
-            </div>
-
-            <div>
-              <label for="phoneNumber" class="block text-sm font-medium text-slate-700 mb-1">Số điện thoại</label>
-              <input id="phoneNumber" v-model="form.phoneNumber" type="tel" required 
-                     class="appearance-none block w-full px-4 py-3 border border-sky-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-200 ease-in-out" 
-                     placeholder="09xxxxxxxx" />
-            </div>
-
-            <div>
-              <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
-              <input id="password" v-model="form.password" type="password" required 
-                     class="appearance-none block w-full px-4 py-3 border border-sky-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-200 ease-in-out" 
-                     placeholder="••••••••" />
-            </div>
-            
-            <div>
-              <label for="confirm-password" class="block text-sm font-medium text-slate-700 mb-1">Xác nhận mật khẩu</label>
-              <input id="confirm-password" v-model="confirmPassword" type="password" required 
-                     class="appearance-none block w-full px-4 py-3 border border-sky-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-200 ease-in-out" 
-                     placeholder="••••••••" />
-            </div>
-
-            <div>
-              <label for="address" class="block text-sm font-medium text-slate-700 mb-1">Địa chỉ</label>
-              <input id="address" v-model="form.address" type="text" required 
-                     class="appearance-none block w-full px-4 py-3 border border-sky-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-200 ease-in-out" 
-                     placeholder="123 Tên đường" />
-            </div>
-
-            <div>
-              <label for="dateOfBirth" class="block text-sm font-medium text-slate-700 mb-1">Ngày sinh</label>
-              <input id="dateOfBirth" v-model="form.dateOfBirth" type="date" required 
-                     class="appearance-none block w-full px-4 py-3 border border-sky-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all duration-200 ease-in-out text-slate-700" />
-            </div>
+          <div>
+            <label class="label">Họ và tên</label>
+            <input v-model="form.fullName" placeholder="Ví dụ: Nguyễn Văn A" class="input" />
           </div>
 
-          <div class="flex items-start mt-6">
-            <div class="flex items-center h-5">
-              <!-- Liên kết v-model với biến termsAccepted -->
-              <input id="terms" name="terms" type="checkbox" v-model="termsAccepted" class="h-4 w-4 text-sky-600 focus:ring-sky-500 border-slate-300 rounded cursor-pointer" />
-            </div>
-            <div class="ml-2 text-sm">
-              <label for="terms" class="text-slate-600 cursor-pointer">
-                Tôi đồng ý với <a href="#" class="font-medium text-sky-700 hover:text-sky-600 transition-colors">Điều khoản</a> và <a href="#" class="font-medium text-sky-700 hover:text-sky-600 transition-colors">Chính sách bảo mật</a>.
-              </label>
-            </div>
+          <div>
+            <label class="label">Số điện thoại</label>
+            <input v-model="form.phoneNumber" placeholder="Ví dụ: 09xxxxxxxx" class="input" />
           </div>
 
-          <div class="pt-2">
-            <button type="submit" 
-                    :disabled="isLoading || !termsAccepted" 
-                    class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-bold text-white bg-sky-700 hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-700 transition-all duration-300 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed">
-              <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              {{ isLoading ? 'Đang tạo tài khoản...' : 'Tạo Tài Khoản' }}
-            </button>
+          <div>
+            <label class="label">Email</label>
+            <input v-model="form.email" placeholder="Ví dụ: abc@gmail.com" class="input" />
           </div>
-        </form>
 
-        <div class="mt-8 text-center">
-          <p class="text-sm text-slate-600">
-            Đã có tài khoản?
-            <router-link to="/login" class="font-bold text-sky-700 hover:text-sky-600 transition-colors">
-              Đăng nhập
-            </router-link>
+          <div>
+            <label class="label">Ngày sinh</label>
+            <input v-model="form.dateOfBirth" type="date" class="input" />
+          </div>
+
+          <div>
+            <label class="label">Địa chỉ</label>
+            <input v-model="form.address" placeholder="Ví dụ: 123 Lê Lợi, Đà Nẵng" class="input" />
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div v-if="step === 2" class="space-y-4">
+
+          <div>
+            <label class="label">Tên đăng nhập</label>
+            <input v-model="form.username" placeholder="Ví dụ: nguyenvana123" class="input" />
+          </div>
+
+          <div>
+            <label class="label">Mật khẩu</label>
+            <input v-model="form.password" type="password" placeholder="••••••••" class="input" />
+          </div>
+
+          <div>
+            <label class="label">Xác nhận mật khẩu</label>
+            <input v-model="form.confirmPassword" type="password" placeholder="••••••••" class="input" />
+          </div>
+
+          <p class="text-xs text-gray-500">
+            Mật khẩu ≥ 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt
           </p>
         </div>
+
+        <!-- STEP 3 -->
+        <div v-if="step === 3" class="space-y-3 text-sm text-gray-700">
+
+          <p><b>Họ tên:</b> {{ form.fullName }}</p>
+          <p><b>Email:</b> {{ form.email }}</p>
+          <p><b>SĐT:</b> {{ form.phoneNumber }}</p>
+          <p><b>Địa chỉ:</b> {{ form.address }}</p>
+          <p><b>Username:</b> {{ form.username }}</p>
+
+          <div class="flex items-center gap-2 mt-4">
+            <input type="checkbox" v-model="terms" />
+            <span>Tôi đồng ý điều khoản</span>
+          </div>
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="flex gap-3 pt-4">
+
+          <button v-if="step > 1" @click="prevStep" class="flex-1 py-2 border rounded-lg">
+            Quay lại
+          </button>
+
+          <button v-if="step < 3" @click="nextStep" class="flex-1 py-2 bg-sky-600 text-white rounded-lg">
+            Tiếp tục
+          </button>
+
+          <button
+            v-if="step === 3"
+            @click="handleRegister"
+            :disabled="isLoading || !terms"
+            class="flex-1 py-2 bg-green-600 text-white rounded-lg disabled:opacity-50"
+          >
+            {{ isLoading ? 'Đang tạo...' : 'Đăng ký' }}
+          </button>
+
+        </div>
+
+        <!-- LOGIN -->
+        <p class="text-center text-sm mt-4">
+          Đã có tài khoản?
+          <router-link to="/login" class="text-sky-700 font-bold">
+            Đăng nhập
+          </router-link>
+        </p>
+
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
-import { useAuth } from '../../composables/useAuth';
+import { reactive, ref } from 'vue'
+import { useAuth } from '@/composables/useAuth'
 
-const { register, isLoading, error, successMsg } = useAuth();
+const { register, isLoading } = useAuth()
+
+const step = ref(1)
+const error = ref('')
+const successMsg = ref('')
+const terms = ref(false)
 
 const form = reactive({
+  fullName: '',
+  phoneNumber: '',
+  email: '',
+  dateOfBirth: '',
+  address: '',
   username: '',
   password: '',
-  fullName: '',
-  email: '',
-  phoneNumber: '',
-  address: '',
-  dateOfBirth: ''
-});
-const confirmPassword = ref('');
-const termsAccepted = ref(false); 
+  confirmPassword: ''
+})
 
-const handleRegister = () => {
-  error.value = null;
+const isStrongPassword = (pwd) => {
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(pwd)
+}
 
-  if (!termsAccepted.value) {
-    error.value = 'Bạn phải đồng ý với Điều khoản và Chính sách bảo mật.';
-    return;
+const nextStep = () => {
+  error.value = ''
+
+  if (step.value === 1) {
+    if (!form.fullName || !form.phoneNumber || !form.email || !form.dateOfBirth || !form.address) {
+      error.value = 'Vui lòng nhập đầy đủ thông tin'
+      return
+    }
   }
 
-  if (form.password !== confirmPassword.value) {
-    error.value = 'Mật khẩu xác nhận không khớp. Vui lòng thử lại.';
-    return;
+  if (step.value === 2) {
+    if (!form.username || !form.password || !form.confirmPassword) {
+      error.value = 'Vui lòng nhập đầy đủ tài khoản'
+      return
+    }
+
+    if (!isStrongPassword(form.password)) {
+      error.value = 'Mật khẩu yếu'
+      return
+    }
+
+    if (form.password !== form.confirmPassword) {
+      error.value = 'Mật khẩu không khớp'
+      return
+    }
   }
 
-  register(form);
+  step.value++
+}
+
+const prevStep = () => {
+  if (step.value > 1) step.value--
+}
+
+const handleRegister = async () => {
+  error.value = ''
+  successMsg.value = ''
+
+  if (!terms.value) {
+    error.value = 'Bạn phải đồng ý điều khoản'
+    return
+  }
+
+  try {
+    await register({
+      ...form
+    })
+
+    successMsg.value = 'Đăng ký thành công 🎉'
+
+  } catch (e) {
+    error.value = 'Đăng ký thất bại'
+  }
 }
 </script>
 
 <style scoped>
-
-input[type="date"] {
-  color: #334155;
+.input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+  transition: 0.2s;
 }
-input[type="date"]:focus {
-  border-color: #0ea5e9; 
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2); 
+
+.input:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 2px rgba(14,165,233,0.2);
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 4px;
+  display: block;
 }
 </style>
