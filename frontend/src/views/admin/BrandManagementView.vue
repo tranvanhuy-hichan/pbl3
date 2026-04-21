@@ -9,6 +9,14 @@
       </button>
     </div>
 
+    <!-- Error Alert -->
+    <div v-if="brandStore.error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center justify-between">
+      <span>{{ brandStore.error }}</span>
+      <button @click="brandStore.clearError" class="text-red-500 hover:text-red-700">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+
     <!-- Toolbar: Search -->
     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
       <div class="relative w-full max-w-md">
@@ -20,41 +28,43 @@
         />
         <svg class="absolute left-3 top-2.5 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
       </div>
+      <div class="text-sm text-slate-500 ml-4">
+        Total: <span class="font-semibold text-slate-700">{{ brandStore.totalBrands }}</span> brands
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="brandStore.loading" class="bg-white rounded-xl shadow-sm border border-slate-100 p-12 text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
+      <p class="text-slate-500">Loading brands...</p>
     </div>
 
     <!-- Data Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+    <div v-else class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-16 text-center">ID</th>
               <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Logo & Name</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Description</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
               <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            <tr v-for="brand in filteredBrands" :key="brand.id" class="hover:bg-slate-50 transition-colors">
+            <tr v-for="brand in filteredBrands" :key="brand.brandId || brand.id" class="hover:bg-slate-50 transition-colors">
+              <td class="py-4 px-6 text-center">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-50 text-brand-600 text-sm font-semibold">
+                  {{ brand.brandId || brand.id }}
+                </span>
+              </td>
               <td class="py-4 px-6">
                 <div class="flex items-center gap-4">
                   <div class="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 p-2 flex items-center justify-center flex-shrink-0">
-                    <img v-if="brand.logo" :src="brand.logo" :alt="brand.name" class="max-w-full max-h-full object-contain mix-blend-multiply">
-                    <div v-else class="text-xl font-bold text-slate-400">{{ brand.name.charAt(0) }}</div>
+                    <img v-if="brand.logoURL || brand.logo" :src="brand.logoURL || brand.logo" :alt="brand.brandName || brand.name" class="max-w-full max-h-full object-contain mix-blend-multiply">
+                    <div v-else class="text-xl font-bold text-slate-400">{{ (brand.brandName || brand.name || '?').charAt(0) }}</div>
                   </div>
-                  <div class="font-bold text-slate-800">{{ brand.name }}</div>
+                  <div class="font-bold text-slate-800">{{ brand.brandName || brand.name }}</div>
                 </div>
-              </td>
-              <td class="py-4 px-6 text-sm text-slate-600 max-w-xs truncate">
-                {{ brand.description || 'No description provided.' }}
-              </td>
-              <td class="py-4 px-6">
-                <span :class="[
-                  'px-2.5 py-1 text-xs font-semibold rounded-full',
-                  brand.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'
-                ]">
-                  {{ brand.isActive ? 'Active' : 'Hidden' }}
-                </span>
               </td>
               <td class="py-4 px-6 text-right space-x-2">
                 <button @click="openEditModal(brand)" class="p-1.5 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors inline-block" title="Edit">
@@ -65,8 +75,8 @@
                 </button>
               </td>
             </tr>
-            <tr v-if="filteredBrands.length === 0">
-              <td colspan="4" class="py-12 text-center text-slate-500">
+            <tr v-if="filteredBrands.length === 0 && !brandStore.loading">
+              <td colspan="3" class="py-12 text-center text-slate-500">
                 <p>No brands found matching your search.</p>
               </td>
             </tr>
@@ -89,25 +99,24 @@
               <div class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-slate-700 mb-1">Brand Name <span class="text-red-500">*</span></label>
-                  <input v-model="formData.name" type="text" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+                  <input v-model="formData.brandName" type="text" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-slate-700 mb-1">Logo URL</label>
-                  <input v-model="formData.logo" type="url" placeholder="https://..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+                  <input v-model="formData.logoURL" type="url" placeholder="https://..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                  <textarea v-model="formData.description" rows="3" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"></textarea>
-                </div>
-                <div class="flex items-center gap-2">
-                  <input type="checkbox" id="isActive" v-model="formData.isActive" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
-                  <label for="isActive" class="text-sm font-medium text-slate-700">Active (Visible to customers)</label>
+                <!-- Logo Preview -->
+                <div v-if="formData.logoURL" class="flex items-center gap-3">
+                  <span class="text-sm text-slate-500">Preview:</span>
+                  <div class="w-16 h-16 rounded-lg bg-slate-100 border border-slate-200 p-2 flex items-center justify-center">
+                    <img :src="formData.logoURL" alt="Logo preview" class="max-w-full max-h-full object-contain">
+                  </div>
                 </div>
               </div>
             </div>
             <div class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-200">
-              <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-brand-600 text-base font-medium text-white hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors">
-                Save
+              <button type="submit" :disabled="saving" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-brand-600 text-base font-medium text-white hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors disabled:opacity-50">
+                {{ saving ? 'Saving...' : 'Save' }}
               </button>
               <button type="button" @click="closeModal" class="mt-3 w-full inline-flex justify-center rounded-lg border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors">
                 Cancel
@@ -125,9 +134,11 @@
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         <div class="relative inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full p-6">
           <h3 class="text-lg font-bold text-slate-900 mb-2">Delete Brand</h3>
-          <p class="text-sm text-slate-500 mb-6">Are you sure you want to delete <span class="font-bold text-slate-800">"{{ itemToDelete?.name }}"</span>? This might affect products associated with this brand.</p>
+          <p class="text-sm text-slate-500 mb-6">Are you sure you want to delete <span class="font-bold text-slate-800">"{{ itemToDelete?.brandName || itemToDelete?.name }}"</span>? This might affect products associated with this brand.</p>
           <div class="flex flex-row-reverse gap-3">
-            <button @click="executeDelete" class="btn bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 font-medium">Delete</button>
+            <button @click="executeDelete" :disabled="deleting" class="btn bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 font-medium disabled:opacity-50">
+              {{ deleting ? 'Deleting...' : 'Delete' }}
+            </button>
             <button @click="showDeleteDialog = false" class="btn bg-white border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 font-medium text-slate-700">Cancel</button>
           </div>
         </div>
@@ -137,61 +148,105 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useBrandStore } from '../../stores/brands'
 
-// Mock Data
-const brands = ref([
-  { id: 'B1', name: 'Apple', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg', description: 'American multinational technology company.', isActive: true },
-  { id: 'B2', name: 'Samsung', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg', description: 'South Korean multinational manufacturing conglomerate.', isActive: true },
-  { id: 'B3', name: 'Sony', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/ca/Sony_logo.svg', description: 'Japanese multinational conglomerate corporation.', isActive: true },
-])
+const brandStore = useBrandStore()
 
 const searchQuery = ref('')
 const showModal = ref(false)
 const isEditing = ref(false)
 const showDeleteDialog = ref(false)
 const itemToDelete = ref(null)
+const saving = ref(false)
+const deleting = ref(false)
 
-const formData = ref({ id: '', name: '', logo: '', description: '', isActive: true })
+const formData = ref({ brandId: null, brandName: '', logoURL: '' })
 
+// Filter brands by search query
 const filteredBrands = computed(() => {
-  return brands.value.filter(b => b.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
+  const brands = brandStore.brands || []
+  if (!searchQuery.value) return brands
+  return brands.filter(b => {
+    const name = b.brandName || b.name || ''
+    return name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  })
 })
 
+// Open Add Modal
 const openAddModal = () => {
   isEditing.value = false
-  formData.value = { id: Date.now().toString(), name: '', logo: '', description: '', isActive: true }
+  formData.value = { brandId: null, brandName: '', logoURL: '' }
   showModal.value = true
 }
 
+// Open Edit Modal
 const openEditModal = (brand) => {
   isEditing.value = true
-  formData.value = { ...brand }
+  formData.value = { 
+    brandId: brand.brandId || brand.id,
+    brandName: brand.brandName || brand.name,
+    logoURL: brand.logoURL || brand.logo || ''
+  }
   showModal.value = true
 }
 
-const closeModal = () => { showModal.value = false }
-
-const saveBrand = () => {
-  if (isEditing.value) {
-    const index = brands.value.findIndex(b => b.id === formData.value.id)
-    if (index !== -1) brands.value[index] = { ...formData.value }
-  } else {
-    brands.value.push({ ...formData.value })
-  }
-  closeModal()
+// Close Modal
+const closeModal = () => { 
+  showModal.value = false 
+  formData.value = { brandId: null, brandName: '', logoURL: '' }
 }
 
+// Save Brand (Add or Update)
+const saveBrand = async () => {
+  saving.value = true
+  try {
+    const data = {
+      brandName: formData.value.brandName,
+      logoURL: formData.value.logoURL || null
+    }
+    
+    if (isEditing.value) {
+      await brandStore.updateBrand(formData.value.brandId, data)
+      alert('Brand updated successfully!')
+    } else {
+      await brandStore.addBrand(data)
+      alert('Brand added successfully!')
+    }
+    closeModal()
+  } catch (error) {
+    alert(brandStore.error || 'An error occurred while saving the brand')
+  } finally {
+    saving.value = false
+  }
+}
+
+// Confirm Delete
 const confirmDelete = (brand) => {
   itemToDelete.value = brand
   showDeleteDialog.value = true
 }
 
-const executeDelete = () => {
-  if (itemToDelete.value) {
-    brands.value = brands.value.filter(b => b.id !== itemToDelete.value.id)
+// Execute Delete
+const executeDelete = async () => {
+  if (!itemToDelete.value) return
+  
+  deleting.value = true
+  try {
+    const id = itemToDelete.value.brandId || itemToDelete.value.id
+    await brandStore.deleteBrand(id)
+    alert('Brand deleted successfully!')
+    showDeleteDialog.value = false
+    itemToDelete.value = null
+  } catch (error) {
+    alert(brandStore.error || 'An error occurred while deleting the brand')
+  } finally {
+    deleting.value = false
   }
-  showDeleteDialog.value = false
-  itemToDelete.value = null
 }
+
+// Fetch brands on mount
+onMounted(() => {
+  brandStore.fetchBrands()
+})
 </script>
