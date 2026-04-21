@@ -1,4 +1,4 @@
-using pbl3_web_api.DTO.Brands;
+using pbl3_web_api.DTO;
 using System.Threading.Tasks;
 
 namespace pbl3_web_api.Service
