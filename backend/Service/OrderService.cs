@@ -4,8 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.DTO.Order;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using QuestPDF.Fluent;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace pbl3_web_api.Service
 {
@@ -106,7 +107,7 @@ namespace pbl3_web_api.Service
             ValidateId(userId, "UserId");
 
             var order = await _orderRepo.GetOrderByIdAndUserIdAsync(userId, orderId)
-                ?? throw new KeyNotFoundException("Order not found."); ;
+                ?? throw new KeyNotFoundException("Order not found."); 
 
             return MapToMyOrderDetailResponse(order);
         }
@@ -117,7 +118,7 @@ namespace pbl3_web_api.Service
             ValidateId(userId, "UserId");
 
             var order = await _orderRepo.GetOrderByIdAndUserIdAsync(userId, orderId)
-                ?? throw new KeyNotFoundException("Order not found."); ;
+                ?? throw new KeyNotFoundException("Order not found."); 
 
             if (!order.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Only pending orders can be canceled.");
@@ -135,6 +136,7 @@ namespace pbl3_web_api.Service
                 throw new ArgumentNullException(nameof(request), "Request cannot be null.");
 
             var items = await _orderRepo.GetCartItemsByUserIdAsync(userId);
+            Console.WriteLine(items);
 
             if (items == null || !items.Any())
                 throw new InvalidOperationException("Cart is empty.");
@@ -475,7 +477,7 @@ namespace pbl3_web_api.Service
                 item.Product.StockQuantity -= item.Quantity;
             }
             await _productRepo.UpdateProductsAsync(items.Select(i => i.Product).ToList());
-            await _cartRepo.DeleteRangeAsync(items);
+            await _cartRepo.DeleteRange2Async(items);
             await _orderRepo.AddRangeOrderDetailsAsync(orderDetails);
         }
     }

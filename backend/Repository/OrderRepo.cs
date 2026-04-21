@@ -47,6 +47,7 @@ namespace pbl3_web_api.Repository
 
         public async Task<IEnumerable<Cart>> GetCartItemsByUserIdAsync(int userId)
         {
+            Console.WriteLine(userId);
             return await _context.Carts
                 .Where(ci => ci.UserId == userId)
                 .Include(ci => ci.Product)
