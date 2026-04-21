@@ -1,82 +1,80 @@
 <template>
-  <div class="bg-blue-50 min-h-screen">
+  <div class="bg-slate-50 min-h-screen">
 
-    <div class="max-w-7xl mx-auto p-6 space-y-6">
+    <div class="sticky top-0 z-50 bg-blue-50 border-b shadow-sm">
+      <div class="flex items-center gap-4 px-6 py-3">
 
-      <!-- Filter -->
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-blue-200 flex flex-wrap gap-3">
+        <div class="flex-1 relative">
+          <input
+            :value="clientProductStore.searchQuery"
+            @input="onSearchInput"
+            placeholder="Tìm sản phẩm..."
+            class="w-full pl-10 pr-4 py-2 rounded-full border border-slate-200 focus:ring-2 focus:ring-blue-400 outline-none text-sm bg-slate-50"
+          />
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+          </svg>
+        </div>
 
-        <!-- Search -->
-        <input
-          :value="clientProductStore.searchQuery"
-          @input="onSearchInput"
-          placeholder="Tìm sản phẩm..."
-          class="flex-1 min-w-[220px] px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
-        />
-
-        <!-- Category -->
         <select
           :value="clientProductStore.selectedCategory ?? ''"
           @change="onCategoryChange"
-          class="px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
+          class="px-3 py-2 rounded-full border border-slate-200 text-sm bg-white hover:border-blue-400"
         >
           <option value="">Danh mục</option>
-          <option
-            v-for="c in clientProductStore.categories"
-            :key="c.categoryId"
-            :value="c.categoryId"
-          >
+          <option v-for="c in clientProductStore.categories" :key="c.categoryId" :value="c.categoryId">
             {{ c.categoryName }}
           </option>
         </select>
 
-        <!-- Brand -->
         <select
           :value="clientProductStore.selectedBrand ?? ''"
           @change="onBrandChange"
-          class="px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
+          class="px-3 py-2 rounded-full border border-slate-200 text-sm bg-white hover:border-blue-400"
         >
-          <option value="">Nhãn hàng</option>
-          <option
-            v-for="b in clientProductStore.brands"
-            :key="b.brandId"
-            :value="b.brandId"
-          >
+          <option value="">Hãng</option>
+          <option v-for="b in clientProductStore.brands" :key="b.brandId" :value="b.brandId">
             {{ b.brandName }}
           </option>
         </select>
 
-        <!-- Price -->
-        <input
-          :value="clientProductStore.minPrice ?? ''"
-          @input="e => onPriceInput('min', e)"
-          placeholder="Giá từ"
-          class="w-28 px-2 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
-        />
-
-        <input
-          :value="clientProductStore.maxPrice ?? ''"
-          @input="e => onPriceInput('max', e)"
-          placeholder="Đến"
-          class="w-28 px-2 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-blue-50"
-        />
-
-        <!-- Reset -->
+        <div class="flex items-center gap-1 border border-slate-200 rounded-full px-2 py-1 bg-white">
+          <input
+            :value="clientProductStore.minPrice ?? ''"
+            @input="e => onPriceInput('min', e)"
+            placeholder="Từ"
+            class="w-16 text-sm outline-none"
+          />
+          <span class="text-slate-400">-</span>
+          <input
+            :value="clientProductStore.maxPrice ?? ''"
+            @input="e => onPriceInput('max', e)"
+            placeholder="Đến"
+            class="w-16 text-sm outline-none"
+          />
+        </div>
         <button
           v-if="hasFilters"
           @click="resetFilters"
-          class="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all"
+          class="px-3 py-2 text-sm text-white bg-slate-500 rounded-full hover:bg-blue-600 transition"
         >
           Reset
         </button>
 
       </div>
-      
-      <!-- Product Grid -->
-      <div v-if="clientProductStore.products.length > 0"
-        ref="productGridRef"
-        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    </div>
 
+
+    <div class="p-6 space-y-6">
+
+      <!-- Product Grid -->
+      <div
+        v-if="clientProductStore.products.length > 0"
+        ref="productGridRef"
+        class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6"
+      >
         <ProductCard
           v-for="p in clientProductStore.products"
           :key="p.productId"
@@ -84,10 +82,10 @@
         />
       </div>
 
-      <!-- Empty state -->
+      <!-- Empty -->
       <div v-else class="text-center py-16">
         <p class="text-xl font-semibold text-gray-500">
-          Không có sản phẩm nào 
+          Không có sản phẩm nào
         </p>
         <p class="text-sm text-gray-400 mt-2">
           Thử thay đổi bộ lọc hoặc tìm kiếm khác nhé!
@@ -123,12 +121,10 @@
   </div>
 </template>
 
-
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { useClientProductStore } from '@/stores/client_products'
 import ProductCard from '@/components/ProductCard.vue'
-import { ref } from 'vue'
 
 const clientProductStore = useClientProductStore()
 const productGridRef = ref(null)
@@ -163,13 +159,12 @@ const onBrandChange = (e) => {
   clientProductStore.selectedBrand = e.target.value || null
   clientProductStore.page = 1
   clientProductStore.fetchProducts()
-}   
+}
 
 const onPriceInput = (type, e) => {
   const value = e.target.value ? parseInt(e.target.value) : null
   if (type === 'min') clientProductStore.minPrice = value
   else clientProductStore.maxPrice = value
-
   debounceFetch()
 }
 
@@ -183,7 +178,6 @@ const resetFilters = () => {
   clientProductStore.fetchProducts()
 }
 
-// check filter
 const hasFilters = computed(() => {
   return (
     clientProductStore.searchQuery ||
@@ -214,7 +208,7 @@ onMounted(() => {
   clientProductStore.fetchBrands()
 })
 
-
+// pagination
 const goPrevPage = () => {
   if (clientProductStore.page > 1) {
     clientProductStore.changePage(clientProductStore.page - 1)
@@ -234,5 +228,4 @@ const scrollToTopGrid = () => {
     productGridRef.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 }
-
 </script>

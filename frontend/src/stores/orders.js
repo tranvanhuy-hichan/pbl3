@@ -1,23 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import axios from 'axios'
-
-const api = axios.create({
-  baseURL: 'https://localhost:7010/api',
-  headers: { 'Content-Type': 'application/json' }
-})
-
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('access_token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
-
+import apiClient from '@/services/apiClient'
 
 export const useOrderStore = defineStore('orders', () => {
   const orders = ref([])
@@ -55,13 +38,13 @@ export const useOrderStore = defineStore('orders', () => {
         sortOrder: sortOrder.value || undefined
       }
 
-      const res = await api.get('/orders', { params })
+      const res = await apiClient.get('/orders', { params })
 
-      if (res.data && Array.isArray(res.data.data)) {
-        orders.value = res.data.data
-        totalCount.value = res.data.totalCount ?? 0
+      if (res && Array.isArray(res.data)) {
+        orders.value = res.data
+        totalCount.value = res.totalCount ?? 0
       } else {
-        console.warn('Unexpected response shape:', res.data)
+        console.warn('Unexpected response shape:', res)
         orders.value = []
         totalCount.value = 0
       }
@@ -74,8 +57,8 @@ export const useOrderStore = defineStore('orders', () => {
 
   const fetchOrderById = async (id) => {
     try {
-      const res = await api.get(`/orders/${id}`)
-      return res.data
+      const res = await apiClient.get(`/orders/${id}`)
+      return res
     } catch (error) {
       console.error(`Failed to fetch order ${id}:`, error)
       throw error
@@ -84,8 +67,8 @@ export const useOrderStore = defineStore('orders', () => {
 
   const fetchMyOrderDetails = async (id) => {
     try {
-      const res = await api.get(`/orders/my/${id}`)
-      return res.data
+      const res = await apiClient.get(`/orders/my/${id}`)
+      return res
     } catch (error) {
       console.error(`Failed to fetch my order ${id}:`, error)
       throw error
@@ -100,11 +83,11 @@ export const useOrderStore = defineStore('orders', () => {
         status: statusFilter.value || undefined
       }
 
-      const res = await api.get('/orders/my', { params })
+      const res = await apiClient.get('/orders/my', { params })
 
-      if (res.data && Array.isArray(res.data.data)) {
-        myOrders.value = res.data.data
-        totalCount.value = res.data.totalCount ?? 0
+      if (res && Array.isArray(res.data)) {
+        myOrders.value = res.data
+        totalCount.value = res.totalCount ?? 0
       } else {
         myOrders.value = []
         totalCount.value = 0
@@ -118,7 +101,7 @@ export const useOrderStore = defineStore('orders', () => {
 
   const cancelOrder = async (orderId) => {
     try {
-      await api.patch(`/orders/my/${orderId}/cancel`)
+      await apiClient.patch(`/orders/my/${orderId}/cancel`)
       await fetchMyOrders()
     } catch (error) {
       console.error('Cancel order error:', error)
@@ -128,7 +111,7 @@ export const useOrderStore = defineStore('orders', () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      await api.patch(`/orders/${orderId}/status`, JSON.stringify(newStatus), {
+      await apiClient.patch(`/orders/${orderId}/status`, JSON.stringify(newStatus), {
         headers: { 'Content-Type': 'application/json' }
       })
       await fetchOrders()
@@ -140,7 +123,7 @@ export const useOrderStore = defineStore('orders', () => {
 
   const updatePaymentStatus = async (orderId, newPaymentStatus) => {
     try {
-      await api.patch(`/orders/${orderId}/payment-status`, JSON.stringify(newPaymentStatus), {
+      await apiClient.patch(`/orders/${orderId}/payment-status`, JSON.stringify(newPaymentStatus), {
         headers: { 'Content-Type': 'application/json' }
       })
       await fetchOrders()
@@ -172,7 +155,7 @@ export const useOrderStore = defineStore('orders', () => {
 
   const exportPDF = async (orderId) => {
     try {
-      const response = await api.get(`/orders/${orderId}/export`, {
+      const response = await apiClient.get(`/orders/${orderId}/export`, {
         responseType: 'blob'
       })
 

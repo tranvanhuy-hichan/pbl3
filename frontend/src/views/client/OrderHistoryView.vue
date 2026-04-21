@@ -1,6 +1,6 @@
 <!-- src/views/user/MyOrders.vue -->
 <template>
-  <div class="space-y-6 p-6 bg-blue-50 min-h-screen font-sans">
+  <div class="space-y-6 p-6 bg-slate-50 min-h-screen font-sans">
     
     <!-- Header: Title + Filter & Stats -->
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -12,7 +12,7 @@
       <div class="flex items-center gap-3 w-full lg:w-auto">
         <!-- Stats Badge -->
         <div class="hidden sm:flex items-center gap-2 bg-blue-100/50 px-3 py-2 rounded-xl border border-blue-200/50 shadow-sm">
-          <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+          <span class="w-2 h-2 rounded-full bg-slate-500 animate-pulse"></span>
           <span class="text-sm font-semibold text-blue-800">
             {{ totalCount }} <span class="text-blue-600/70 text-xs font-normal uppercase ml-1">đơn hàng</span>
           </span>
@@ -71,7 +71,7 @@
               <td class="py-4 px-6 text-right">
                 <div class="flex justify-end gap-2">
                   <button v-if="String(order.status).toLowerCase() === 'pending'" @click="handleCancelOrder(order.orderId)" class="text-red-600 hover:text-red-700 font-bold text-sm bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors border border-red-100">Hủy đơn</button>
-                  <button @click="viewOrderDetails(order.orderId)" class="text-blue-600 hover:text-blue-700 font-bold text-sm bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors">Chi tiết</button>
+                  <button @click="viewOrderDetails(order.orderId)" class="text-blue-600 hover:text-blue-700 font-bold text-sm bg-slate-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors">Chi tiết</button>
                 </div>
               </td>
             </tr>

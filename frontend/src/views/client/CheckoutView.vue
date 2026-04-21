@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-blue-50 min-h-screen py-10">
+  <div class="bg-slate-50 min-h-screen py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
       <!-- Header -->
@@ -222,7 +222,7 @@ const placeOrder = async () => {
     router.push('/my/orders')
   } catch (err) {
     console.error(err)
-    alert("Lỗi khi đặt hàng!")
+    alert("Đặt hàng không thành công")
   }
 }
 </script>

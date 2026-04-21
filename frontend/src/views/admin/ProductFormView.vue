@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-blue-50 pb-20">
+  <div class="min-h-screen bg-slate-50 pb-20">
     <!-- STICKY HEADER: Nơi đặt các nút hành động chính -->
-    <div class="top-0 z-30 bg-blue-50 backdrop-blur-md border-b border-slate-200 mb-6">
+    <div class="top-0 z-30 bg-slate-50 backdrop-blur-md border-b border-slate-200 mb-6">
       <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
         <div class="flex items-center gap-4">
           <button @click="router.back()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all">

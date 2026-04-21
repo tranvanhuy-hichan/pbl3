@@ -1,31 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import axios from 'axios'
+import apiClient from '@/services/apiClient'
 
-const api = axios.create({
-    baseURL: 'https://localhost:7010/api',
-    headers: {
-        'Accept': 'application/json'
-    }
-})
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('access_token')
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`
-        }
-        return config
-    },
-    (error) => Promise.reject(error)
-)
-
-api.interceptors.response.use(
-    res => res,
-    err => {
-        console.error('[API Error]', err.response?.status, err.response?.data)
-        return Promise.reject(err)
-    }
-)
 export const useAdminProductStore = defineStore('adminProducts', () => {
     const products = ref([])
     const categories = ref([])
@@ -57,9 +33,9 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
             if (minPrice.value !== null) params.minPrice = minPrice.value
             if (maxPrice.value !== null) params.maxPrice = maxPrice.value
 
-            const res = await api.get('/products/admin', { params })
-            products.value = res.data.data
-            totalCount.value = res.data.totalCount
+            const res = await apiClient.get('/products/admin', { params })
+            products.value = res.data
+            totalCount.value = res.totalCount
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sản phẩm:', error)
         }
@@ -67,8 +43,8 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
 
     const fetchProductById = async (id) => {
         try {
-            const res = await api.get(`/products/${id}`)
-            return res.data
+            const res = await apiClient.get(`/products/${id}`)
+            return res
         } catch (error) {
             console.error('Lỗi khi lấy chi tiết sản phẩm:', error)
             throw error
@@ -77,8 +53,8 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
 
     const fetchCategories = async () => {
         try {
-            const res = await api.get('/categories')
-            categories.value = res.data.data || res.data
+            const res = await apiClient.get('/categories')
+            categories.value = res
         } catch (error) {
             console.error('Lỗi khi lấy danh mục:', error)
         }
@@ -86,8 +62,8 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
 
     const fetchBrands = async () => {
         try {
-            const res = await api.get('/brands')
-            brands.value = res.data.data || res.data
+            const res = await apiClient.get('/brands')
+            brands.value = res
         } catch (error) {
             console.error('Lỗi khi lấy nhãn hàng:', error)
         }
@@ -95,8 +71,8 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
 
     const fetchDeletedProducts = async () => {
         try {
-            const res = await api.get('/products/deleted')
-            return res.data.data || res.data
+            const res = await apiClient.get('/products/deleted')
+            return res
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sản phẩm đã xóa:', error)
         }
@@ -104,9 +80,9 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
 
     const addProduct = async (formData) => {
         try {
-            const res = await api.post('/products', formData)
+            const res = await apiClient.post('/products', formData)
             page.value = 1
-            return res.data
+            return res
         } catch (error) {
             console.error('Lỗi khi thêm sản phẩm:', error)
             throw error
@@ -115,9 +91,9 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
 
     const updateProduct = async (id, formData) => {
         try {
-            const res = await api.put(`/products/${id}`, formData)
+            const res = await apiClient.put(`/products/${id}`, formData)
             await fetchProducts()
-            return res.data
+            return res
         } catch (error) {
             console.error('Lỗi khi cập nhật sản phẩm:', error)
             throw error
@@ -126,7 +102,7 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
 
     const deleteProduct = async (id) => {
         try {
-            await api.delete(`/products/${id}`)
+            await apiClient.delete(`/products/${id}`)
             products.value = products.value.filter(p => (p.productId || p.id) !== id)
             totalCount.value -= 1
         } catch (error) {
@@ -137,7 +113,7 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
 
     const restoreProduct = async (id) => {
         try {
-            await api.put(`/products/${id}/restore`)
+            await apiClient.put(`/products/${id}/restore`)
             const restoredProduct = await fetchProductById(id)
             products.value.push(restoredProduct)
             totalCount.value += 1

@@ -55,9 +55,12 @@
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col">
       <!-- Topbar (Condensed) -->
-      <header class="h-12 bg-white border-b border-slate-200 flex items-center justify-end px-6 shadow-sm z-10">
+     <header class="h-12 bg-white border-b border-slate-200 flex items-center justify-end px-6 shadow-sm z-10">
         <!-- User Info -->
-        <div class="flex items-center gap-3">
+        <router-link 
+          to="/profile"
+          class="flex items-center gap-3 cursor-pointer hover:bg-slate-100 px-3 py-1.5 rounded-xl transition"
+        >
           <div class="text-right">
             <div class="text-sm font-semibold text-slate-700">
               {{ user?.fullName || 'Admin' }}
@@ -67,11 +70,10 @@
             </div>
           </div>
 
-          <!-- Avatar -->
           <div class="w-9 h-9 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
             {{ user?.fullName?.charAt(0) || 'A' }}
           </div>
-        </div>
+        </router-link>
       </header>
 
       <!-- Content -->

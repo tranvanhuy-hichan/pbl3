@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6 bg-blue-50 min-h-screen p-6">
+  <div class="space-y-6 bg-slate-50 min-h-screen p-6">
 
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -12,7 +12,7 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
-          <span>Thêm sản phẩm</span>
+          <span>Thêm</span>
         </router-link>
 
         <router-link to="/admin/products/trash"
@@ -37,13 +37,13 @@
             </svg>
           </div>
           <input type="text" :value="adminProductStore.searchQuery" @input="onSearchInput" placeholder="Tìm theo tên hoặc mã sản phẩm" 
-            class="w-full pl-10 pr-4 py-2 bg-blue-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"/>
+            class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"/>
         </div>
 
         <!-- Category -->
         <div class="w-full sm:w-44 relative">
           <select :value="adminProductStore.selectedCategory ?? ''" @change="onCategoryChange" 
-            class="w-full pl-3 pr-10 py-2 bg-blue-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
+            class="w-full pl-3 pr-10 py-2 bg-slate-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
             <option value="">Tất cả danh mục</option>
             <option v-for="cat in adminProductStore.categories" :key="cat.categoryId" :value="cat.categoryId">{{ cat.categoryName }}</option>
           </select>
@@ -58,7 +58,7 @@
         <!-- Brand -->
         <div class="w-full sm:w-44 relative">
           <select :value="adminProductStore.selectedBrand ?? ''" @change="onBrandChange" 
-            class="w-full pl-3 pr-10 py-2 bg-blue-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
+            class="w-full pl-3 pr-10 py-2 bg-slate-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
             <option value="">Tất cả nhãn hàng</option>
             <option v-for="brand in adminProductStore.brands" :key="brand.brandId" :value="brand.brandId">{{ brand.brandName }}</option>
           </select>
@@ -71,7 +71,7 @@
         </div>
 
         <!-- Price -->
-        <div class="flex items-center gap-1.5 bg-blue-50 p-1 border border-blue-200 rounded-xl">
+        <div class="flex items-center gap-1.5 bg-slate-50 p-1 border border-blue-200 rounded-xl">
           <div class="flex items-center">
             <button @click="adjustPrice('min', -500000)" class="p-1.5 hover:bg-blue-100 text-blue-500 rounded-lg transition-colors">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
@@ -94,7 +94,7 @@
         </div>
 
         <!-- Reset -->
-        <button v-if="hasFilters" @click="resetAllFilters" class="flex items-center gap-1 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all whitespace-nowrap">
+        <button v-if="hasFilters" @click="resetAllFilters" class="flex items-center gap-1 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-slate-50 rounded-xl transition-all whitespace-nowrap">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l16 16m0-16L4 20"></path></svg>
           Đặt lại
         </button>
@@ -106,7 +106,7 @@
       <div class="overflow-x-auto" ref="tableWrapperRef">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-blue-50/50 border-b border-blue-200">
+            <tr class="bg-slate-50/50 border-b border-blue-200">
               <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Thông tin sản phẩm</th>
               <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Danh mục</th>
               <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Nhãn hàng</th>
@@ -116,7 +116,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-blue-100">
-            <tr v-for="product in adminProductStore.products" :key="product.productId" class="hover:bg-blue-50 transition-colors group">
+            <tr v-for="product in adminProductStore.products" :key="product.productId" class="hover:bg-slate-50 transition-colors group">
               <td class="py-4 px-6">
                 <div class="flex items-center gap-5">
                   <div class="w-20 h-20 rounded-xl bg-blue-100 overflow-hidden flex-shrink-0 border border-blue-200 shadow-sm">
@@ -151,7 +151,7 @@
                 </span>
               </td>
               <td class="py-4 px-6 text-right space-x-1">
-                <router-link :to="`/admin/products/${product.productId}/edit`" class="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors inline-flex">
+                <router-link :to="`/admin/products/${product.productId}/edit`" class="p-2 text-blue-600 hover:bg-slate-50 rounded-xl transition-colors inline-flex">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 </router-link>
                 <button @click="confirmDelete(product)" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors inline-flex">
@@ -164,7 +164,7 @@
       </div>
 
       <!-- Pagination Footer -->
-      <div class="px-6 py-4 bg-blue-50 border-t border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="px-6 py-4 bg-slate-50 border-t border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="text-sm text-blue-700 font-medium">
           Hiển thị <span class="text-blue-900 font-bold">{{ startEntry }}</span> - <span class="text-blue-900 font-bold">{{ endEntry }}</span> 
           trong tổng số <span class="text-blue-600 font-bold">{{ adminProductStore.totalCount }}</span> sản phẩm
@@ -179,14 +179,14 @@
             </select>
           </div>
           <div class="flex items-center bg-white border border-blue-200 rounded-xl p-1 shadow-sm">
-            <button @click="goToPage(adminProductStore.page - 1)" :disabled="adminProductStore.page === 1" class="p-2 rounded-lg hover:bg-blue-50 disabled:opacity-30">
+            <button @click="goToPage(adminProductStore.page - 1)" :disabled="adminProductStore.page === 1" class="p-2 rounded-lg hover:bg-slate-50 disabled:opacity-30">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
             </button>
             <div class="flex items-center px-2 gap-1">
-              <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm font-bold">{{ adminProductStore.page }}</span>
+              <span class="px-3 py-1 bg-slate-50 text-blue-600 rounded-lg text-sm font-bold">{{ adminProductStore.page }}</span>
               <span class="text-sm font-bold text-blue-400">/ {{ totalPages }}</span>
             </div>
-            <button @click="goToPage(adminProductStore.page + 1)" :disabled="adminProductStore.page >= totalPages" class="p-2 rounded-lg hover:bg-blue-50 disabled:opacity-30">
+            <button @click="goToPage(adminProductStore.page + 1)" :disabled="adminProductStore.page >= totalPages" class="p-2 rounded-lg hover:bg-slate-50 disabled:opacity-30">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </button>
           </div>
@@ -200,7 +200,7 @@
         <h3 class="text-xl font-bold text-blue-600 mb-2 text-center">Xác nhận xóa</h3>
         <p class="text-blue-700 mb-6 text-center">Xóa sản phẩm <span class="font-bold text-blue-900">"{{ productToDelete?.productName }}"</span>?</p>
         <div class="flex gap-3 justify-center">
-          <button @click="showDeleteDialog = false" class="px-4 py-2 text-blue-500 font-bold hover:bg-blue-50 rounded-xl">Hủy</button>
+          <button @click="showDeleteDialog = false" class="px-4 py-2 text-blue-500 font-bold hover:bg-slate-50 rounded-xl">Hủy</button>
           <button @click="executeDelete" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Xác nhận Xóa</button>
         </div>
       </div>

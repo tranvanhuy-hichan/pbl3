@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-blue-50 min-h-screen px-4 sm:px-6 lg:px-16 py-10">
+  <div class="bg-slate-50 min-h-screen px-4 sm:px-6 lg:px-16 py-10">
 
     <!-- Breadcrumb -->
     <div class="text-sm text-slate-600 mb-6 flex flex-wrap gap-2">
@@ -191,5 +191,6 @@ const addToCart = async () => {
     return
   }
   await cartStore.addToCart(product.value.id, quantity.value)
+  alert("Đã thêm vào giỏ hàng")
 }
 </script>

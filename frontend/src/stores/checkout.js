@@ -1,27 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import axios from 'axios'
-
-const api = axios.create({
-    baseURL: 'https://localhost:7010/api',
-    headers: { 'Content-Type': 'application/json' }
-})
-
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('access_token')
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`
-        }
-        return config
-    },
-    (error) => Promise.reject(error)
-)
+import apiClient from '@/services/apiClient'
 
 export const useCheckoutStore = defineStore('checkout', () => {
     const shippingAddress = ref('')
     const note = ref('')
-    const paymentMethod = ref('COD') // 'cod' hoặc 'banktransfer'
+    const paymentMethod = ref('COD')
     const shippingFee = ref(0) 
 
     const reset = () => {
@@ -38,8 +22,8 @@ export const useCheckoutStore = defineStore('checkout', () => {
                 paymentMethod: paymentMethod.value,
                 shippingFee: shippingFee.value
             }
-            const res = await api.post('/orders', pramas)
-            return res.data
+            const res = await apiClient.post('/orders', pramas)
+            return res
         } catch (error) {
             console.error('Checkout failed:', error)
             throw error

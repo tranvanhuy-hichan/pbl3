@@ -1,13 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import axios from 'axios'
-
-const api = axios.create({
-    baseURL: 'https://localhost:7010/api',
-    headers: {
-        'Accept': 'application/json'
-    }
-})
+import apiClient from '@/services/apiClient'
 
 export const useClientProductStore = defineStore('clientProducts', () => {
     const products = ref([])
@@ -19,7 +12,7 @@ export const useClientProductStore = defineStore('clientProducts', () => {
 
     const totalCount = ref(0)
     const page = ref(1)
-    const pageSize = ref(20)
+    const pageSize = ref(24)
 
     const searchQuery = ref('')
     const selectedCategory = ref(null)
@@ -43,9 +36,9 @@ export const useClientProductStore = defineStore('clientProducts', () => {
             if (minPrice.value !== null) params.minPrice = minPrice.value
             if (maxPrice.value !== null) params.maxPrice = maxPrice.value
 
-            const res = await api.get('/products', { params })
-            products.value = res.data.data
-            totalCount.value = res.data.totalCount
+            const res = await apiClient.get('/products', { params })
+            products.value = res.data
+            totalCount.value = res.totalCount
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sản phẩm:', error)
         }
@@ -53,8 +46,8 @@ export const useClientProductStore = defineStore('clientProducts', () => {
 
     const fetchProductById = async (id) => {
         try {
-            const res = await api.get(`/products/${id}`)
-            return res.data
+            const res = await apiClient.get(`/products/${id}`)
+            return res
         } catch (error) {
             console.error('Lỗi khi lấy chi tiết sản phẩm:', error)
             throw error
@@ -63,8 +56,8 @@ export const useClientProductStore = defineStore('clientProducts', () => {
 
     const fetchCategories = async () => {
         try {
-            const res = await api.get('/categories')
-            categories.value = res.data.data || res.data
+            const res = await apiClientClient.get('/categories')
+            categories.value = res
         } catch (error) {
             console.error('Lỗi khi lấy danh mục:', error)
         }
@@ -72,8 +65,8 @@ export const useClientProductStore = defineStore('clientProducts', () => {
 
     const fetchBrands = async () => {
         try {
-            const res = await api.get('/brands')
-            brands.value = res.data.data || res.data
+            const res = await apiClientClient.get('/brands')
+            brands.value = res
         } catch (error) {
             console.error('Lỗi khi lấy nhãn hàng:', error)
         }
@@ -88,8 +81,8 @@ export const useClientProductStore = defineStore('clientProducts', () => {
 
             if (suggestedCategories.value) params.categoryId = suggestedCategories.value
 
-            const res = await api.get('/products', { params })
-            suggestedProducts.value = res.data.data
+            const res = await apiClientClient.get('/products', { params })
+            suggestedProducts.value = res.data
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sản phẩm:', error)
         }

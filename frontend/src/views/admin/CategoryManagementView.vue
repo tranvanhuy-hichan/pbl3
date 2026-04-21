@@ -2,10 +2,10 @@
   <div class="space-y-6">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Category Management</h2>
+      <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Quản lý danh mục</h2>
       <button @click="openAddModal" class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition-all flex items-center gap-2">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-        <span>Add New Category</span>
+        <span>Thêm</span>
       </button>
     </div>
 
@@ -23,20 +23,20 @@
         <input 
           type="text" 
           v-model="searchQuery" 
-          placeholder="Search categories..." 
+          placeholder="Tìm kiếm..." 
           class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
         />
         <svg class="absolute left-3 top-2.5 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
       </div>
       <div class="text-sm text-slate-500 ml-4">
-        Total: <span class="font-semibold text-slate-700">{{ categoryStore.totalCategories }}</span> categories
+        Tổng: <span class="font-semibold text-slate-700">{{ categoryStore.totalCategories }}</span> danh mục
       </div>
     </div>
 
     <!-- Loading State -->
     <div v-if="categoryStore.loading" class="bg-white rounded-xl shadow-sm border border-slate-100 p-12 text-center">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
-      <p class="text-slate-500">Loading categories...</p>
+      <p class="text-slate-500">Loading...</p>
     </div>
 
     <!-- Data Table -->
@@ -46,9 +46,9 @@
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
               <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-16 text-center">ID</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Description</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tên</th>
+              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Mô tả</th>
+              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Hành động</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -75,7 +75,7 @@
             </tr>
             <tr v-if="filteredCategories.length === 0 && !categoryStore.loading">
               <td colspan="4" class="py-12 text-center text-slate-500">
-                <p>No categories found.</p>
+                <p>Không tìm thấy danh mục</p>
               </td>
             </tr>
           </tbody>

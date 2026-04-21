@@ -116,5 +116,6 @@ const addToCart = () => {
     return
   }
   cartStore.addToCart(props.product.id, 1)
+  alert("Đã thêm vào giỏ hàng")
 }
 </script>

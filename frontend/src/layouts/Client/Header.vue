@@ -29,20 +29,6 @@
           Sản phẩm
         </router-link>
 
-        <router-link 
-          to="/categories" 
-          class="nav-link" 
-          active-class="nav-active">
-          Danh mục
-        </router-link>
-
-        <router-link 
-          to="/brands" 
-          class="nav-link" 
-          active-class="nav-active">
-          Nhãn hàng
-        </router-link>
-
         <router-link
           v-if="authStore.user?.role === 'Customer'"
           to="/my/orders"

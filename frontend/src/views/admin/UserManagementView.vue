@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6 bg-blue-50 p-6">
+  <div class="space-y-6 bg-slate-50 p-6">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Quản lý người dùng</h2>
       <button @click="openAddModal" class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition-all flex items-center gap-2">
@@ -40,7 +40,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            <tr v-for="user in filteredUsers" :key="user.userID" class="hover:bg-slate-50 transition-colors">
+            <tr v-for="user in filteredUsers" :key="user.userId" class="hover:bg-slate-50 transition-colors">
               <td class="py-4 px-6">
                 <div class="flex items-center gap-3">
                   <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold border border-brand-200 uppercase">
@@ -161,8 +161,10 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
 
-const users = ref([])
+const userStore = useUserStore()
+
 const searchQuery = ref('')
 const selectedRole = ref('')
 const showModal = ref(false)
@@ -170,126 +172,115 @@ const isEditing = ref(false)
 const showDeleteDialog = ref(false)
 const userToDelete = ref(null)
 
-// CHÚ Ý: Đã bổ sung param phân trang cho giống hệt Swagger của bạn
-const FETCH_URL = 'https://localhost:7010/api/users?page=1&pageSize=30';
-const API_URL = 'https://localhost:7010/api/users';
-
 const formData = ref({
-  userID: 0, username: '', password: '', fullName: '', email: '', phoneNumber: '', role: 'Customer', isActive: true
+  userID: 0,
+  username: '',
+  password: '',
+  fullName: '',
+  email: '',
+  phoneNumber: '',
+  role: 'Customer',
+  isActive: true
 })
 
-const fetchUsers = async () => {
-  try {
-    const res = await fetch(FETCH_URL);
-    const result = await res.json();
-    console.log("📦 Dữ liệu gốc C# ném sang:", result);
-    
-    // Quét mọi trường hợp C# có thể trả về
-    if (Array.isArray(result)) {
-      users.value = result; 
-    } else if (result && Array.isArray(result.data)) {
-      users.value = result.data; // Chữ d thường
-    } else if (result && Array.isArray(result.Data)) {
-      users.value = result.Data; // Chữ D viết Hoa
-    } else if (result && Array.isArray(result.items)) {
-      users.value = result.items; // Kiểu phân trang
-    } else {
-      users.value = [];
-      alert("⚠️ C# có phản hồi nhưng Vue không tìm thấy danh sách! Hãy bấm F12 xem Console.");
-    }
-    console.log("✅ Danh sách User sau khi gỡ vỏ:", users.value);
-  } catch (err) {
-    console.error("Lỗi gọi API:", err);
-  }
+// ===== THÔNG BÁO MẶC ĐỊNH =====
+const notify = (msg) => {
+  alert(msg)
 }
 
-onMounted(fetchUsers);
-
-const filteredUsers = computed(() => {
-  if (!Array.isArray(users.value)) return [];
-
-  return users.value.filter(u => {
-    const name = (u.fullName || u.FullName || u.username || u.Username || '').toLowerCase();
-    const email = (u.email || u.Email || '').toLowerCase();
-    const search = searchQuery.value.toLowerCase();
-    const role = (u.role || u.Role || '').toLowerCase();
-
-    const matchesSearch = name.includes(search) || email.includes(search);
-    const matchesRole = selectedRole.value === '' || role === selectedRole.value.toLowerCase();
-
-    return matchesSearch && matchesRole;
-  });
+// load data
+onMounted(() => {
+  userStore.fetchUsers()
 })
 
+// bind store
+const users = computed(() => userStore.users)
+
+// filter giữ nguyên logic của anh
+const filteredUsers = computed(() => {
+  if (!Array.isArray(users.value)) return []
+
+  return users.value.filter(u => {
+    const name = (u.fullName || u.username || '').toLowerCase()
+    const email = (u.email || '').toLowerCase()
+    const search = searchQuery.value.toLowerCase()
+    const role = (u.role || '').toLowerCase()
+
+    const matchesSearch = name.includes(search) || email.includes(search)
+    const matchesRole =
+      selectedRole.value === '' ||
+      role === selectedRole.value.toLowerCase()
+
+    return matchesSearch && matchesRole
+  })
+})
+
+// ===== ACTIONS =====
 const openAddModal = () => {
-  isEditing.value = false;
-  formData.value = { userID: 0, username: '', password: '', fullName: '', email: '', phoneNumber: '', role: 'Customer', isActive: true };
-  showModal.value = true;
+  isEditing.value = false
+  formData.value = {
+    userID: 0,
+    username: '',
+    password: '',
+    fullName: '',
+    email: '',
+    phoneNumber: '',
+    role: 'Customer',
+    isActive: true
+  }
+  showModal.value = true
 }
 
 const openEditModal = (u) => {
-  isEditing.value = true;
+  isEditing.value = true
   formData.value = {
-    userID: u.userID || u.UserID,
-    username: u.username || u.Username || '',
-    password: '', 
-    fullName: u.fullName || u.FullName || '',
-    email: u.email || u.Email || '',
-    phoneNumber: u.phoneNumber || u.PhoneNumber || '',
-    role: u.role || u.Role || 'Customer',
-    isActive: u.isActive !== undefined ? u.isActive : true
-  };
-  showModal.value = true;
+    userID: u.userId || u.userID,
+    username: u.username || '',
+    password: '',
+    fullName: u.fullName || '',
+    email: u.email || '',
+    phoneNumber: u.phoneNumber || '',
+    role: u.role || 'Customer',
+    isActive: u.isActive ?? true
+  }
+  showModal.value = true
 }
 
-const closeModal = () => showModal.value = false;
+const closeModal = () => (showModal.value = false)
 
+// ===== SAVE =====
 const saveUser = async () => {
-  const method = isEditing.value ? 'PUT' : 'POST';
-  const id = formData.value.userID || formData.value.UserID;
-  const url = isEditing.value ? `${API_URL}/${id}` : API_URL;
-
   try {
-    const res = await fetch(url, {
-      method: method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData.value)
-    });
-
-    if (res.ok) {
-      alert("Lưu thành công!");
-      await fetchUsers(); // Tự động load lại bảng
-      closeModal();
+    if (isEditing.value) {
+      await userStore.updateUser(formData.value.userID, formData.value)
+      notify('Cập nhật người dùng thành công')
     } else {
-      const msg = await res.text();
-      alert("Lỗi: " + msg);
+      await userStore.createUser(formData.value)
+      notify('Thêm người dùng thành công')
     }
+
+    closeModal()
   } catch (err) {
-    console.error(err);
+    notify('Có lỗi xảy ra!')
   }
 }
 
+// ===== DELETE =====
 const confirmDelete = (u) => {
-  userToDelete.value = u;
-  showDeleteDialog.value = true;
+  userToDelete.value = u
+  showDeleteDialog.value = true
 }
 
 const executeDelete = async () => {
-  if (!userToDelete.value) return;
-  // Bắt đúng ID kể cả khi C# viết Hoa hay Thường
-  const id = userToDelete.value.userID || userToDelete.value.UserID || userToDelete.value.id;
-  
   try {
-    const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      alert("Xóa thành công!");
-      await fetchUsers(); // Tự động làm mới dữ liệu
-      showDeleteDialog.value = false;
-    } else {
-      alert("Lỗi xóa từ Backend!");
-    }
+    const id = userToDelete.value.userId || userToDelete.value.userID
+    await userStore.deleteUser(id)
+
+    notify('Xóa người dùng thành công')
+    showDeleteDialog.value = false
   } catch (err) {
-    console.error(err);
+    notify('Xóa thất bại!')
   }
 }
 </script>
+

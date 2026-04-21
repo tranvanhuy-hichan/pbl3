@@ -1,14 +1,19 @@
+<!-- src/views/user/Profile.vue -->
 <template>
-  <div class="max-w-3xl mx-auto p-6 space-y-6 ">
+  <div class="max-w-3xl mx-auto p-6 space-y-6">
 
-    <h2 class="text-2xl font-bold text-blue-700">Thông tin cá nhân</h2>
+    <!-- Title -->
+    <div>
+      <h2 class="text-2xl font-bold text-slate-800">Thông tin cá nhân</h2>
+      <p class="text-sm text-slate-500">Quản lý thông tin tài khoản của bạn</p>
+    </div>
 
-    <!-- 🔔 Toast -->
+    <!-- Toast -->
     <transition name="fade">
       <div 
         v-if="message"
         :class="[
-          'fixed top-5 right-5 px-4 py-3 rounded-lg shadow-lg text-white z-50',
+          'fixed top-5 right-5 px-5 py-3 rounded-xl shadow-lg text-white z-50 text-sm font-medium',
           messageType === 'success' ? 'bg-green-500' : 'bg-red-500'
         ]"
       >
@@ -17,7 +22,7 @@
     </transition>
 
     <!-- Card -->
-    <div class="bg-white p-6 rounded-xl shadow space-y-4">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-5">
 
       <div v-if="profileStore.loading" class="text-center text-gray-500">
         Đang tải dữ liệu...
@@ -25,52 +30,52 @@
 
       <template v-else>
 
-        <!-- FULL NAME -->
-        <div>
-          <label class="text-sm font-medium text-gray-600">Họ tên</label>
-          <input v-model="form.fullName" placeholder="Họ tên" class="input" />
+        <!-- Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div>
+            <label class="label">Họ tên</label>
+            <input v-model="form.fullName" class="input" />
+          </div>
+
+          <div>
+            <label class="label">Email</label>
+            <input v-model="form.email" class="input" />
+          </div>
+
+          <div>
+            <label class="label">Số điện thoại</label>
+            <input v-model="form.phoneNumber" class="input" />
+          </div>
+
+          <div>
+            <label class="label">Ngày sinh</label>
+            <input v-model="form.dateOfBirth" type="date" class="input" />
+          </div>
+
         </div>
 
-        <!-- EMAIL -->
         <div>
-          <label class="text-sm font-medium text-gray-600">Email</label>
-          <input v-model="form.email" placeholder="Email" class="input" />
+          <label class="label">Địa chỉ</label>
+          <input v-model="form.address" class="input" />
         </div>
 
-        <!-- PHONE -->
-        <div>
-          <label class="text-sm font-medium text-gray-600">Số điện thoại</label>
-          <input v-model="form.phoneNumber" placeholder="SĐT" class="input" />
-        </div>
-
-        <!-- ADDRESS -->
-        <div>
-          <label class="text-sm font-medium text-gray-600">Địa chỉ</label>
-          <input v-model="form.address" placeholder="Địa chỉ" class="input" />
-        </div>
-
-        <!-- DOB -->
-        <div>
-          <label class="text-sm font-medium text-gray-600">Ngày sinh</label>
-          <input v-model="form.dateOfBirth" type="date" class="input" />
-        </div>
-
+        <!-- Button -->
         <button @click="updateProfile" class="btn-primary w-full">
-          {{ profileStore.loading ? 'Đang lưu...' : 'Cập nhật' }}
+          {{ profileStore.loading ? 'Đang lưu...' : 'Cập nhật thông tin' }}
         </button>
 
       </template>
-
     </div>
 
     <!-- Actions -->
     <div class="flex gap-4">
       <button @click="openModal" class="btn-warning flex-1">
-        Đổi mật khẩu
+        🔒 Đổi mật khẩu
       </button>
 
       <button @click="handleLogout" class="btn-danger flex-1">
-        Đăng xuất
+        🚪 Đăng xuất
       </button>
     </div>
 
@@ -78,24 +83,24 @@
     <transition name="fade">
       <div v-if="showModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-40">
 
-        <div class="bg-white p-6 rounded-xl w-96 space-y-4 shadow-lg">
+        <div class="bg-white p-6 rounded-2xl w-96 space-y-4 shadow-xl">
 
-          <h3 class="text-lg font-bold text-gray-700 text-center">
+          <h3 class="text-lg font-bold text-center text-slate-800">
             Đổi mật khẩu
           </h3>
 
           <div>
-            <label class="text-sm text-gray-600">Mật khẩu hiện tại</label>
+            <label class="label">Mật khẩu hiện tại</label>
             <input v-model="password.current" type="password" class="input" />
           </div>
 
           <div>
-            <label class="text-sm text-gray-600">Mật khẩu mới</label>
+            <label class="label">Mật khẩu mới</label>
             <input v-model="password.new" type="password" class="input" />
           </div>
 
           <div>
-            <label class="text-sm text-gray-600">Xác nhận mật khẩu</label>
+            <label class="label">Xác nhận mật khẩu</label>
             <input v-model="password.confirm" type="password" class="input" />
           </div>
 
@@ -106,7 +111,7 @@
           <div class="flex gap-3 pt-2">
             <button 
               @click="showModal = false"
-              class="flex-1 border border-gray-300 rounded-lg py-2 hover:bg-gray-100">
+              class="flex-1 border border-slate-200 rounded-xl py-2 hover:bg-slate-100">
               Hủy
             </button>
 
@@ -118,153 +123,164 @@
           </div>
 
         </div>
-
       </div>
     </transition>
 
   </div>
 </template>
 
-    <script setup>
-    import { ref, onMounted } from 'vue'
-    import { useProfileStore } from '@/stores/profileStore'
-    import { useAuth } from '@/composables/useAuth'
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useProfileStore } from '@/stores/profileStore'
+import { useAuth } from '@/composables/useAuth'
 
-    const profileStore = useProfileStore()
-    const { logout } = useAuth()
+const profileStore = useProfileStore()
+const { logout } = useAuth()
 
-    const form = ref({})
-    const showModal = ref(false)
-    const error = ref('')
+const form = ref({})
+const showModal = ref(false)
+const error = ref('')
 
-    const message = ref('')
-    const messageType = ref('success')
+const message = ref('')
+const messageType = ref('success')
 
-    const password = ref({
-    current: '',
-    new: '',
-    confirm: ''
-    })
+const password = ref({
+  current: '',
+  new: '',
+  confirm: ''
+})
 
-    onMounted(async () => {
-    await profileStore.fetchProfile()
-    form.value = { ...profileStore.user }
-    })
+onMounted(async () => {
+  await profileStore.fetchProfile()
+  form.value = { ...profileStore.user }
+})
 
-    const showToast = (msg, type = 'success') => {
-    message.value = msg
-    messageType.value = type
+const showToast = (msg, type = 'success') => {
+  message.value = msg
+  messageType.value = type
 
-    setTimeout(() => {
-        message.value = ''
-    }, 3000)
-    }
+  setTimeout(() => {
+    message.value = ''
+  }, 3000)
+}
 
-    const updateProfile = async () => {
-    const res = await profileStore.updateProfile(form.value)
-    showToast(res.message, res.success ? 'success' : 'error')
-    }
+const updateProfile = async () => {
+  const res = await profileStore.updateProfile(form.value)
+  showToast(res.message, res.success ? 'success' : 'error')
+}
 
-    const openModal = () => {
-    error.value = ''
-    password.value = { current: '', new: '', confirm: '' }
-    showModal.value = true
-    }
+const openModal = () => {
+  error.value = ''
+  password.value = { current: '', new: '', confirm: '' }
+  showModal.value = true
+}
 
-    // 🔐 password regex
-    const isStrongPassword = (pwd) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-    return regex.test(pwd)
-    }
+const isStrongPassword = (pwd) => {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+  return regex.test(pwd)
+}
 
-    const changePassword = async () => {
-    if (!password.value.current || !password.value.new || !password.value.confirm) {
-        error.value = 'Vui lòng nhập đầy đủ'
-        return
-    }
+const changePassword = async () => {
+  if (!password.value.current || !password.value.new || !password.value.confirm) {
+    error.value = 'Vui lòng nhập đầy đủ'
+    return
+  }
 
-    if (!isStrongPassword(password.value.new)) {
-        error.value = 'Mật khẩu phải ≥ 8 ký tự, có hoa, thường, số và ký tự đặc biệt'
-        return
-    }
+  if (!isStrongPassword(password.value.new)) {
+    error.value = 'Mật khẩu phải ≥ 8 ký tự, có hoa, thường, số và ký tự đặc biệt'
+    return
+  }
 
-    if (password.value.new !== password.value.confirm) {
-        error.value = 'Mật khẩu xác nhận không khớp'
-        return
-    }
+  if (password.value.new !== password.value.confirm) {
+    error.value = 'Mật khẩu xác nhận không khớp'
+    return
+  }
 
-    const res = await profileStore.changePassword({
-        currentPassword: password.value.current,
-        newPassword: password.value.new
-    })
+  const res = await profileStore.changePassword({
+    currentPassword: password.value.current,
+    newPassword: password.value.new
+  })
 
-    if (res.success) {
-        showToast(res.message, 'success')
-        showModal.value = false
-    } else {
-        error.value = res.message
-    }
-    }
+  if (res.success) {
+    showToast(res.message, 'success')
+    showModal.value = false
+  } else {
+    error.value = res.message
+  }
+}
 
-    const handleLogout = () => {
-    logout()
-    }
-    </script>
+const handleLogout = () => {
+  logout()
+}
+</script>
 
-    <style scoped>
-    .input {
-    width: 100%;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 10px;
-    transition: 0.2s;
-    }
+<style scoped>
+.label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 6px;
+}
 
-    .input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-    outline: none;
-    }
+.input {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: all 0.2s;
+  background: #f8fafc;
+}
 
-    .btn-primary {
-    background: #2563eb;
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-    }
+.input:focus {
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  outline: none;
+}
 
-    .btn-primary:hover {
-    background: #1e40af;
-    }
+.btn-primary {
+  background: linear-gradient(to right, #3b82f6, #2563eb);
+  color: white;
+  padding: 11px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: 0.2s;
+}
 
-    .btn-danger {
-    background: #dc2626;
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-    }
+.btn-primary:hover {
+  opacity: 0.9;
+}
 
-    .btn-danger:hover {
-    background: #b91c1c;
-    }
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  padding: 10px;
+  border-radius: 12px;
+  font-weight: 600;
+}
 
-    .btn-warning {
-    background: #f59e0b;
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-    }
+.btn-danger:hover {
+  background: #dc2626;
+}
 
-    .btn-warning:hover {
-    background: #d97706;
-    }
+.btn-warning {
+  background: #f59e0b;
+  color: white;
+  padding: 10px;
+  border-radius: 12px;
+  font-weight: 600;
+}
 
-    .fade-enter-active, .fade-leave-active {
-    transition: 0.2s;
-    }
+.btn-warning:hover {
+  background: #d97706;
+}
 
-    .fade-enter-from, .fade-leave-to {
-    opacity: 0;
-    }
-    </style>
-    ```
+.fade-enter-active, .fade-leave-active {
+  transition: 0.2s;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>
