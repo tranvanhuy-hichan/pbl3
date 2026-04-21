@@ -7,6 +7,18 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
+
+
 export const useOrderStore = defineStore('orders', () => {
   const orders = ref([])
   const totalCount = ref(0)
@@ -18,6 +30,7 @@ export const useOrderStore = defineStore('orders', () => {
   const paymentStatusFilter = ref('')
   const fromDateFilter = ref('')
   const toDateFilter = ref('')
+  const myOrders = ref([])
 
   const pendingCount = computed(() => {
     if (!Array.isArray(orders.value)) return 0
@@ -69,6 +82,50 @@ export const useOrderStore = defineStore('orders', () => {
     }
   }
 
+  const fetchMyOrderDetails = async (id) => {
+    try {
+      const res = await api.get(`/orders/my/${id}`)
+      return res.data
+    } catch (error) {
+      console.error(`Failed to fetch my order ${id}:`, error)
+      throw error
+    }
+  }
+
+  const fetchMyOrders = async () => {
+    try {
+      const params = {
+        page: page.value,
+        pageSize: pageSize.value,
+        status: statusFilter.value || undefined
+      }
+
+      const res = await api.get('/orders/my', { params })
+
+      if (res.data && Array.isArray(res.data.data)) {
+        myOrders.value = res.data.data
+        totalCount.value = res.data.totalCount ?? 0
+      } else {
+        myOrders.value = []
+        totalCount.value = 0
+      }
+
+    } catch (err) {
+      console.error('Fetch my orders failed:', err)
+      myOrders.value = []
+    }
+  }
+
+  const cancelOrder = async (orderId) => {
+    try {
+      await api.patch(`/orders/my/${orderId}/cancel`)
+      await fetchMyOrders()
+    } catch (error) {
+      console.error('Cancel order error:', error)
+      throw error
+    }
+  }
+
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       await api.patch(`/orders/${orderId}/status`, JSON.stringify(newStatus), {
@@ -113,8 +170,34 @@ export const useOrderStore = defineStore('orders', () => {
     loadData()
   }
 
+  const exportPDF = async (orderId) => {
+    try {
+      const response = await api.get(`/orders/${orderId}/export`, {
+        responseType: 'blob'
+      })
+
+      // tạo file download
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `order_${orderId}.pdf`)
+      document.body.appendChild(link)
+      link.click()
+
+      // cleanup
+      link.remove()
+      window.URL.revokeObjectURL(url)
+
+    } catch (error) {
+      console.error('Export PDF error:', error)
+      throw error
+    }
+  }
+
+
   return {
-    orders, 
+    orders,
+    myOrders, 
     totalCount, 
     page, 
     pageSize,
@@ -128,10 +211,14 @@ export const useOrderStore = defineStore('orders', () => {
     processingCount,
     fetchOrders, 
     fetchOrderById,
+    fetchMyOrders,
+    fetchMyOrderDetails,
     updateOrderStatus, 
     resetFilters, 
     changePage, 
     updatePaymentStatus, 
-    onSortChange
+    onSortChange,
+    cancelOrder,
+    exportPDF
   }
 })

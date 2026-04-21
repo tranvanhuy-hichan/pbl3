@@ -1,88 +1,86 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 bg-blue-50 p-6">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <h2 class="text-2xl font-bold text-slate-800 tracking-tight">User Management</h2>
+      <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Quản lý người dùng</h2>
       <button @click="openAddModal" class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition-all flex items-center gap-2">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-        <span>Add User</span>
+        <span>Thêm</span>
       </button>
     </div>
 
-    <!-- Toolbar: Search -->
     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
       <div class="relative w-full max-w-md">
         <input 
           type="text" 
           v-model="searchQuery" 
-          placeholder="Search users by name, email or phone..." 
+          placeholder="Search by name, email, phone number..." 
           class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
         />
         <svg class="absolute left-3 top-2.5 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
       </div>
       <div class="flex items-center gap-2 w-full sm:w-auto">
         <select v-model="selectedRole" class="w-full sm:w-auto border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white text-slate-700">
-          <option value="">All Roles</option>
+          <option value="">Tất cả</option>
           <option value="admin">Admin</option>
-          <option value="buyer">Buyer</option>
+          <option value="customer">Customer</option>
         </select>
       </div>
     </div>
 
-    <!-- Data Table -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-              <th class="py-3 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+              <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Người dùng</th>
+              <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Liên hệ</th>
+              <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Vai trò</th>
+              <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">trạng thái</th>
+              <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            <tr v-for="user in filteredUsers" :key="user.id" class="hover:bg-slate-50 transition-colors">
+            <tr v-for="user in filteredUsers" :key="user.userID" class="hover:bg-slate-50 transition-colors">
               <td class="py-4 px-6">
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold overflow-hidden border border-brand-200">
-                    {{ user.name.charAt(0).toUpperCase() }}
+                  <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold border border-brand-200 uppercase">
+                    {{ (user.fullName || user.username || 'U').charAt(0) }}
                   </div>
                   <div>
-                    <div class="font-bold text-slate-800">{{ user.name }}</div>
-                    <div class="text-xs text-slate-400">ID: {{ user.id }}</div>
+                    <div class="font-bold text-slate-800">{{ user.fullName || 'N/A' }}</div>
+                    <div class="text-xs text-slate-400">ID: {{ user.userId }}</div>
                   </div>
                 </div>
               </td>
               <td class="py-4 px-6">
                 <div class="text-sm text-slate-800 font-medium">{{ user.email }}</div>
-                <div class="text-xs text-slate-500">{{ user.phone || 'N/A' }}</div>
+                <div class="text-xs text-slate-500">{{ user.phoneNumber || 'Không có SĐT' }}</div>
               </td>
               <td class="py-4 px-6">
-                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800 uppercase tracking-wide">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 uppercase">
                   {{ user.role }}
                 </span>
               </td>
               <td class="py-4 px-6">
                 <span :class="[
                   'px-2.5 py-1 text-xs font-semibold rounded-full',
-                  user.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                  user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                 ]">
-                  {{ user.status }}
+                  {{ user.isActive ? 'Active' : 'Inactive' }}
                 </span>
               </td>
-              <td class="py-4 px-6 text-right space-x-2 flex justify-end items-center h-full">
-                <button @click="openEditModal(user)" class="p-1.5 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors inline-block" title="Edit">
+              <td class="py-4 px-6 text-right flex justify-end gap-2">
+                <button @click="openEditModal(user)" class="p-1.5 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 </button>
-                <button @click="confirmDelete(user)" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors inline-block" title="Delete" :disabled="user.role === 'admin' && user.id === 'U001'">
+                <button @click="confirmDelete(user)" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
               </td>
             </tr>
             <tr v-if="filteredUsers.length === 0">
-              <td colspan="5" class="py-12 text-center text-slate-500">
-                <p>No users found matching your search.</p>
+              <td colspan="5" class="py-12 text-center text-slate-400 italic">
+                Không tìm thấy dữ liệu người dùng nào.
               </td>
             </tr>
           </tbody>
@@ -90,180 +88,208 @@
       </div>
     </div>
 
-    <!-- Form Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-slate-900 bg-opacity-50 transition-opacity" @click="closeModal"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="relative inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-          <form @submit.prevent="saveUser">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <div class="flex justify-between items-center mb-5 border-b border-slate-100 pb-3">
-                <h3 class="text-xl font-bold text-slate-800" id="modal-title">
-                  {{ isEditing ? 'Edit User' : 'Add New User' }}
-                </h3>
-                <button type="button" @click="closeModal" class="text-slate-400 hover:text-slate-500">
-                  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
+        <form @submit.prevent="saveUser">
+          <div class="px-6 py-4 border-b flex justify-between items-center">
+            <h3 class="text-xl font-bold text-slate-800">{{ isEditing ? 'Update Account' : 'Add Account' }}</h3>
+            <button type="button" @click="closeModal" class="text-slate-400 hover:text-slate-600">✕</button>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Username *</label>
+                <input v-model="formData.username" type="text" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
               </div>
-
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 mb-1">Full Name <span class="text-red-500">*</span></label>
-                  <input v-model="formData.name" type="text" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Email <span class="text-red-500">*</span></label>
-                    <input v-model="formData.email" type="email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
-                    <input v-model="formData.phone" type="tel" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Role</label>
-                    <select v-model="formData.role" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
-                      <option value="buyer">Buyer</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                    <select v-model="formData.status" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div v-if="!isEditing">
-                  <label class="block text-sm font-medium text-slate-700 mb-1">Password <span class="text-red-500">*</span></label>
-                  <input v-model="formData.password" type="password" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
-                </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
+                <input v-model="formData.fullName" type="text" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
               </div>
             </div>
-            <div class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-200">
-              <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-brand-600 text-base font-medium text-white hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors">
-                Save
-              </button>
-              <button type="button" @click="closeModal" class="mt-3 w-full inline-flex justify-center rounded-lg border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors">
-                Cancel
-              </button>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Email *</label>
+                <input v-model="formData.email" type="email" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Phone Number</label>
+                <input v-model="formData.phoneNumber" type="text" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
+              </div>
             </div>
-          </form>
-        </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Role</label>
+                <select v-model="formData.role" class="w-full px-3 py-2 border rounded-lg bg-white">
+                  <option value="Customer">Customer</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status</label>
+                <select v-model="formData.isActive" class="w-full px-3 py-2 border rounded-lg bg-white">
+                  <option :value="true">Active</option>
+                  <option :value="false">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div v-if="!isEditing">
+              <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Password *</label>
+              <input v-model="formData.password" type="password" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+          </div>
+          <div class="px-6 py-4 bg-slate-50 flex justify-end gap-3">
+            <button type="button" @click="closeModal" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-200 rounded-lg">Hủy</button>
+            <button type="submit" class="px-6 py-2 bg-brand-600 text-white font-bold rounded-lg hover:bg-brand-700 shadow-md">Lưu</button>
+          </div>
+        </form>
       </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteDialog" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-slate-900 bg-opacity-50 transition-opacity" @click="showDeleteDialog = false"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="relative inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full p-6">
-          <div class="sm:flex sm:items-start">
-            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-              <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <h3 class="text-lg leading-6 font-bold text-slate-900" id="modal-title">Delete User</h3>
-              <div class="mt-2">
-                <p class="text-sm text-slate-500">Are you sure you want to delete <span class="font-bold text-slate-800">"{{ userToDelete?.name }}"</span>? They will no longer be able to log in or make purchases.</p>
-              </div>
-            </div>
-          </div>
-          <div class="mt-6 sm:flex sm:flex-row-reverse">
-            <button type="button" @click="executeDelete" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors">
-              Delete Account
-            </button>
-            <button type="button" @click="showDeleteDialog = false" class="mt-3 w-full inline-flex justify-center rounded-lg border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors">
-              Cancel
-            </button>
-          </div>
+    <div v-if="showDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+      <div class="bg-white p-6 rounded-xl max-w-sm w-full shadow-2xl text-center">
+        <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">⚠️</div>
+        <h3 class="text-lg font-bold mb-2">Xóa người dùng?</h3>
+        <p class="text-slate-500 mb-6">Xác nhận xóa tài khoản <span class="font-bold text-slate-800">@{{ userToDelete?.username }}</span>. Thao tác này không thể hoàn tác.</p>
+        <div class="flex gap-3">
+          <button @click="showDeleteDialog = false" class="flex-1 px-4 py-2 bg-slate-100 font-bold rounded-lg">Hủy</button>
+          <button @click="executeDelete" class="flex-1 px-4 py-2 bg-red-600 text-white font-bold rounded-lg">Xác nhận xóa</button>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
+const users = ref([])
 const searchQuery = ref('')
 const selectedRole = ref('')
-
-// Mock Data
-const users = ref([
-  { id: 'U001', name: 'Admin Manager', email: 'admin@electroshop.com', phone: '0901234567', role: 'admin', status: 'Active' },
-  { id: 'U002', name: 'John Buyer', email: 'john@example.com', phone: '0909876543', role: 'buyer', status: 'Active' },
-  { id: 'U003', name: 'Alice Smith', email: 'alice.smith@example.com', phone: '0912345678', role: 'buyer', status: 'Inactive' },
-])
-
-// Modal State
 const showModal = ref(false)
 const isEditing = ref(false)
 const showDeleteDialog = ref(false)
 const userToDelete = ref(null)
 
+// CHÚ Ý: Đã bổ sung param phân trang cho giống hệt Swagger của bạn
+const FETCH_URL = 'https://localhost:7010/api/users?page=1&pageSize=30';
+const API_URL = 'https://localhost:7010/api/users';
+
 const formData = ref({
-  id: '', name: '', email: '', phone: '', role: 'buyer', status: 'Active', password: ''
+  userID: 0, username: '', password: '', fullName: '', email: '', phoneNumber: '', role: 'Customer', isActive: true
 })
 
+const fetchUsers = async () => {
+  try {
+    const res = await fetch(FETCH_URL);
+    const result = await res.json();
+    console.log("📦 Dữ liệu gốc C# ném sang:", result);
+    
+    // Quét mọi trường hợp C# có thể trả về
+    if (Array.isArray(result)) {
+      users.value = result; 
+    } else if (result && Array.isArray(result.data)) {
+      users.value = result.data; // Chữ d thường
+    } else if (result && Array.isArray(result.Data)) {
+      users.value = result.Data; // Chữ D viết Hoa
+    } else if (result && Array.isArray(result.items)) {
+      users.value = result.items; // Kiểu phân trang
+    } else {
+      users.value = [];
+      alert("⚠️ C# có phản hồi nhưng Vue không tìm thấy danh sách! Hãy bấm F12 xem Console.");
+    }
+    console.log("✅ Danh sách User sau khi gỡ vỏ:", users.value);
+  } catch (err) {
+    console.error("Lỗi gọi API:", err);
+  }
+}
+
+onMounted(fetchUsers);
+
 const filteredUsers = computed(() => {
+  if (!Array.isArray(users.value)) return [];
+
   return users.value.filter(u => {
-    const matchesSearch = u.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
-                          u.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                          u.phone.includes(searchQuery.value)
-    const matchesRole = selectedRole.value === '' || u.role === selectedRole.value
-    return matchesSearch && matchesRole
-  })
+    const name = (u.fullName || u.FullName || u.username || u.Username || '').toLowerCase();
+    const email = (u.email || u.Email || '').toLowerCase();
+    const search = searchQuery.value.toLowerCase();
+    const role = (u.role || u.Role || '').toLowerCase();
+
+    const matchesSearch = name.includes(search) || email.includes(search);
+    const matchesRole = selectedRole.value === '' || role === selectedRole.value.toLowerCase();
+
+    return matchesSearch && matchesRole;
+  });
 })
 
 const openAddModal = () => {
-  isEditing.value = false
-  formData.value = { id: `U00${users.value.length + 1}`, name: '', email: '', phone: '', role: 'buyer', status: 'Active', password: '' }
-  showModal.value = true
+  isEditing.value = false;
+  formData.value = { userID: 0, username: '', password: '', fullName: '', email: '', phoneNumber: '', role: 'Customer', isActive: true };
+  showModal.value = true;
 }
 
-const openEditModal = (user) => {
-  isEditing.value = true
-  formData.value = { ...user } // Note: Never pass password back to client in a real app
-  showModal.value = true
+const openEditModal = (u) => {
+  isEditing.value = true;
+  formData.value = {
+    userID: u.userID || u.UserID,
+    username: u.username || u.Username || '',
+    password: '', 
+    fullName: u.fullName || u.FullName || '',
+    email: u.email || u.Email || '',
+    phoneNumber: u.phoneNumber || u.PhoneNumber || '',
+    role: u.role || u.Role || 'Customer',
+    isActive: u.isActive !== undefined ? u.isActive : true
+  };
+  showModal.value = true;
 }
 
-const closeModal = () => {
-  showModal.value = false
-}
+const closeModal = () => showModal.value = false;
 
-const saveUser = () => {
-  if (isEditing.value) {
-    const i = users.value.findIndex(u => u.id === formData.value.id)
-    if (i !== -1) users.value[i] = { ...formData.value }
-  } else {
-    // In real app, only passing data to API, not storing password locally
-    users.value.push({ ...formData.value })
+const saveUser = async () => {
+  const method = isEditing.value ? 'PUT' : 'POST';
+  const id = formData.value.userID || formData.value.UserID;
+  const url = isEditing.value ? `${API_URL}/${id}` : API_URL;
+
+  try {
+    const res = await fetch(url, {
+      method: method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData.value)
+    });
+
+    if (res.ok) {
+      alert("Lưu thành công!");
+      await fetchUsers(); // Tự động load lại bảng
+      closeModal();
+    } else {
+      const msg = await res.text();
+      alert("Lỗi: " + msg);
+    }
+  } catch (err) {
+    console.error(err);
   }
-  closeModal()
 }
 
-const confirmDelete = (user) => {
-  userToDelete.value = user
-  showDeleteDialog.value = true
+const confirmDelete = (u) => {
+  userToDelete.value = u;
+  showDeleteDialog.value = true;
 }
 
-const executeDelete = () => {
-  if (userToDelete.value) {
-    users.value = users.value.filter(u => u.id !== userToDelete.value.id)
+const executeDelete = async () => {
+  if (!userToDelete.value) return;
+  // Bắt đúng ID kể cả khi C# viết Hoa hay Thường
+  const id = userToDelete.value.userID || userToDelete.value.UserID || userToDelete.value.id;
+  
+  try {
+    const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      alert("Xóa thành công!");
+      await fetchUsers(); // Tự động làm mới dữ liệu
+      showDeleteDialog.value = false;
+    } else {
+      alert("Lỗi xóa từ Backend!");
+    }
+  } catch (err) {
+    console.error(err);
   }
-  showDeleteDialog.value = false
-  userToDelete.value = null
 }
 </script>

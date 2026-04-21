@@ -14,6 +14,9 @@ export const useClientProductStore = defineStore('clientProducts', () => {
     const categories = ref([])
     const brands = ref([])
 
+    const suggestedCategories = ref(null)
+    const suggestedProducts = ref([])
+
     const totalCount = ref(0)
     const page = ref(1)
     const pageSize = ref(20)
@@ -76,6 +79,22 @@ export const useClientProductStore = defineStore('clientProducts', () => {
         }
     }
 
+    const fetchSuggestedProducts = async () => {
+        try {
+            const params = {
+                page: 1,
+                pageSize: 12
+            }
+
+            if (suggestedCategories.value) params.categoryId = suggestedCategories.value
+
+            const res = await api.get('/products', { params })
+            suggestedProducts.value = res.data.data
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách sản phẩm:', error)
+        }
+    }
+
     const changePage = (newPage) => {
         page.value = newPage
         fetchProducts()
@@ -89,6 +108,8 @@ export const useClientProductStore = defineStore('clientProducts', () => {
 
     return {
         products,
+        suggestedProducts,
+        suggestedCategories,
         categories,
         brands,
         totalProducts,
@@ -102,6 +123,7 @@ export const useClientProductStore = defineStore('clientProducts', () => {
         minPrice,
         maxPrice,
         fetchProducts,
+        fetchSuggestedProducts,
         fetchProductById,
         fetchCategories,
         fetchBrands,
