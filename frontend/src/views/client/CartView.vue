@@ -48,7 +48,7 @@
                   </button>
                   <div class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-200">
                     <img 
-                      :src="item.imageURL ? `https://localhost:7010${item.imageURL}` : 'https://via.placeholder.com/100'" 
+                      :src="item.imageUrl ? `https://localhost:7010${item.imageUrl}` : 'https://via.placeholder.com/100'" 
                       :alt="item.productName" 
                       class="w-full h-full object-contain mix-blend-multiply p-2"
                     >
@@ -269,7 +269,7 @@ const handleClearCart = async () => {
 // Fetch cart on mount
 onMounted(() => {
   // Check if user is logged in before fetching cart
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem('access_token')
   if (token) {
     cartStore.fetchCart()
   }

@@ -11,7 +11,7 @@
       </div>
 
       <!-- 🟥 GIỎ HÀNG TRỐNG -->
-      <div v-if="cartStore.items.length === 0" class="text-center py-20">
+      <div v-if="cartStore.cartItems .length === 0" class="text-center py-20">
         <h2 class="text-2xl font-bold text-slate-700 mb-4">Giỏ hàng trống</h2>
         <p class="text-slate-500 mb-6">Bạn chưa có sản phẩm nào để thanh toán.</p>
         <router-link 
@@ -86,7 +86,7 @@
             <h2 class="text-xl font-bold mb-4">Sản phẩm </h2>
 
             <div class="space-y-4 mb-4 max-h-60 overflow-y-auto custom-scrollbar">
-              <div v-for="item in cartStore.items" :key="item.id" class="flex gap-3 items-center">
+              <div v-for="item in cartStore.cartItems " :key="item.id" class="flex gap-3 items-center">
 
                 <!-- Hình sản phẩm -->
                 <div class="w-14 h-14 bg-white rounded border flex-shrink-0 overflow-hidden">
@@ -126,6 +126,11 @@
               <div class="flex justify-between">
                 <span>Ship</span>
                 <span>{{ shippingFee > 0 ? formatCurrency(shippingFee) : 'Free' }}</span>
+              </div>
+
+              <div class="flex justify-between">
+                <span>Tax</span>
+                <span>{{ formatCurrency(tax) }}</span>
               </div>
             </div>
 
@@ -170,7 +175,7 @@ onMounted(async () => {
 
 // Subtotal
 const subtotal = computed(() =>
-  cartStore.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  cartStore.cartItems .reduce((sum, item) => sum + item.price * item.quantity, 0)
 )
 
 // Shipping
@@ -179,12 +184,16 @@ const shippingFee = computed(() => {
   return subtotal.value > 10000000 ? 0 : 50000
 })
 
+const tax = computed(() =>{
+  return subtotal.value * 0.08
+})
+
 // Total
-const total = computed(() => subtotal.value + shippingFee.value)
+const total = computed(() => subtotal.value + shippingFee.value + tax.value)
 
 // Chỉ cho COD
 const canCheckout = computed(() =>
-  cartStore.items.length > 0 &&
+  cartStore.cartItems .length > 0 &&
   checkoutStore.shippingAddress &&
   checkoutStore.paymentMethod === 'COD'
 )

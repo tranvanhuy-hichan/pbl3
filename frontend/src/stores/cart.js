@@ -10,7 +10,7 @@ const api = axios.create({
 // Gắn token tự động
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('access_token')
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
   },
@@ -53,7 +53,7 @@ export const useCartStore = defineStore('cart', () => {
     loading.value = true
     error.value = null
     try {
-      const res = await api.get('/cart')
+      const res = await api.get('/carts')
       cartItems.value = res.data.data || res.data || []
       return cartItems.value
     } catch (err) {
@@ -74,7 +74,7 @@ export const useCartStore = defineStore('cart', () => {
     loading.value = true
     error.value = null
     try {
-      const res = await api.post('/cart', { productId, quantity })
+      const res = await api.post('/carts', { productId, quantity })
       await fetchCart()
       return res.data
     } catch (err) {
@@ -96,7 +96,7 @@ export const useCartStore = defineStore('cart', () => {
     loading.value = true
     error.value = null
     try {
-      const res = await api.put(`/cart/${cartId}`, { quantity })
+      const res = await api.put(`/carts/${cartId}`, { quantity })
 
       if (quantity === 0) {
         cartItems.value = cartItems.value.filter(i => i.cartId !== cartId)
@@ -122,7 +122,7 @@ export const useCartStore = defineStore('cart', () => {
     loading.value = true
     error.value = null
     try {
-      await api.delete(`/cart/${cartId}`)
+      await api.delete(`/carts/${cartId}`)
       cartItems.value = cartItems.value.filter(i => i.cartId !== cartId)
     } catch (err) {
       error.value = 'Lỗi xóa sản phẩm'
@@ -137,7 +137,7 @@ export const useCartStore = defineStore('cart', () => {
     loading.value = true
     error.value = null
     try {
-      await api.delete('/cart')
+      await api.delete('/carts')
       cartItems.value = []
     } catch (err) {
       error.value = 'Lỗi xóa giỏ hàng'
