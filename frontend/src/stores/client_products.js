@@ -81,7 +81,7 @@ export const useClientProductStore = defineStore('clientProducts', () => {
 
             if (suggestedCategories.value) params.categoryId = suggestedCategories.value
 
-            const res = await apiClientClient.get('/products', { params })
+            const res = await apiClient.get('/products', { params })
             suggestedProducts.value = res.data
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sản phẩm:', error)
