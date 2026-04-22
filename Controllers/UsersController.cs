@@ -158,13 +158,9 @@ namespace YourProjectName.Controllers
             try
             {
 
-                var userOrders = _context.Orders.Where(o => o.UserId == id).ToList();
-                if (userOrders.Any())
-                {
-                    _context.Orders.RemoveRange(userOrders);
-                }
 
-                _context.Users.Remove(user);
+
+               user.IsActive = !user.IsActive;
 
                 await _context.SaveChangesAsync();
 
