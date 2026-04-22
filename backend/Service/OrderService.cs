@@ -400,6 +400,7 @@ namespace pbl3_web_api.Service
                 orderId = order.OrderId,
                 userId = order.UserId,
                 userName = order.User.FullName,
+                phoneNumber = order.User?.PhoneNumber,
                 orderDate = order.OrderDate,
                 totalAmount = order.TotalAmount,
                 status = order.Status,
