@@ -6,7 +6,7 @@ export const useOrderStore = defineStore('orders', () => {
   const orders = ref([])
   const totalCount = ref(0)
   const page = ref(1)
-  const pageSize = ref(20)
+  const pageSize = ref(5)
   const searchQuery = ref('')
   const statusFilter = ref('')
   const sortOrder = ref('desc')

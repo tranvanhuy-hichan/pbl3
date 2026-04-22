@@ -7,14 +7,6 @@
         <h2 class="text-2xl font-bold text-blue-900 tracking-tight">Quản lý danh sách, tìm kiếm và lọc sản phẩm hệ thống</h2>
       </div>
       <div class="flex items-center gap-2">
-        <router-link to="/admin/products/new" 
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md shadow-blue-100 transition-all flex items-center gap-2 active:scale-95">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <span>Thêm</span>
-        </router-link>
-
         <router-link to="/admin/products/trash"
           class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md shadow-rose-100 transition-all flex items-center gap-2 active:scale-95">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -22,6 +14,14 @@
               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3"/>
           </svg>
           <span>Thùng rác</span>
+        </router-link>
+        
+        <router-link to="/admin/products/new" 
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md shadow-blue-100 transition-all flex items-center gap-2 active:scale-95">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Thêm</span>
         </router-link>
       </div>
     </div>

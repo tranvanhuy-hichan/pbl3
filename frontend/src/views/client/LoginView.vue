@@ -1,84 +1,104 @@
 <template>
-  <div class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-bg-light relative overflow-hidden">
-    <!-- Decorative background elements -->
-    <div class="absolute -top-24 -left-24 w-96 h-96 bg-brand-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-    <div class="absolute -bottom-24 -right-24 w-80 h-80 bg-brand-200 rounded-full blur-3xl opacity-40 pointer-events-none"></div>
+  <div class="min-h-screen flex items-center justify-center bg-sky-50 px-4 relative overflow-hidden">
 
-    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden z-10 border border-slate-100 relative">
-      <div class="bg-brand-500 px-6 py-8 text-center text-white">
-        <h2 class="text-3xl font-extrabold tracking-tight">Chào mừng trở lại</h2>
-        <p class="mt-2 text-brand-100">Đăng nhập để sử dụng dịch vụ</p>
-      </div>
-      
-      <div class="p-8">
-        <!-- Error Message Alert -->
-        <div v-if="error" class="mb-4 bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm font-medium text-center shadow-sm">
-          {{ error }}
+    <!-- background blur circles -->
+    <div class="absolute w-[500px] h-[500px] bg-sky-300/30 blur-[120px] rounded-full -top-40 -left-40"></div>
+    <div class="absolute w-[450px] h-[450px] bg-blue-300/30 blur-[120px] rounded-full -bottom-40 -right-40"></div>
+
+    <!-- card -->
+    <div class="w-full max-w-md z-10">
+
+      <div class="bg-white/80 backdrop-blur-xl border border-sky-100 rounded-3xl shadow-xl overflow-hidden">
+
+        <!-- header -->
+        <div class="p-8 text-center bg-gradient-to-r from-sky-500 to-blue-500 text-white">
+          <h1 class="text-3xl font-bold">Chào mừng trở lại</h1>
+          <p class="text-sm text-white/80 mt-1">Đăng nhập để tiếp tục</p>
         </div>
 
-        <form class="space-y-6" @submit.prevent="login(form)">
+        <!-- body -->
+        <div class="p-8 space-y-5">
+
+          <!-- error -->
+          <div v-if="error"
+            class="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-xl text-center">
+            {{ error }}
+          </div>
+
+          <!-- username -->
           <div>
-            <label for="username" class="block text-sm font-medium text-slate-700 mb-1">Tên đăng nhập</label>
-            <input id="username" v-model="form.username" type="text" required 
-                   class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors" 
-                   placeholder="Enter your username" />
+            <label class="text-sm font-semibold text-slate-600">Tên đăng nhập</label>
+            <input
+              v-model="form.username"
+              type="text"
+              placeholder="Nhập username"
+              class="mt-1 w-full px-4 py-3 rounded-xl border border-sky-100
+                     focus:outline-none focus:ring-2 focus:ring-sky-400
+                     transition shadow-sm"
+            />
           </div>
 
+          <!-- password -->
           <div>
-            <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
-            <input id="password" v-model="form.password" type="password" autocomplete="current-password" required 
-                   class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors" 
-                   placeholder="••••••••" />
+            <label class="text-sm font-semibold text-slate-600">Mật khẩu</label>
+            <input
+              v-model="form.password"
+              type="password"
+              placeholder="••••••••"
+              class="mt-1 w-full px-4 py-3 rounded-xl border border-sky-100
+                     focus:outline-none focus:ring-2 focus:ring-sky-400
+                     transition shadow-sm"
+            />
           </div>
 
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-brand-500 focus:ring-brand-500 border-slate-300 rounded cursor-pointer" />
-              <label for="remember-me" class="ml-2 block text-sm text-slate-700 cursor-pointer">
-                Ghi nhớ đăng nhập
-              </label>
-            </div>
+          <!-- options -->
+          <div class="flex items-center justify-between text-sm text-slate-500">
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="accent-sky-500" />
+              Ghi nhớ đăng nhập
+            </label>
 
-            <div class="text-sm">
-              <a href="#" class="font-semibold text-brand-600 hover:text-brand-500 transition-colors">
-                Quên mật khẩu?
-              </a>
-            </div>
+            <a href="#" class="text-sky-600 hover:underline font-semibold">
+              Quên mật khẩu?
+            </a>
           </div>
 
-          <div>
-            <button type="submit" :disabled="isLoading"
-                    class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-brand-500 hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed">
-              <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              {{ isLoading ? 'Đang đăng nhập' : 'Đăng nhập' }}
-            </button>
-          </div>
-        </form>
+          <!-- button -->
+          <button
+            @click="login(form)"
+            :disabled="isLoading"
+            class="w-full py-3 rounded-xl font-bold text-white
+                   bg-gradient-to-r from-sky-500 to-blue-500
+                   hover:from-sky-600 hover:to-blue-600
+                   transition-all shadow-lg shadow-sky-200
+                   active:scale-[0.98] disabled:opacity-50"
+          >
+            {{ isLoading ? 'Đang đăng nhập...' : 'Đăng nhập' }}
+          </button>
 
-        <div class="mt-8 text-center">
-          <p class="text-sm text-slate-600">
-            Bạn chưa có tài khoản?
-            <router-link to="/register" class="font-bold text-brand-600 hover:text-brand-500 transition-colors">
+          <!-- register -->
+          <p class="text-center text-sm text-slate-500">
+            Chưa có tài khoản?
+            <router-link to="/register" class="text-sky-600 font-bold hover:underline">
               Đăng ký ngay
             </router-link>
           </p>
+
         </div>
       </div>
+
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue';
-import { useAuth } from '../../composables/useAuth';
+import { reactive } from 'vue'
+import { useAuth } from '@/composables/useAuth'
 
-const { login, isLoading, error } = useAuth();
+const { login, isLoading, error } = useAuth()
 
 const form = reactive({
   username: '',
   password: ''
-});
+})
 </script>

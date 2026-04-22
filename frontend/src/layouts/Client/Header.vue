@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-blue-50 border-b border-blue-200 sticky top-0 z-50 shadow-sm">
+  <header class="bg-blue-100 border-b border-blue-200 sticky top-0 z-50 shadow-sm">
     <div class="container mx-auto px-4 h-16 flex items-center">
 
       <div class="flex items-center gap-2 text-2xl font-extrabold text-blue-700">

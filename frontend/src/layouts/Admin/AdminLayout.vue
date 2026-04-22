@@ -28,8 +28,9 @@
         </router-link>
 
         <hr class="border-slate-700 my-4" />
-
-        <!-- Back Home (if Admin) -->
+      </nav>
+      
+      <div class="px-4 py-4">
         <router-link 
           v-if="authStore.user?.role === 'Admin'"
           to="/"
@@ -37,18 +38,6 @@
           class="sidebar-nav-item text-sky-300 hover:text-white">
           <span>Trang chủ website</span>
         </router-link>
-      </nav>
-      
-      <div class="px-4 py-4">
-        <button @click="handleLogout" class="w-full flex items-center justify-center gap-10px 
-                                            text-red-300 hover:text-white hover:bg-red-700 
-                                            py-8px px-12px rounded-8px font-medium transition-all 
-                                            duration-300 ease-in-out mt-auto"> <!-- mt-auto đẩy xuống cuối -->
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H9" />
-          </svg>
-          <span>Đăng xuất</span>
-        </button>
       </div>
     </aside>
 

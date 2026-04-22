@@ -181,7 +181,7 @@ const subtotal = computed(() =>
 // Shipping
 const shippingFee = computed(() => {
   if (subtotal.value === 0) return 0
-  return subtotal.value > 10000000 ? 0 : 50000
+  return subtotal.value > 1000000 ? 0 : 50000
 })
 
 const tax = computed(() =>{

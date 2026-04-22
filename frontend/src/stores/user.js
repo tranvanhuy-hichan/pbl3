@@ -25,6 +25,7 @@ api.interceptors.response.use(
 
 export const useUserStore = defineStore('user', () => {
     const users = ref([])
+    const deletedUsers = ref([])
     const loading = ref(false)
     const error = ref(null)
 
@@ -35,6 +36,26 @@ export const useUserStore = defineStore('user', () => {
             const data = res.data
 
             users.value =
+                data?.data ||
+                data?.Data ||
+                data?.items ||
+                data ||
+                []
+        } catch (err) {
+            error.value = err.response?.data?.message || 'Lỗi lấy danh sách user'
+            users.value = []
+        } finally {
+            loading.value = false
+        }
+    }
+
+    const fetchDeletedUsers = async () => {
+        loading.value = true
+        try {
+            const res = await api.get('/users/deleted?page=1&pageSize=30')
+            const data = res.data
+
+            deletedUsers.value =
                 data?.data ||
                 data?.Data ||
                 data?.items ||
@@ -65,25 +86,27 @@ export const useUserStore = defineStore('user', () => {
         }
     }
 
-    const deleteUser = async (id) => {
+    const toggleActiveUser = async (id) => {
         try {
-            await api.delete(`/users/${id}`)
+            await api.patch(`/users/${id}/toggle-active`)
         } catch (err) {
             const msg =
                 err.response?.data?.message ||
                 err.response?.data?.errorDetail ||
-                'Xóa thất bại (có ràng buộc dữ liệu)'
+                'Thất bại'
             throw err
         }
     }
 
     return {
+        deletedUsers,
         users,
         loading,
         error,
         fetchUsers,
+        fetchDeletedUsers,
         createUser,
         updateUser,
-        deleteUser
+        toggleActiveUser
     }
 })

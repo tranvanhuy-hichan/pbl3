@@ -2,7 +2,7 @@
   <div class="bg-slate-50 min-h-screen py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
-      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-8">Shopping Cart</h1>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-8">Giỏ hàng</h1>
 
       <!-- Error Alert -->
       <div v-if="cartStore.error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center justify-between mb-6">
@@ -15,7 +15,7 @@
       <!-- Loading State -->
       <div v-if="cartStore.loading && !cartStore.cartItems.length" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto mb-4"></div>
-        <p class="text-slate-500">Loading your cart...</p>
+        <p class="text-slate-500">Đang tải...</p>
       </div>
 
       <div v-else class="flex flex-col lg:flex-row gap-8">
@@ -25,10 +25,10 @@
           <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <!-- Table Header -->
             <div class="hidden sm:grid grid-cols-12 gap-4 p-4 border-b border-slate-100 bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              <div class="col-span-6">Product</div>
-              <div class="col-span-2 text-center">Price</div>
-              <div class="col-span-2 text-center">Quantity</div>
-              <div class="col-span-2 text-right">Total</div>
+              <div class="col-span-6">Sản phẩm</div>
+              <div class="col-span-2 text-center">Giá</div>
+              <div class="col-span-2 text-center">Số lượng</div>
+              <div class="col-span-2 text-right">Tạm tính</div>
             </div>
 
             <!-- Cart Items -->
@@ -103,25 +103,20 @@
 
             <div v-if="cartStore.isEmpty && !cartStore.loading" class="p-12 text-center text-slate-500">
                <svg class="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-               <h3 class="text-xl font-bold text-slate-700 mb-2">Your cart is empty</h3>
-               <p class="mb-6 text-sm">Looks like you haven't added anything to your cart yet.</p>
+               <h3 class="text-xl font-bold text-slate-700 mb-2">Giỏ hàng trống</h3>
                <router-link to="/" class="inline-block bg-brand-500 hover:bg-brand-600 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors">
-                 Continue Shopping
+                 Tiếp tục mua sắm
                </router-link>
             </div>
 
             <!-- Cart Footer Actions -->
             <div v-if="!cartStore.isEmpty" class="p-4 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
-              <div class="relative max-w-xs w-full hidden sm:block">
-                <input type="text" v-model="promoCode" placeholder="Promo code" class="w-full pl-4 pr-20 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
-                <button class="absolute right-1 top-1 bottom-1 px-3 bg-slate-800 text-white rounded text-xs font-semibold hover:bg-slate-700 transition-colors">APPLY</button>
-              </div>
               <button 
                 @click="handleClearCart" 
                 :disabled="clearingCart"
                 class="text-sm font-semibold text-slate-500 hover:text-red-500 transition-colors disabled:opacity-50"
               >
-                {{ clearingCart ? 'Clearing...' : 'Clear Cart' }}
+                {{ clearingCart ? 'Đang xóa...' : 'Xóa tất cả' }}
               </button>
             </div>
           </div>
@@ -130,15 +125,15 @@
         <!-- Order Summary -->
         <div class="lg:w-1/3">
           <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sticky top-24">
-            <h2 class="text-xl font-bold text-slate-800 mb-6 border-b border-slate-100 pb-4">Order Summary</h2>
+            <h2 class="text-xl font-bold text-slate-800 mb-6 border-b border-slate-100 pb-4">Chi tiết đơn hàng</h2>
             
             <div class="space-y-4 text-slate-600 border-b border-slate-100 pb-4 mb-4">
               <div class="flex justify-between">
-                <span>Subtotal ({{ cartStore.cartCount }} items)</span>
+                <span>Tạm tính ({{ cartStore.cartCount }} sản phẩm)</span>
                 <span class="font-medium text-slate-800">{{ formatCurrency(cartStore.cartSubtotal) }}</span>
               </div>
               <div class="flex justify-between">
-                <span>Shipping Estimate</span>
+                <span>Phí ship</span>
                 <span class="font-medium text-slate-800">{{ shippingCost === 0 ? 'Free' : formatCurrency(shippingCost) }}</span>
               </div>
               <div class="flex justify-between">
@@ -148,7 +143,7 @@
             </div>
 
             <div class="flex justify-between items-end mb-8">
-              <span class="font-bold text-slate-800 text-lg">Total</span>
+              <span class="font-bold text-slate-800 text-lg">Tổng</span>
               <span class="font-extrabold text-2xl text-brand-600">{{ formatCurrency(orderTotal) }}</span>
             </div>
 
@@ -156,12 +151,12 @@
               'w-full py-4 rounded-xl font-bold flex justify-center items-center shadow-sm transition-all text-center',
               !cartStore.isEmpty ? 'bg-brand-500 hover:bg-brand-600 text-white shadow-brand-200' : 'bg-slate-200 text-slate-400 cursor-not-allowed pointer-events-none'
             ]">
-              Proceed to Checkout
+              Mua ngay
             </router-link>
 
             <div class="mt-4 flex items-center justify-center gap-2 text-xs text-slate-400">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-              Secure Checkout & Encrypted payments
+              Thanh toán an toàn và mã hóa
             </div>
           </div>
         </div>

@@ -2,10 +2,29 @@
   <div class="space-y-6 bg-slate-50 p-6">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Quản lý người dùng</h2>
-      <button @click="openAddModal" class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition-all flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-        <span>Thêm</span>
-      </button>
+
+      <div class="flex items-center gap-2">
+
+        <!-- NÚT CHUYỂN SANG TÀI KHOẢN ĐÃ KHÓA -->
+        <button
+          @click="goLockedUsers"
+          class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition-all flex items-center gap-2"
+        >
+          Tài khoản đã khóa
+        </button>
+
+        <!-- NÚT THÊM -->
+        <button
+          @click="openAddModal"
+          class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition-all flex items-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Thêm</span>
+        </button>
+
+      </div>
     </div>
 
     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -148,11 +167,11 @@
     <div v-if="showDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
       <div class="bg-white p-6 rounded-xl max-w-sm w-full shadow-2xl text-center">
         <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">⚠️</div>
-        <h3 class="text-lg font-bold mb-2">Xóa người dùng?</h3>
-        <p class="text-slate-500 mb-6">Xác nhận xóa tài khoản <span class="font-bold text-slate-800">@{{ userToDelete?.username }}</span>. Thao tác này không thể hoàn tác.</p>
+        <h3 class="text-lg font-bold mb-2">Khóa người dùng?</h3>
+        <p class="text-slate-500 mb-6">Xác nhận khóa tài khoản <span class="font-bold text-slate-800">@{{ userToDelete?.username }}</span></p>
         <div class="flex gap-3">
           <button @click="showDeleteDialog = false" class="flex-1 px-4 py-2 bg-slate-100 font-bold rounded-lg">Hủy</button>
-          <button @click="executeDelete" class="flex-1 px-4 py-2 bg-red-600 text-white font-bold rounded-lg">Xác nhận xóa</button>
+          <button @click="executeDelete" class="flex-1 px-4 py-2 bg-red-600 text-white font-bold rounded-lg">Xác nhận khóa</button>
         </div>
       </div>
     </div>
@@ -162,7 +181,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const userStore = useUserStore()
 
 const searchQuery = ref('')
@@ -274,13 +295,17 @@ const confirmDelete = (u) => {
 const executeDelete = async () => {
   try {
     const id = userToDelete.value.userId || userToDelete.value.userID
-    await userStore.deleteUser(id)
+    await userStore.toggleActiveUser(id)
 
-    notify('Xóa người dùng thành công')
+    notify('Khóa người dùng thành công')
     showDeleteDialog.value = false
   } catch (err) {
-    notify('Xóa thất bại!')
+    notify('Thất bại!')
   }
+}
+
+const goLockedUsers = () => {
+  router.push('/admin/users/trash')
 }
 </script>
 

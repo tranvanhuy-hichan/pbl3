@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 bg-rose-50 min-h-screen space-y-6">
+  <div class="p-6 bg-slate-50-50 min-h-screen space-y-6">
 
     <div class="flex justify-between items-center">
       <h2 class="text-2xl font-bold text-rose-600">Thùng rác</h2>
@@ -9,7 +9,7 @@
     <div class="bg-white rounded-2xl shadow-sm border border-rose-200 overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="bg-rose-50/50 border-b border-rose-200">
+          <tr class="bg-slate-50 border-b border-rose-200">
             <th class="py-3 px-4 text-xs font-bold text-rose-700 uppercase">Tên sản phẩm</th>
             <th class="py-3 px-4 text-xs font-bold text-rose-700 uppercase">Mã</th>
             <th class="py-3 px-4 text-xs font-bold text-rose-700 uppercase">Giá bán</th>
@@ -71,3 +71,5 @@ onMounted(() => {
   fetchDeletedProducts()
 })
 </script>
+
+
