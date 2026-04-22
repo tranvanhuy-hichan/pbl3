@@ -11,5 +11,11 @@ public interface IUserRepo
     Task<User?> GetUserByIdAsync(int id);
     Task<int> AddUserAsync(User user);
     Task UpdateUserAsync(User user);
- 
+    Task<List<User>> GetAllActiveAsync(int page, int pageSize);
+    Task<List<User>> GetAllNoActiveAsync(int page, int pageSize);
+    Task<int> CountAsync();
+    Task<User?> GetByIdAsync(int id);
+    Task AddAsync(User user);
+    Task SaveAsync();
+
 }

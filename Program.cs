@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using QuestPDF.Fluent;
-using QuestPDF.Infrastructure;
+using PBL3.Services;
 using pbl3_web_api.Data;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
 using pbl3_web_api.Service;
+using pbl3_web_api.Services;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +37,11 @@ builder.Services.AddScoped<IBrandRepository, BrandRepo>();
 builder.Services.AddScoped<IBrandService, BrandService>();
 builder.Services.AddScoped<ICartRepository, CartRepo>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IStatisticsRepo, StatisticsRepo>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<IUserRepo, UserRepo>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IAuthService, AuthService>();
