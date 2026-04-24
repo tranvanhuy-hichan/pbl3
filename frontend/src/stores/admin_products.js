@@ -57,7 +57,7 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
             categories.value = res
         } catch (error) {
             console.error('Lỗi khi lấy danh mục:', error)
-        }
+        } 
     }
 
     const fetchBrands = async () => {
@@ -89,9 +89,9 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
         }
     }
 
-    const updateProduct = async (id, formData) => {
+    const updateProduct = async (id, payload) => {
         try {
-            const res = await apiClient.put(`/products/${id}`, formData)
+            const res = await apiClient.put(`/products/${id}`, payload)
             await fetchProducts()
             return res
         } catch (error) {
@@ -99,6 +99,19 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
             throw error
         }
     }
+
+    const uploadProductImage = async (id, file) => {
+        const formData = new FormData()
+        formData.append("file", file)
+
+        return apiClient.post(`/products/${id}/image`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
+    }
+
+
 
     const deleteProduct = async (id) => {
         try {
@@ -157,6 +170,7 @@ export const useAdminProductStore = defineStore('adminProducts', () => {
         updateProduct,
         deleteProduct,
         restoreProduct,
+        uploadProductImage,
         changePage,
         changePageSize
     }

@@ -197,25 +197,39 @@ onMounted(async () => {
 
 const saveProduct = async () => {
   try {
-    const fd = new FormData()
-    fd.append("productName", formData.value.productName)
-    fd.append("productCode", formData.value.productCode.toUpperCase())
-    fd.append("categoryId", formData.value.categoryId)
-    fd.append("brandId", formData.value.brandId)
-    fd.append("description", formData.value.description)
-    fd.append("specifications", formData.value.specifications)
-    fd.append("price", formData.value.price)
-    fd.append("stockQuantity", formData.value.stockQuantity)
 
-    if (formData.value.imageFile) {
-      fd.append("ImageFile", formData.value.imageFile)
+    const payload = {
+      productName: formData.value.productName,
+      productCode: formData.value.productCode.toUpperCase(),
+      categoryId: Number(formData.value.categoryId),
+      brandId: Number(formData.value.brandId),
+      description: formData.value.description,
+      specifications: formData.value.specifications,
+      price: Number(formData.value.price),
+      stockQuantity: Number(formData.value.stockQuantity),
     }
 
-    if (isEditing.value) await productStore.updateProduct(formData.value.id, fd)
+    let id
 
-    else await productStore.addProduct(fd)
-    
+    if (isEditing.value) {
+      await productStore.updateProduct(formData.value.id, payload)
+      id = formData.value.id
+    } else {
+      const res = await productStore.addProduct(payload)
+      id = res.productId
+    }
+
+    // upload ảnh riêng
+    if (formData.value.imageFile) {
+      console.log('Uploading image for product ID:', id)
+      await productStore.uploadProductImage(id, formData.value.imageFile)
+    }
+
     router.push('/admin/products')
-  } catch (error) { alert('Lưu thất bại!') }
+
+  } catch (error) {
+    alert('Lưu thất bại!')
+  }
 }
+
 </script>
