@@ -1,8 +1,6 @@
-<!-- src/views/user/MyOrders.vue -->
 <template>
   <div class="space-y-6 p-6 bg-slate-50 min-h-screen font-sans">
     
-    <!-- Header: Title + Filter & Stats -->
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
       <div>
         <h2 class="text-2xl font-bold text-blue-900 tracking-tight">Đơn hàng của tôi</h2>
@@ -10,7 +8,6 @@
       </div>
 
       <div class="flex items-center gap-3 w-full lg:w-auto">
-        <!-- Stats Badge -->
         <div class="hidden sm:flex items-center gap-2 bg-blue-100/50 px-3 py-2 rounded-xl border border-blue-200/50 shadow-sm">
           <span class="w-2 h-2 rounded-full bg-slate-500 animate-pulse"></span>
           <span class="text-sm font-semibold text-blue-800">
@@ -18,7 +15,6 @@
           </span>
         </div>
 
-        <!-- Minimal Select Filter -->
         <div class="relative group flex-grow lg:flex-grow-0">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,7 +41,6 @@
       </div>
     </div>
 
-    <!-- Table Danh sách đơn hàng -->
     <div v-if="!loading" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
@@ -55,11 +50,10 @@
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Ngày đặt</th>
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng tiền</th>
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
-              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            <tr v-for="order in myOrders" :key="order.orderId" class="hover:bg-slate-50/80 transition-colors">
+            <tr v-for="order in myOrders" :key="order.orderId" class="hover:bg-slate-50/80 transition-colors" @click="viewOrderDetails(order.orderId)">
               <td class="py-4 px-6 text-sm font-bold text-slate-800">#{{ order.orderId }}</td>
               <td class="py-4 px-6 text-sm text-slate-600">{{ formatDate(order.orderDate) }}</td>
               <td class="py-4 px-6 text-sm font-bold text-slate-900">{{ Number(order.totalAmount).toLocaleString('vi-VN') }}₫</td>
@@ -67,12 +61,6 @@
                 <span :class="['text-[10px] font-bold rounded-full px-3 py-1 border uppercase tracking-tight', getStatusClass(order.status)]">
                   {{ getStatusLabel(order.status) }}
                 </span>
-              </td>
-              <td class="py-4 px-6 text-right">
-                <div class="flex justify-end gap-2">
-                  <button v-if="String(order.status).toLowerCase() === 'pending'" @click="handleCancelOrder(order.orderId)" class="text-red-600 hover:text-red-700 font-bold text-sm bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors border border-red-100">Hủy đơn</button>
-                  <button @click="viewOrderDetails(order.orderId)" class="text-blue-600 hover:text-blue-700 font-bold text-sm bg-slate-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors">Chi tiết</button>
-                </div>
               </td>
             </tr>
             <tr v-if="myOrders.length === 0">
@@ -84,7 +72,6 @@
         </table>
       </div>
 
-      <!-- Pagination -->
       <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
         <span class="text-sm text-slate-500 font-medium">Trang <span class="text-slate-800">{{ page }}</span> / {{ totalPages }}</span>
         <div class="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
@@ -95,114 +82,189 @@
       </div>
     </div>
 
-    <!-- MODAL CHI TIẾT -->
     <div v-if="selectedOrder" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
       <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col scale-in-center">
         
-        <!-- Header -->
         <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <div>
-            <h3 class="text-xl font-bold text-slate-800">Chi tiết đơn hàng #{{ selectedOrder.orderId }}</h3>
-            <p class="text-sm text-slate-500 mt-1">Ngày đặt: {{ formatDate(selectedOrder.orderDate, true) }}</p>
+            <h3 class="text-xl font-bold text-slate-800">
+              Chi tiết đơn hàng #{{ selectedOrder.orderId }}
+            </h3>
+            <p class="text-sm text-slate-500 mt-1">
+              Ngày đặt: {{ formatDate(selectedOrder.orderDate, true) }}
+            </p>
           </div>
-          <button @click="selectedOrder = null" class="text-slate-400 hover:text-slate-600 p-2 hover:bg-white rounded-full transition-all">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          <button @click="selectedOrder = null" class="text-slate-400 hover:text-slate-600 p-2 hover:bg-white rounded-full">
+            ✕
           </button>
         </div>
 
-        <div class="p-6 overflow-y-auto space-y-8">
-          
-          <!-- HÀNG 1: ĐỊA CHỈ & THÔNG TIN GIAO DỊCH (CHUNG 1 DÒNG) -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Địa chỉ -->
-            <div class="space-y-3">
-              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Địa chỉ giao hàng</h4>
-              <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 h-full flex items-center">
-                <p class="text-sm text-slate-700 leading-relaxed font-medium">{{ selectedOrder.shippingAddress }}</p>
+        <div class="p-6 overflow-y-auto space-y-6">
+          <div v-if="selectedOrder.status !== 'Cancelled'" class="px-6 pt-4">
+          <div class="flex items-center justify-between relative">
+
+            <div class="absolute top-3 left-0 right-0 h-1 bg-slate-200"></div>
+
+            <div
+              v-for="step in orderSteps"
+              :key="step.value"
+              class="flex flex-col items-center z-10 w-full"
+            >
+              <div
+                :class="[
+                  'w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold',
+                  isStepActive(step.value)
+                    ? 'bg-blue-500 border-blue-500 text-white'
+                    : 'bg-white border-slate-300 text-slate-400'
+                ]"
+              >
+                •
               </div>
+
+              <span class="text-[11px] mt-2"
+                :class="isStepActive(step.value) ? 'text-blue-600' : 'text-slate-400'">
+                {{ step.label }}
+              </span>
             </div>
 
-            <!-- Thông tin giao dịch -->
-            <div class="space-y-3">
-              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Thông tin giao dịch</h4>
-              <div class="grid grid-cols-3 gap-2">
-                <div class="flex flex-col">
-                  <label class="text-[10px] font-bold text-slate-400 mb-1 text-center">PHƯƠNG THỨC</label>
-                  <div class="text-[11px] font-bold rounded-lg py-2 border bg-white border-slate-200 text-slate-600 text-center shadow-sm">
-                    {{ selectedOrder.paymentMethod }}
-                  </div>
-                </div>
-                <div class="flex flex-col">
-                  <label class="text-[10px] font-bold text-slate-400 mb-1 text-center">THANH TOÁN</label>
-                  <div :class="['text-[11px] font-bold rounded-lg py-2 border text-center shadow-sm', getPaymentStatusClass(selectedOrder.paymentStatus)]">
-                    {{ getPaymentStatusLabel(selectedOrder.paymentStatus) }}
-                  </div>
-                </div>
-                <div class="flex flex-col">
-                  <label class="text-[10px] font-bold text-slate-400 mb-1 text-center">TRẠNG THÁI</label>
-                  <div :class="['text-[11px] font-bold rounded-lg py-2 border text-center shadow-sm', getStatusClass(selectedOrder.status)]">
-                    {{ getStatusLabel(selectedOrder.status) }}
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
+        </div>
+        <div v-else class="px-6 pt-4 flex justify-center">
+          <div class="flex flex-col items-center">
 
-          <!-- DANH SÁCH SẢN PHẨM -->
-          <div class="space-y-3">
-            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sản phẩm trong đơn</h4>
-            <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
-              <table class="w-full text-left border-collapse">
-                <thead class="bg-slate-50/80">
-                  <tr>
-                    <th class="py-3 px-4 text-xs font-bold text-slate-500">Sản phẩm</th>
-                    <th class="py-3 px-4 text-xs font-bold text-slate-500 text-center">SL</th>
-                    <th class="py-3 px-4 text-xs font-bold text-slate-500 text-right">Đơn giá</th>
-                    <th class="py-3 px-4 text-xs font-bold text-slate-500 text-right">Thành tiền</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 bg-white">
-                  <tr v-for="item in selectedOrder.orderDetails" :key="item.productId">
-                    <td class="py-4 px-4 flex items-center gap-3">
-                      <img :src="item.imageURL ? `https://localhost:7010${item.imageURL}` : 'https://via.placeholder.com/150'" class="h-14 w-14 object-contain rounded-lg border bg-white" />
-                      <div class="flex flex-col">
-                        <span class="font-bold text-slate-800 text-sm line-clamp-1">{{ item.productName }}</span>
-                        <div class="text-[10px] text-slate-400 font-medium uppercase">MÃ: {{ item.productCode }}</div>
+            <div class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">
+              ✕
+            </div>
+
+            <span class="mt-2 text-sm font-semibold text-red-600">
+              Đơn hàng đã bị hủy
+            </span>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            Thông tin giao hàng
+          </h4>
+
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
+
+            <div>
+              <span class="text-xs text-slate-400">Địa chỉ:</span>
+              <p class="text-sm font-medium text-slate-700">
+                {{ selectedOrder.shippingAddress }}
+              </p>
+            </div>
+
+            <div v-if="selectedOrder.notes">
+              <span class="text-xs text-slate-400">Ghi chú:</span>
+              <p class="text-sm italic text-amber-700">
+                "{{ selectedOrder.notes }}"
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            Sản phẩm trong đơn
+          </h4>
+
+          <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="py-3 px-4 text-xs font-bold text-slate-500">Sản phẩm</th>
+                  <th class="py-3 px-4 text-xs font-bold text-center text-slate-500">SL</th>
+                  <th class="py-3 px-4 text-xs font-bold text-right text-slate-500">Đơn giá</th>
+                  <th class="py-3 px-4 text-xs font-bold text-right text-slate-500">Thành tiền</th>
+                </tr>
+              </thead>
+
+              <tbody class="divide-y divide-slate-100 bg-white">
+                <tr v-for="item in selectedOrder.orderDetails" :key="item.productId">
+                  <td class="py-4 px-4 flex items-center gap-3">
+                    <img
+                      :src="item.imageURL ? `https://localhost:7010${item.imageURL}` : 'https://via.placeholder.com/150'"
+                      class="h-14 w-14 object-contain rounded-lg border bg-white"
+                    />
+                    <div>
+                      <div class="font-bold text-sm text-slate-800 line-clamp-1">
+                        {{ item.productName }}
                       </div>
-                    </td>
-                    <td class="py-4 px-4 text-center text-sm font-medium">{{ item.quantity }}</td>
-                    <td class="py-4 px-4 text-right text-sm">{{ Number(item.unitPrice).toLocaleString('vi-VN') }}₫</td>
-                    <td class="py-4 px-4 text-right text-sm font-bold text-slate-900">{{ Number(item.subtotal).toLocaleString('vi-VN') }}₫</td>
-                  </tr>
-                </tbody>
-                <tfoot class="bg-slate-50/50">
-                  <tr>
-                    <td colspan="3" class="py-4 px-4 text-right font-bold text-slate-500">Tổng thanh toán:</td>
-                    <td class="py-4 px-4 text-right font-black text-blue-600 text-lg">{{ Number(selectedOrder.totalAmount).toLocaleString('vi-VN') }}₫</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
+                      <div class="text-[10px] text-slate-400 uppercase">
+                        Mã: {{ item.productCode }}
+                      </div>
+                    </div>
+                  </td>
 
-          <!-- GHI CHÚ NẰM RIÊNG -->
-          <div v-if="selectedOrder.notes" class="space-y-3">
-            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Ghi chú</h4>
-            <div class="bg-amber-50 border border-amber-100 p-4 rounded-xl italic text-sm text-amber-800">
-              "{{ selectedOrder.notes }}"
-            </div>
+                  <td class="py-4 px-4 text-center text-sm">
+                    {{ item.quantity }}
+                  </td>
+
+                  <td class="py-4 px-4 text-right text-sm">
+                    {{ Number(item.unitPrice).toLocaleString('vi-VN') }}₫
+                  </td>
+
+                  <td class="py-4 px-4 text-right text-sm font-bold">
+                    {{ Number(item.subtotal).toLocaleString('vi-VN') }}₫
+                  </td>
+                </tr>
+              </tbody>
+
+              <tfoot class="bg-slate-50/50">
+                <tr>
+                  <td colspan="3" class="py-4 px-4 text-right font-bold text-slate-500">
+                    Tổng thanh toán:
+                  </td>
+                  <td class="py-4 px-4 text-right font-black text-blue-600 text-lg">
+                    {{ Number(selectedOrder.totalAmount).toLocaleString('vi-VN') }}₫
+                  </td>
+                </tr>
+
+                <tr>
+                  <td colspan="4" class="px-4 pb-4 text-right text-sm">
+                    <div>
+                      Phương thức: <span class="font-semibold">{{ selectedOrder.paymentMethod }}</span>
+                    </div>
+                    <div>
+                      Thanh toán: 
+                      <span :class="getPaymentStatusClass(selectedOrder.paymentStatus)">
+                        {{ getPaymentStatusLabel(selectedOrder.paymentStatus) }}
+                      </span>
+                    </div>
+                  </td>
+
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </div>
 
-        <!-- Footer -->
-        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
-          <button v-if="String(selectedOrder.status).toLowerCase() === 'pending'" @click="handleCancelOrder(selectedOrder.orderId)" class="px-6 py-2.5 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-all border border-red-200">Hủy đơn hàng</button>
-          <button @click="selectedOrder = null" class="px-8 py-2.5 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 transition-all">Đóng</button>
-        </div>
       </div>
-    </div>
 
-    <!-- Loading state -->
+      <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+        <button
+          v-if="String(selectedOrder.status).toLowerCase() === 'pending'"
+          @click="handleCancelOrder(selectedOrder.orderId)"
+          class="px-6 py-2.5 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 border border-red-200"
+        >
+          Hủy đơn hàng
+        </button>
+
+        <button
+          @click="selectedOrder = null"
+          class="px-8 py-2.5 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900"
+        >
+          Đóng
+        </button>
+      </div>
+
+    </div>
+  </div>
+
     <div v-if="loading" class="py-20 text-center">
        <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent"></div>
        <p class="text-slate-500 mt-4 font-medium animate-pulse">Đang tải dữ liệu...</p>
@@ -266,6 +328,19 @@ const getStatusClass = (status) => {
     case 'cancelled': return 'bg-red-100 text-red-700 border-red-200';
     default: return 'bg-slate-100 text-slate-600 border-slate-200';
   }
+}
+
+const orderSteps = [
+  { value: 'Pending', label: 'Chờ xử lý' },
+  { value: 'Processing', label: 'Đang xử lý' },
+  { value: 'Shipped', label: 'Đang giao' },
+  { value: 'Delivered', label: 'Hoàn thành' }
+]
+
+const isStepActive = (step) => {
+  const orderIndex = orderSteps.findIndex(s => s.value === selectedOrder.value.status)
+  const stepIndex = orderSteps.findIndex(s => s.value === step)
+  return stepIndex <= orderIndex
 }
 
 const getPaymentStatusClass = (status) => {

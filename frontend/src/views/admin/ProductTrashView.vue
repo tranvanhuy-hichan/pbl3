@@ -32,10 +32,10 @@
               <th class="py-3 px-5 text-[11px] font-black text-slate-500 uppercase tracking-widest">
                 Sản phẩm
               </th>
-              <th class="py-3 px-5 text-[11px] font-black text-slate-500 uppercase tracking-widest">
+              <th class="py-3 px-5 text-[11px] font-black text-slate-500 uppercase tracking-widest text-center">
                 Mã
               </th>
-              <th class="py-3 px-5 text-[11px] font-black text-slate-500 uppercase tracking-widest">
+              <th class="py-3 px-5 text-[11px] font-black text-slate-500 uppercase tracking-widest text-right">
                 Giá bán
               </th>
             </tr>
@@ -62,11 +62,11 @@
                 </div>
               </td>
 
-              <td class="py-3 px-5 text-slate-500 font-mono text-xs">
+              <td class="py-3 px-5 text-slate-500 font-mono text-xs text-center">
                 {{ product.productCode }}
               </td>
 
-              <td class="py-3 px-5 font-bold text-indigo-600">
+              <td class="py-3 px-5 font-bold text-indigo-600 text-right">
                 {{ formatCurrency(product.price) }}
               </td>
             </tr>

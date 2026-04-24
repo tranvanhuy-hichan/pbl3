@@ -29,18 +29,27 @@ export const useUserStore = defineStore('user', () => {
     const loading = ref(false)
     const error = ref(null)
 
+    const page = ref(1)
+    const pageSize = ref(10)
+    const totalCount = ref(0)
+
     const fetchUsers = async () => {
         loading.value = true
         try {
-            const res = await api.get('/users?page=1&pageSize=30')
+            const res = await api.get(`/users?page=${page.value}&pageSize=${pageSize.value}`)
             const data = res.data
 
             users.value =
-                data?.data ||
-                data?.Data ||
-                data?.items ||
-                data ||
+                data.items ||
+                data.data ||
+                data.Data ||
                 []
+
+            totalCount.value =
+                data.totalCount ||
+                data.TotalCount ||
+                users.value.length
+
         } catch (err) {
             error.value = err.response?.data?.message || 'Lỗi lấy danh sách user'
             users.value = []
@@ -70,32 +79,15 @@ export const useUserStore = defineStore('user', () => {
     }
 
     const createUser = async (payload) => {
-        try {
-            await api.post('/users', payload)
-        } catch (err) {
-            throw err
-        }
+        await api.post('/users', payload)
     }
 
     const updateUser = async (id, payload) => {
-        try {
-            await api.put(`/users/${id}`, payload)
-        } catch (err) {
-            showMsg(msg)
-            throw err
-        }
+        await api.put(`/users/${id}`, payload)
     }
 
     const toggleActiveUser = async (id) => {
-        try {
-            await api.patch(`/users/${id}/toggle-active`)
-        } catch (err) {
-            const msg =
-                err.response?.data?.message ||
-                err.response?.data?.errorDetail ||
-                'Thất bại'
-            throw err
-        }
+        await api.patch(`/users/${id}/toggle-active`)
     }
 
     return {
@@ -103,6 +95,12 @@ export const useUserStore = defineStore('user', () => {
         users,
         loading,
         error,
+
+        // ✅ QUAN TRỌNG
+        page,
+        pageSize,
+        totalCount,
+
         fetchUsers,
         fetchDeletedUsers,
         createUser,

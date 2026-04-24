@@ -1,7 +1,6 @@
 <template>
   <div class="space-y-6 bg-slate-50 min-h-screen p-6">
 
-    <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
         <h2 class="text-2xl font-bold text-blue-900 tracking-tight">Quản lý danh sách, tìm kiếm và lọc sản phẩm hệ thống</h2>
@@ -25,11 +24,9 @@
         </router-link>
       </div>
     </div>
-    <!-- Toolbar: Filters -->
     <div class="bg-white p-4 rounded-2xl shadow-sm border border-blue-200">
       <div class="flex flex-wrap items-center gap-3">
 
-        <!-- Search -->
         <div class="flex-1 min-w-[280px] relative group">
           <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
             <svg class="w-5 h-5 text-blue-400 group-focus-within:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,14 +37,12 @@
             class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"/>
         </div>
 
-        <!-- Category -->
         <div class="w-full sm:w-44 relative">
           <select :value="adminProductStore.selectedCategory ?? ''" @change="onCategoryChange" 
             class="w-full pl-3 pr-10 py-2 bg-slate-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
             <option value="">Tất cả danh mục</option>
             <option v-for="cat in adminProductStore.categories" :key="cat.categoryId" :value="cat.categoryId">{{ cat.categoryName }}</option>
           </select>
-          <!-- Icon Mũi tên đổ xuống -->
           <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-blue-400">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -55,14 +50,12 @@
           </div>
         </div>
 
-        <!-- Brand -->
         <div class="w-full sm:w-44 relative">
           <select :value="adminProductStore.selectedBrand ?? ''" @change="onBrandChange" 
             class="w-full pl-3 pr-10 py-2 bg-slate-50 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer">
             <option value="">Tất cả nhãn hàng</option>
             <option v-for="brand in adminProductStore.brands" :key="brand.brandId" :value="brand.brandId">{{ brand.brandName }}</option>
           </select>
-          <!-- Icon Mũi tên đổ xuống -->
           <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-blue-400">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -70,7 +63,6 @@
           </div>
         </div>
 
-        <!-- Price -->
         <div class="flex items-center gap-1.5 bg-slate-50 p-1 border border-blue-200 rounded-xl">
           <div class="flex items-center">
             <button @click="adjustPrice('min', -500000)" class="p-1.5 hover:bg-blue-100 text-blue-500 rounded-lg transition-colors">
@@ -93,7 +85,6 @@
           </div>
         </div>
 
-        <!-- Reset -->
         <button v-if="hasFilters" @click="resetAllFilters" class="flex items-center gap-1 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-slate-50 rounded-xl transition-all whitespace-nowrap">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l16 16m0-16L4 20"></path></svg>
           Đặt lại
@@ -101,7 +92,6 @@
       </div>
     </div>
 
-    <!-- Data Table -->
     <div class="bg-white rounded-2xl shadow-sm border border-blue-200 overflow-hidden flex flex-col">
       <div class="overflow-x-auto" ref="tableWrapperRef">
         <table class="w-full text-left border-collapse">
@@ -127,23 +117,21 @@
                   </div>
                 </div>
               </td>
-              <!-- Cột Danh mục -->
               <td class="py-4 px-6 whitespace-nowrap">
                 <span class="px-2 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-700 whitespace-nowrap inline-block border border-emerald-100">
                   {{ product.categoryName }}
                 </span>
               </td>
 
-              <!-- Cột Thương hiệu -->
               <td class="py-4 px-6 whitespace-nowrap">
                 <span class="px-2 py-1 rounded-lg text-[11px] font-bold bg-red-50 text-red-700 whitespace-nowrap inline-block border border-red-100">
                   {{ product.brandName }}
                 </span>
               </td>
               <td class="py-4 px-6 font-bold text-blue-900">{{ formatCurrency(product.price) }}</td>
-              <td class="py-4 px-6 whitespace-nowrap"> <!-- Thêm whitespace-nowrap vào td để ô không bị bóp lại -->
+              <td class="py-4 px-6 whitespace-nowrap"> 
                 <span :class="[
-                  'px-2.5 py-1 text-[11px] font-bold rounded-full inline-block whitespace-nowrap', // Thêm inline-block và whitespace-nowrap
+                  'px-2.5 py-1 text-[11px] font-bold rounded-full inline-block whitespace-nowrap', 
                   product.stockQuantity > 0 ? 'bg-blue-100 text-blue-700' : 'bg-rose-100 text-rose-700'
                 ]">
                   {{ product.stockQuantity > 0 ? `Còn ${product.stockQuantity}` : 'Hết hàng' }}
@@ -154,7 +142,6 @@
         </table>
       </div>
 
-      <!-- Pagination Footer -->
       <div class="px-6 py-4 bg-slate-50 border-t border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="text-sm text-blue-700 font-medium">
           Hiển thị <span class="text-blue-900 font-bold">{{ startEntry }}</span> - <span class="text-blue-900 font-bold">{{ endEntry }}</span> 
@@ -195,7 +182,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const adminProductStore = useAdminProductStore()
-const tableWrapperRef = ref(null) // <-- thêm ref cho scroll
+const tableWrapperRef = ref(null)
 
 const totalPages = computed(() => Math.ceil(adminProductStore.totalCount / adminProductStore.pageSize) || 1)
 const startEntry = computed(() => (adminProductStore.page - 1) * adminProductStore.pageSize + 1)

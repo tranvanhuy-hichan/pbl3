@@ -9,7 +9,7 @@
 
       <button
         @click="goBack"
-        class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition-all"
+        class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-semibold shadow-sm transition-all"
       >
         ← Quay lại
       </button>
@@ -62,7 +62,7 @@
 
               <td class="py-4 px-6">
                 <span class="px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-600">
-                  Đã xóa
+                  Đã khóa 
                 </span>
               </td>
 

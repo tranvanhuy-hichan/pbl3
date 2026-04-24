@@ -116,7 +116,7 @@
     <!-- Table -->
     <div v-else class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="w-full text-left border-collapse ">
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Mã đơn</th>
@@ -124,7 +124,7 @@
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Ngày đặt hàng</th>
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng tiền</th>
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
-              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Thanh toán</th>
+              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Thanh toán</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -155,9 +155,9 @@
                   {{ getStatusLabel(order.status) }}
                 </span>
               </td>
-              <td class="py-2.5 px-4">
+              <td class="py-2.5 px-4 text-right">
                 <span :class="[
-                  'text-[10px] font-bold rounded-full px-3 py-1 border uppercase tracking-tight whitespace-nowrap inline-block', 
+                  'text-[10px] font-bold rounded-full px-3 py-1 border uppercase tracking-tight whitespace-nowrap inline-block ', 
                   getPaymentStatusClass(order.paymentStatus)
                 ]">
                   {{ getPaymentStatusLabel(order.paymentStatus) }}
@@ -348,7 +348,7 @@
               <tbody class="divide-y divide-slate-100">
 
                 <tr v-for="item in selectedOrder.orderDetails" :key="item.productId">
-                  <td class="p-3">
+                  <td class="p-3 cursor-pointer" @click="goToProduct(item.productId)">
                     <div class="flex gap-3 items-center">
 
                       <img
@@ -357,7 +357,7 @@
                       />
 
                       <div class="flex-1">
-                        <router-link :to="`/product/${item.productId}`" class="font-bold text-sm hover:text-blue-600 transition-colors">
+                        <router-link  class="font-bold text-sm hover:text-blue-600 transition-colors">
                           {{ item.productName }}
                         </router-link>
                         <p class="text-xs text-slate-400 flex justify-between w-full">
@@ -450,7 +450,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useOrderStore } from '../../stores/orders'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const orderStore = useOrderStore()
 const {
   orders, totalCount, page, pageSize, paymentStatusFilter,
@@ -664,6 +666,10 @@ const paymentStatusLabels = { Paid: 'Đã thanh toán', Unpaid: 'Chưa thanh to�
 
 const getStatusLabel = (status) => statusLabels[status] || status
 const getPaymentStatusLabel = (status) => paymentStatusLabels[status] || status
+
+const goToProduct = (productId) => {
+  router.push(`/product/${productId}`)
+}
 
 onMounted(loadData)
 </script>

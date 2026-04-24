@@ -26,6 +26,13 @@
             />
           </div>
 
+          <button 
+            @click="resetFilter"
+            class="bg-slate-200 hover:bg-red-300 text-slate-700 px-4 py-2 rounded-lg text-sm transition"
+          >
+            Reset
+          </button>
+
         </div>
 
         <!-- RIGHT: BUTTON -->
@@ -51,14 +58,6 @@
           >
             Xem
           </button>
-
-          <button 
-            @click="resetFilter"
-            class="bg-slate-200 hover:bg-red-300 text-slate-700 px-4 py-2 rounded-lg text-sm transition"
-          >
-            Reset
-          </button>
-
         </div>
 
       </div>
