@@ -125,7 +125,7 @@ namespace pbl3_web_api.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> AddProduct([FromForm] AddProductRequest request)
+        public async Task<IActionResult> AddProduct([FromBody] AddProductRequest request)
         {
             try
             {
@@ -190,7 +190,7 @@ namespace pbl3_web_api.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> EditProduct(int id, [FromForm] EditProductRequest request)
+        public async Task<IActionResult> EditProduct(int id, [FromBody] EditProductRequest request)
         {
             try
             {
@@ -202,5 +202,33 @@ namespace pbl3_web_api.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{id}/image")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadImage(int id, [FromForm] UploadImageRequest request)
+        {
+            try
+            {
+                var file = request.File;
+
+                if (file == null || file.Length == 0)
+                    return BadRequest("No file uploaded");
+
+                var imageUrl = await _service.UploadProductImageAsync(id, file);
+
+                return Ok(new
+                {
+                    message = "Upload image success",
+                    imageUrl
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+
     }
 }
