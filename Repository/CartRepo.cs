@@ -14,13 +14,14 @@ namespace pbl3_web_api.Repository
         Task DeleteAsync(Cart cart);
         Task DeleteRangeAsync(IEnumerable<Cart> carts);
         Task DeleteRange2Async(IEnumerable<Cart> carts);
+        Task SaveAsync();
     }
 
     public class CartRepo : ICartRepository
     {
-        private readonly AppDbContext _context;
+        private readonly ShopPbl3Context _context;
 
-        public CartRepo(AppDbContext context)
+        public CartRepo(ShopPbl3Context context)
         {
             _context = context;
         }
@@ -75,6 +76,11 @@ namespace pbl3_web_api.Repository
         public async Task DeleteRange2Async(IEnumerable<Cart> carts)
         {
             _context.Carts.RemoveRange(carts);
+        }
+
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }
