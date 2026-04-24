@@ -46,7 +46,6 @@ namespace pbl3_web_api.Repository
             {
                 _context.Products.Update(product);
             }
-            await _context.SaveChangesAsync();
         }
 
         public async Task SaveAsync()

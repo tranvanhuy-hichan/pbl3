@@ -145,10 +145,13 @@ namespace pbl3_web_api.Service
             order.TotalAmount = request.shippingFee ?? 0;
 
             using var transaction = await _orderRepo.BeginTransactionAsync();
+
             try
             {
-                await _orderRepo.AddOrderAsync(order);
-                await AddOrderDetailsAsync(order, items);
+                await _orderRepo.AddOrderAsync(order); 
+
+                await AddOrderDetailsAsync(order, items); 
+
                 await _orderRepo.SaveAsync();
 
                 await transaction.CommitAsync();
@@ -158,6 +161,7 @@ namespace pbl3_web_api.Service
                 await transaction.RollbackAsync();
                 throw;
             }
+
 
             return new CreateOrderResponse
             {
