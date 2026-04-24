@@ -83,6 +83,7 @@ const router = createRouter({
 
         { path: 'users/trash', name: 'trash', component: UserTrashView },
 
+        { path: 'products/trash/:id', name: 'admin-product-trash', component: ProductFormView },
         {
           path: 'products/trash',
           name: 'product-trash',

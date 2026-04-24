@@ -112,11 +112,10 @@
               <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Nhãn hàng</th>
               <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Giá bán</th>
               <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider">Tồn kho</th>
-              <th class="py-4 px-6 text-xs font-bold text-blue-700 uppercase tracking-wider text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-blue-100">
-            <tr v-for="product in adminProductStore.products" :key="product.productId" class="hover:bg-slate-50 transition-colors group">
+            <tr v-for="product in adminProductStore.products" :key="product.productId" @click="goToEdit(product.productId)" class="hover:bg-slate-50 transition-colors group">
               <td class="py-4 px-6">
                 <div class="flex items-center gap-5">
                   <div class="w-20 h-20 rounded-xl bg-blue-100 overflow-hidden flex-shrink-0 border border-blue-200 shadow-sm">
@@ -149,14 +148,6 @@
                 ]">
                   {{ product.stockQuantity > 0 ? `Còn ${product.stockQuantity}` : 'Hết hàng' }}
                 </span>
-              </td>
-              <td class="py-4 px-6 text-right space-x-1">
-                <router-link :to="`/admin/products/${product.productId}/edit`" class="p-2 text-blue-600 hover:bg-slate-50 rounded-xl transition-colors inline-flex">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                </router-link>
-                <button @click="confirmDelete(product)" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors inline-flex">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                </button>
               </td>
             </tr>
           </tbody>
@@ -194,27 +185,16 @@
       </div>
     </div>
 
-    <!-- Delete Modal -->
-    <div v-if="showDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-blue-900/50 backdrop-blur-sm">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-        <h3 class="text-xl font-bold text-blue-600 mb-2 text-center">Xác nhận xóa</h3>
-        <p class="text-blue-700 mb-6 text-center">Xóa sản phẩm <span class="font-bold text-blue-900">"{{ productToDelete?.productName }}"</span>?</p>
-        <div class="flex gap-3 justify-center">
-          <button @click="showDeleteDialog = false" class="px-4 py-2 text-blue-500 font-bold hover:bg-slate-50 rounded-xl">Hủy</button>
-          <button @click="executeDelete" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Xác nhận Xóa</button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useAdminProductStore } from '../../stores/admin_products'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const adminProductStore = useAdminProductStore()
-const showDeleteDialog = ref(false)
-const productToDelete = ref(null)
 const tableWrapperRef = ref(null) // <-- thêm ref cho scroll
 
 const totalPages = computed(() => Math.ceil(adminProductStore.totalCount / adminProductStore.pageSize) || 1)
@@ -294,21 +274,8 @@ onMounted(() => {
   adminProductStore.fetchProducts()
 })
 
-const confirmDelete = (product) => { 
-  productToDelete.value = product; 
-  showDeleteDialog.value = true; 
+const goToEdit = (id) => {
+  router.push(`/admin/products/${id}/edit`)
 }
 
-const executeDelete = async () => {
-  if (productToDelete.value) {
-    const idToDelete = productToDelete.value.productId || productToDelete.value.id;
-    if (!idToDelete) return;
-    try {
-      await adminProductStore.deleteProduct(idToDelete);
-      showDeleteDialog.value = false;
-    } catch (error) {
-      alert("Lỗi khi xóa sản phẩm!");
-    }
-  }
-}
 </script>

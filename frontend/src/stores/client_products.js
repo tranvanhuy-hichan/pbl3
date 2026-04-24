@@ -56,7 +56,7 @@ export const useClientProductStore = defineStore('clientProducts', () => {
 
     const fetchCategories = async () => {
         try {
-            const res = await apiClientClient.get('/categories')
+            const res = await apiClient.get('/categories')
             categories.value = res
         } catch (error) {
             console.error('Lỗi khi lấy danh mục:', error)
@@ -65,7 +65,7 @@ export const useClientProductStore = defineStore('clientProducts', () => {
 
     const fetchBrands = async () => {
         try {
-            const res = await apiClientClient.get('/brands')
+            const res = await apiClient.get('/brands')
             brands.value = res
         } catch (error) {
             console.error('Lỗi khi lấy nhãn hàng:', error)

@@ -57,7 +57,7 @@
                     <h3 class="font-bold text-slate-800 line-clamp-2">
                       <router-link :to="`/product/${item.productId}`" class="hover:text-brand-600">{{ item.productName }}</router-link>
                     </h3>
-                    <p class="text-sm text-slate-500 mt-1">ID: {{ item.productId }}</p>
+                    <p class="text-sm text-slate-500 mt-1">Còn: {{ item.stockQuantity }}</p>
                     <div class="sm:hidden mt-2 font-semibold text-brand-600">{{ formatCurrency(item.price) }}</div>
                   </div>
                 </div>

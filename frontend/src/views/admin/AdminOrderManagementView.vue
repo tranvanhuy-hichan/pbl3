@@ -125,7 +125,6 @@
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng tiền</th>
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
               <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Thanh toán</th>
-              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -133,6 +132,7 @@
               v-for="order in orders"
               :key="order.orderId"
               class="hover:bg-slate-50/80 transition-colors"
+              @click="viewOrderDetails(order.orderId)"
             >
               <td class="py-4 px-6 text-sm">
                 <div class="font-bold text-slate-800">#{{ order.orderId }}</div>
@@ -162,14 +162,6 @@
                 ]">
                   {{ getPaymentStatusLabel(order.paymentStatus) }}
                 </span>
-              </td>
-              <td class="py-4 px-6 text-right">
-                <button
-                  @click="viewOrderDetails(order.orderId)"
-                  class="text-blue-600 hover:text-blue-700 font-bold text-sm bg-slate-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors"
-                >
-                  Chi tiết
-                </button>
               </td>
             </tr>
 

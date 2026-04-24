@@ -8,7 +8,7 @@
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
           </button>
           <div>
-            <h2 class="text-lg font-bold text-slate-800 leading-tight">{{ isEditing ? 'Chỉnh sửa sản phẩm' : 'Tạo sản phẩm mới' }}</h2>
+            <h2 class="text-lg font-bold text-slate-800 leading-tight">{{ isEditing ? 'Chi tiết sản phẩm' : 'Tạo sản phẩm mới' }}</h2>
             <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Quản lý kho hàng & Hệ thống bán lẻ</p>
           </div>
         </div>
@@ -17,7 +17,22 @@
           <button type="button" @click="router.back()" class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-all">
             Hủy bỏ
           </button>
-          <!-- Nút chính đặt ở góc phải trên cùng - chuẩn UI Dashboard -->
+          <button
+            v-if="isEditing && !isTrashView"
+            type="button"
+            @click="confirmDelete({ productId: formData.id, productName: formData.productName })"
+            class="px-6 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+          >
+            Xóa sản phẩm
+          </button>
+          <button
+            v-if="isTrashView"
+            type="button"
+            @click="confirmRestore({ productId: formData.id, productName: formData.productName })"
+            class="px-6 py-2.5 text-sm font-bold text-green-600 hover:bg-rose-50 rounded-xl transition-all"
+          >
+            Khôi phục
+          </button>
           <button type="submit" form="product-form"
             class="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -30,9 +45,7 @@
     <div class="max-w-6xl mx-auto px-4">
       <form id="product-form" @submit.prevent="saveProduct" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- CỘT TRÁI (4/12): ẢNH & PHÂN LOẠI -->
         <div class="lg:col-span-4 space-y-6">
-          <!-- Khối Ảnh -->
           <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
             <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Hình ảnh đại diện</label>
             <div class="aspect-square bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden relative group">
@@ -48,7 +61,6 @@
             </div>
           </div>
 
-          <!-- Khối Phân loại (Đưa lên đây cho gọn) -->
           <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-5">
             <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-widest border-b pb-3 border-slate-50">Phân loại hàng</h3>
             <div class="space-y-4">
@@ -70,7 +82,6 @@
           </div>
         </div>
 
-        <!-- CỘT PHẢI (8/12): THÔNG TIN CHI TIẾT -->
         <div class="lg:col-span-8 space-y-6">
           <!-- Thông tin cơ bản -->
           <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
@@ -123,6 +134,26 @@
 
       </form>
     </div>
+    <div v-if="showDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-blue-900/50 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+        <h3 class="text-xl font-bold text-blue-600 mb-2 text-center">Xác nhận xóa</h3>
+        <p class="text-blue-700 mb-6 text-center">Xóa sản phẩm <span class="font-bold text-blue-900">"{{ productToDelete?.productName }}"</span>?</p>
+        <div class="flex gap-3 justify-center">
+          <button @click="showDeleteDialog = false" class="px-4 py-2 text-blue-500 font-bold hover:bg-slate-50 rounded-xl">Hủy</button>
+          <button @click="executeDelete" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Xác nhận Xóa</button>
+        </div>
+      </div>
+    </div>
+    <div v-if="showRestoreDialog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-blue-900/50 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+        <h3 class="text-xl font-bold text-blue-600 mb-2 text-center">Xác nhận khôi phục</h3>
+        <p class="text-blue-700 mb-6 text-center">Khôi phục sản phẩm <span class="font-bold text-blue-900">"{{ productToRestore?.productName }}"</span>?</p>
+        <div class="flex gap-3 justify-center">
+          <button @click="showRestoreDialog = false" class="px-4 py-2 text-blue-500 font-bold hover:bg-slate-50 rounded-xl">Hủy</button>
+          <button @click="executeRestore" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Xác nhận Khôi phục</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -133,10 +164,17 @@ import { useAdminProductStore } from '../../stores/admin_products'
 
 const route = useRoute()
 const router = useRouter()
+
 const productStore = useAdminProductStore()
 
 const API_URL = 'https://localhost:7010'
 const isEditing = computed(() => !!route.params.id)
+const isTrashView = computed(() => route.path.includes('/trash'))
+
+const showDeleteDialog = ref(false)
+const showRestoreDialog = ref(false)
+const productToDelete = ref(null)
+const productToRestore = ref(null)
 
 const formData = ref({
   id: 0,
@@ -155,7 +193,9 @@ const formData = ref({
 const previewImage = computed(() => {
   if (formData.value.imageFile) return URL.createObjectURL(formData.value.imageFile)
   if (formData.value.imageUrl) {
-    return formData.value.imageUrl.startsWith('http') ? formData.value.imageUrl : API_URL + formData.value.imageUrl
+    return formData.value.imageUrl.startsWith('http')
+      ? formData.value.imageUrl
+      : API_URL + formData.value.imageUrl
   }
   return null
 })
@@ -165,14 +205,20 @@ const onImageChange = (e) => {
   formData.value.imageFile = file || null
 }
 
-const formatPriceDisplay = (val) => val ? new Intl.NumberFormat('vi-VN').format(val) : ''
+const formatPriceDisplay = (val) =>
+  val ? new Intl.NumberFormat('vi-VN').format(val) : ''
+
 const onPriceInputChange = (e) => {
   const rawValue = e.target.value.replace(/\D/g, '')
   formData.value.price = rawValue ? parseInt(rawValue, 10) : 0
 }
 
 onMounted(async () => {
-  await Promise.all([productStore.fetchCategories(), productStore.fetchBrands()])
+  await Promise.all([
+    productStore.fetchCategories(),
+    productStore.fetchBrands()
+  ])
+
   if (isEditing.value) {
     try {
       const data = await productStore.fetchProductById(route.params.id)
@@ -191,13 +237,14 @@ onMounted(async () => {
           imageUrl: data.imageURL
         }
       }
-    } catch (err) { router.push('/admin/products') }
+    } catch (err) {
+      router.push('/admin/products')
+    }
   }
 })
 
 const saveProduct = async () => {
   try {
-
     const payload = {
       productName: formData.value.productName,
       productCode: formData.value.productCode.toUpperCase(),
@@ -219,17 +266,61 @@ const saveProduct = async () => {
       id = res.productId
     }
 
-    // upload ảnh riêng
     if (formData.value.imageFile) {
-      console.log('Uploading image for product ID:', id)
       await productStore.uploadProductImage(id, formData.value.imageFile)
     }
 
-    router.push('/admin/products')
-
+    if (isTrashView.value) {
+      router.push('/admin/products/trash')
+    } else {
+      router.push('/admin/products')
+    }
   } catch (error) {
     alert('Lưu thất bại!')
   }
 }
 
+const confirmDelete = (product) => {
+  productToDelete.value = product
+  showDeleteDialog.value = true
+}
+
+const executeDelete = async () => {
+  if (!productToDelete.value) return
+
+  const idToDelete =
+    productToDelete.value.productId || productToDelete.value.id
+
+  if (!idToDelete) return
+
+  try {
+    await productStore.deleteProduct(idToDelete)
+    showDeleteDialog.value = false
+    router.push('/admin/products')
+  } catch (error) {
+    alert('Lỗi khi xóa sản phẩm!')
+  }
+}
+
+const confirmRestore = (product) => {
+  productToRestore.value = product
+  showRestoreDialog.value = true
+}
+
+const executeRestore = async () => {
+  if (!productToRestore.value) return
+
+  const idToRestore =
+    productToRestore.value.productId || productToRestore.value.id
+
+  if (!idToRestore) return
+
+  try {
+    await productStore.restoreProduct(idToRestore)
+    showRestoreDialog.value = false
+    router.push('/admin/products')
+  } catch (error) {
+    alert('Lỗi khi khôi phục sản phẩm!')
+  }
+}
 </script>
