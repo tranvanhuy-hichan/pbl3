@@ -36,6 +36,7 @@ namespace pbl3_web_api.Service
                 ImageUrl = c.Product?.ImageUrl,
                 Price = c.Product?.Price ?? 0,
                 Quantity = c.Quantity,
+                StockQuantity = c.Product?.StockQuantity ?? 0,
                 Subtotal = (c.Product?.Price ?? 0) * c.Quantity
             });
         }
