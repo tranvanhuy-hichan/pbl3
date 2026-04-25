@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -58,6 +59,7 @@ public class UsersController : ControllerBase
         });
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPatch("{id}/toggle-active")]
     public async Task<IActionResult> Toggle(int id)
     {
@@ -69,6 +71,7 @@ public class UsersController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

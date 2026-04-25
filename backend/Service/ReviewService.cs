@@ -32,14 +32,19 @@ namespace pbl3_web_api.Service
             return (items, totalCount);
         }
 
-        public async Task<(bool success, string message)> AddReviewAsync(int userId, ReviewRequest request)
+        public class ReviewException : Exception
+        {
+            public ReviewException(string message) : base(message) { }
+        }
+
+        public async Task AddReviewAsync(int userId, ReviewRequest request)
         {
             if (request.Rating < 1 || request.Rating > 5)
-                return (false, "Rating phải từ 1 đến 5.");
+                throw new ReviewException("Rating phải từ 1 đến 5.");
 
             var existing = await _reviewRepo.GetByUserAndProductAsync(userId, request.ProductId);
             if (existing != null)
-                return (false, "Bạn đã đánh giá sản phẩm này rồi.");
+                throw new ReviewException("Bạn đã đánh giá sản phẩm này rồi.");
 
             var review = new Review
             {
@@ -52,20 +57,19 @@ namespace pbl3_web_api.Service
 
             await _reviewRepo.AddAsync(review);
             await _reviewRepo.SaveChangesAsync();
-
-            return (true, "Đánh giá thành công.");
         }
 
-        public async Task<ReviewResponse?> GetMyReviewAsync(int userId, int productId)
+        public async Task<ReviewResponse> GetMyReviewAsync(int userId, int productId)
         {
             var review = await _reviewRepo.GetByUserAndProductAsync(userId, productId);
-            if (review == null) return null;
+            if (review == null)
+                throw new KeyNotFoundException("Bạn chưa có đánh giá nào cho sản phẩm này.");
 
             return new ReviewResponse
             {
                 ReviewId = review.ReviewId,
                 UserId = review.UserId,
-                UserName = review.User.Username, // sửa đúng field
+                UserName = review.User.Username,
                 ProductId = review.ProductId,
                 Rating = review.Rating,
                 Comment = review.Comment,
