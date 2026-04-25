@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-slate-50 pb-20">
-    <!-- STICKY HEADER: Nơi đặt các nút hành động chính -->
     <div class="top-0 z-30 bg-slate-50 backdrop-blur-md border-b border-slate-200 mb-6">
       <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
         <div class="flex items-center gap-4">
@@ -83,7 +82,7 @@
         </div>
 
         <div class="lg:col-span-8 space-y-6">
-          <!-- Thông tin cơ bản -->
+
           <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
             <div>
               <label class="block text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Tên sản phẩm chính thức</label>
@@ -114,7 +113,6 @@
             </div>
           </div>
 
-          <!-- Mô tả & Thông số -->
           <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
             <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-widest border-b pb-3 border-slate-50">Nội dung chi tiết</h3>
             <div class="space-y-6">
@@ -133,24 +131,157 @@
         </div>
 
       </form>
-    </div>
-    <div v-if="showDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-blue-900/50 backdrop-blur-sm">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-        <h3 class="text-xl font-bold text-blue-600 mb-2 text-center">Xác nhận xóa</h3>
-        <p class="text-blue-700 mb-6 text-center">Xóa sản phẩm <span class="font-bold text-blue-900">"{{ productToDelete?.productName }}"</span>?</p>
-        <div class="flex gap-3 justify-center">
-          <button @click="showDeleteDialog = false" class="px-4 py-2 text-blue-500 font-bold hover:bg-slate-50 rounded-xl">Hủy</button>
-          <button @click="executeDelete" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Xác nhận Xóa</button>
+
+      <div v-if="isEditing && !isTrashView" class="mt-8">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+          <div class="flex items-center justify-between mb-6 border-b border-slate-200 pb-4">
+            <div>
+              <h3 class="text-lg font-bold text-slate-800">Đánh giá sản phẩm</h3>
+              <p class="text-xs text-slate-500 mt-1">Quản lý và xem đánh giá từ khách hàng</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-center">
+                <div class="text-3xl font-bold text-indigo-600">{{ reviewStore.averageRating.toFixed(1) }}</div>
+                <div class="flex gap-0.5 text-yellow-400 text-sm mt-1">
+                  <span v-for="i in 5" :key="i">{{ i <= Math.round(reviewStore.averageRating) ? '★' : '☆' }}</span>
+                </div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-slate-700">{{ reviewStore.totalCount }}</div>
+                <div class="text-xs text-slate-500">đánh giá</div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="reviewStore.loading" class="text-center py-10">
+            <div class="text-slate-400">Đang tải đánh giá...</div>
+          </div>
+
+          <div v-else-if="reviewStore.reviews.length === 0" class="text-center py-10">
+            <svg class="w-16 h-16 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+            </svg>
+            <p class="text-slate-400 font-medium">Chưa có đánh giá nào</p>
+            <p class="text-slate-300 text-sm mt-1">Sản phẩm này chưa nhận được đánh giá từ khách hàng</p>
+          </div>
+
+          <div v-else>
+            <div class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+              <div
+                v-for="review in reviewStore.reviews"
+                :key="review.reviewId"
+                class="border border-slate-100 rounded-2xl p-5 hover:shadow-md transition-shadow"
+              >
+                <div class="flex items-start justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                      {{ review.userName?.charAt(0).toUpperCase() || '?' }}
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-800 text-sm">{{ review.userName || 'Người dùng' }}</div>
+                      <div class="flex gap-0.5 text-yellow-400 text-sm mt-1">
+                        <span v-for="i in 5" :key="i">{{ i <= review.rating ? '★' : '☆' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xs text-slate-400">{{ formatDate(review.createdAt) }}</span>
+                  </div>
+                </div>
+                <p class="text-slate-600 text-sm mt-3 pl-13">{{ review.comment }}</p>
+              </div>
+            </div>
+
+            <div v-if="reviewStore.totalCount > reviewStore.pageSize" class="flex justify-center gap-2 mt-6 pt-4 border-t border-slate-100">
+              <button
+                @click="loadReviewsPage(reviewStore.currentPage - 1)"
+                :disabled="reviewStore.currentPage === 1"
+                class="px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                ← Trước
+              </button>
+              
+              <div class="flex gap-1">
+                <button
+                  v-for="page in visiblePages"
+                  :key="page"
+                  @click="loadReviewsPage(page)"
+                  :class="[
+                    'w-10 h-10 rounded-xl text-sm font-medium transition-all',
+                    reviewStore.currentPage === page
+                      ? 'bg-indigo-600 text-white shadow-md'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  ]"
+                >
+                  {{ page }}
+                </button>
+              </div>
+              
+              <button
+                @click="loadReviewsPage(reviewStore.currentPage + 1)"
+                :disabled="reviewStore.currentPage >= totalPages"
+                class="px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Sau →
+              </button>
+            </div>
+
+            <div class="text-center mt-4 text-xs text-slate-400">
+              Hiển thị {{ (reviewStore.currentPage - 1) * reviewStore.pageSize + 1 }} - 
+              {{ Math.min(reviewStore.currentPage * reviewStore.pageSize, reviewStore.totalCount) }} 
+              trong số {{ reviewStore.totalCount }} đánh giá
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div v-if="showRestoreDialog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-blue-900/50 backdrop-blur-sm">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-        <h3 class="text-xl font-bold text-blue-600 mb-2 text-center">Xác nhận khôi phục</h3>
-        <p class="text-blue-700 mb-6 text-center">Khôi phục sản phẩm <span class="font-bold text-blue-900">"{{ productToRestore?.productName }}"</span>?</p>
-        <div class="flex gap-3 justify-center">
-          <button @click="showRestoreDialog = false" class="px-4 py-2 text-blue-500 font-bold hover:bg-slate-50 rounded-xl">Hủy</button>
-          <button @click="executeRestore" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Xác nhận Khôi phục</button>
+
+    <div v-if="showDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">Xác nhận xóa</h3>
+          <p class="text-slate-500 mb-6">
+            Bạn có chắc chắn muốn xóa sản phẩm 
+            <span class="font-bold text-slate-800">"{{ productToDelete?.productName }}"</span>?
+          </p>
+          <div class="flex gap-3 justify-center">
+            <button @click="showDeleteDialog = false" class="px-6 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
+              Hủy bỏ
+            </button>
+            <button @click="executeDelete" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl shadow-lg transition-all">
+              Xóa sản phẩm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showRestoreDialog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">Xác nhận khôi phục</h3>
+          <p class="text-slate-500 mb-6">
+            Bạn có chắc chắn muốn khôi phục sản phẩm 
+            <span class="font-bold text-slate-800">"{{ productToRestore?.productName }}"</span>?
+          </p>
+          <div class="flex gap-3 justify-center">
+            <button @click="showRestoreDialog = false" class="px-6 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
+              Hủy bỏ
+            </button>
+            <button @click="executeRestore" class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl shadow-lg transition-all">
+              Khôi phục
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -158,14 +289,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAdminProductStore } from '../../stores/admin_products'
+import { useReviewStore } from '@/stores/review'
 
 const route = useRoute()
 const router = useRouter()
 
 const productStore = useAdminProductStore()
+const reviewStore = useReviewStore()
 
 const API_URL = 'https://localhost:7010'
 const isEditing = computed(() => !!route.params.id)
@@ -200,6 +333,35 @@ const previewImage = computed(() => {
   return null
 })
 
+const totalPages = computed(() => {
+  return Math.ceil(reviewStore.totalCount / reviewStore.pageSize)
+})
+
+const visiblePages = computed(() => {
+  const current = reviewStore.currentPage
+  const total = totalPages.value
+  const delta = 2
+  const range = []
+  
+  for (let i = Math.max(2, current - delta); i <= Math.min(total - 1, current + delta); i++) {
+    range.push(i)
+  }
+  
+  if (current - delta > 2) {
+    range.unshift('...')
+  }
+  if (current + delta < total - 1) {
+    range.push('...')
+  }
+  
+  range.unshift(1)
+  if (total !== 1) {
+    range.push(total)
+  }
+  
+  return range.filter((v, i, a) => a.indexOf(v) === i)
+})
+
 const onImageChange = (e) => {
   const file = e.target.files[0]
   formData.value.imageFile = file || null
@@ -211,6 +373,27 @@ const formatPriceDisplay = (val) =>
 const onPriceInputChange = (e) => {
   const rawValue = e.target.value.replace(/\D/g, '')
   formData.value.price = rawValue ? parseInt(rawValue, 10) : 0
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  try {
+    const date = new Date(dateStr)
+    return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN')
+  } catch {
+    return ''
+  }
+}
+
+const loadReviewsPage = async (page) => {
+  if (page < 1 || page > totalPages.value) return
+  await reviewStore.fetchReviews(formData.value.id, page, reviewStore.pageSize)
+}
+
+const fetchProductReviews = async (productId) => {
+  if (!productId) return
+  reviewStore.reset()
+  await reviewStore.fetchReviews(productId, 1, 5)
 }
 
 onMounted(async () => {
@@ -236,12 +419,31 @@ onMounted(async () => {
           imageFile: null,
           imageUrl: data.imageURL
         }
+        
+        await fetchProductReviews(data.productId)
       }
     } catch (err) {
       router.push('/admin/products')
     }
   }
 })
+
+watch(
+  () => route.params.id,
+  async (newId, oldId) => {
+    if (newId && newId !== oldId && isEditing.value) {
+      try {
+        const data = await productStore.fetchProductById(newId)
+        if (data) {
+          formData.value.id = data.productId
+          await fetchProductReviews(data.productId)
+        }
+      } catch (err) {
+        console.error('Error fetching product:', err)
+      }
+    }
+  }
+)
 
 const saveProduct = async () => {
   try {
@@ -324,3 +526,9 @@ const executeRestore = async () => {
   }
 }
 </script>
+
+<style scoped>
+.pl-13 {
+  padding-left: 3.25rem;
+}
+</style>
