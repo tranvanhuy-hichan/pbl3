@@ -86,7 +86,7 @@
             <h2 class="text-xl font-bold mb-4">Sản phẩm </h2>
 
             <div class="space-y-4 mb-4 max-h-60 overflow-y-auto custom-scrollbar">
-              <div v-for="item in cartStore.cartItems " :key="item.id" class="flex gap-3 items-center">
+              <div v-for="item in cartStore.cartItems " :key="item.id" @click="goToProduct(item.productId)" class="flex gap-3 items-center p-2 bg-slate-800/50 rounded-lg cursor-pointer">
 
                 <!-- Hình sản phẩm -->
                 <div class="w-14 h-14 bg-white rounded border flex-shrink-0 overflow-hidden">
@@ -100,7 +100,6 @@
                 <!-- Tên & số lượng -->
                 <div class="flex-1">
                   <router-link 
-                    :to="`/product/${item.productId}`" 
                     class="font-semibold hover:underline inline-block"
                   >
                     {{ item.productName }}
@@ -224,6 +223,10 @@ const placeOrder = async () => {
     console.error(err)
     alert("Đặt hàng không thành công")
   }
+}
+
+const goToProduct = (productId) => {
+  router.push(`/product/${productId}`)
 }
 </script>
 

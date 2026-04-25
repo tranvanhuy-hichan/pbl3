@@ -73,7 +73,7 @@
       <div
         v-if="clientProductStore.products.length > 0"
         ref="productGridRef"
-        class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6"
+        class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6"
       >
         <ProductCard
           v-for="p in clientProductStore.products"

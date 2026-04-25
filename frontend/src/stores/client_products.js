@@ -12,7 +12,7 @@ export const useClientProductStore = defineStore('clientProducts', () => {
 
     const totalCount = ref(0)
     const page = ref(1)
-    const pageSize = ref(24)
+    const pageSize = ref(25)
 
     const searchQuery = ref('')
     const selectedCategory = ref(null)

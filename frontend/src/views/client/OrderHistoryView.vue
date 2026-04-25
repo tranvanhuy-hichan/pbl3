@@ -53,7 +53,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            <tr v-for="order in myOrders" :key="order.orderId" class="hover:bg-slate-50/80 transition-colors" @click="viewOrderDetails(order.orderId)">
+            <tr v-for="order in myOrders" :key="order.orderId" class="hover:bg-slate-50/80 transition-colors cursor-pointer" @click="viewOrderDetails(order.orderId)">
               <td class="py-4 px-6 text-sm font-bold text-slate-800">#{{ order.orderId }}</td>
               <td class="py-4 px-6 text-sm text-slate-600">{{ formatDate(order.orderDate) }}</td>
               <td class="py-4 px-6 text-sm font-bold text-slate-900">{{ Number(order.totalAmount).toLocaleString('vi-VN') }}₫</td>
@@ -184,7 +184,7 @@
               </thead>
 
               <tbody class="divide-y divide-slate-100 bg-white">
-                <tr v-for="item in selectedOrder.orderDetails" :key="item.productId">
+                <tr v-for="item in selectedOrder.orderDetails" :key="item.productId" @click="goToProduct(item.productId)" class="hover:bg-slate-50/80 transition-colors cursor-pointer">
                   <td class="py-4 px-4 flex items-center gap-3">
                     <img
                       :src="item.imageURL ? `https://localhost:7010${item.imageURL}` : 'https://via.placeholder.com/150'"
@@ -276,7 +276,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useOrderStore } from '@/stores/orders'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const orderStore = useOrderStore()
 const { myOrders, page, pageSize, totalCount, statusFilter } = storeToRefs(orderStore)
 
@@ -349,7 +351,9 @@ const getPaymentStatusClass = (status) => {
 
 const getStatusLabel = (s) => ({ Pending: 'Chờ xử lý', Processing: 'Đang xử lý', Shipped: 'Đang giao', Delivered: 'Đã giao', Cancelled: 'Đã hủy' }[s] || s)
 const getPaymentStatusLabel = (s) => ({ Paid: 'Đã thanh toán', Unpaid: 'Chưa thanh toán' }[s] || s)
-
+const goToProduct = (productId) => {
+  router.push(`/product/${productId}`)
+}
 onMounted(loadData)
 </script>
 
