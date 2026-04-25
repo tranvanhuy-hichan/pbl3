@@ -2,10 +2,26 @@
   <div class="bg-slate-50 min-h-screen px-4 sm:px-6 lg:px-16 py-10">
 
     <!-- Breadcrumb -->
-    <div class="text-sm text-slate-600 mb-6 flex flex-wrap gap-2">
+    <div class="text-sm text-slate-600 mb-6 flex flex-wrap gap-2 items-center">
       <router-link to="/" class="hover:text-blue-600">Trang chủ</router-link>
       <span>/</span>
       <router-link to="/products" class="hover:text-blue-600">Sản phẩm</router-link>
+      <span>/</span>
+      <span
+        v-if="product?.category"
+        @click="goToProductsWithFilter('category', product.categoryId)"
+        class="cursor-pointer hover:underline"
+      >
+        {{ product.category }}
+      </span>
+      <span v-if="product?.category && product?.brand">/</span>
+      <span
+        v-if="product?.brand"
+        @click="goToProductsWithFilter('brand', product.brandId)"
+        class="cursor-pointer hover:underline"
+      >
+        {{ product.brand }}
+      </span>
       <span>/</span>
       <span class="text-slate-800 font-medium truncate max-w-xs">
         {{ product?.name || 'Đang tải...' }}
@@ -155,6 +171,8 @@ const fetchProduct = async (id) => {
       price: res.price,
       image: res.imageURL,
       category: res.category?.name,
+      categoryId: res.category?.id,
+      brandId: res.brand?.id,
       brand: res.brand?.name,
       stock: res.stockQuantity,
       description: res.description,
@@ -192,5 +210,17 @@ const addToCart = async () => {
   }
   await cartStore.addToCart(product.value.id, quantity.value)
   alert("Đã thêm vào giỏ hàng")
+}
+
+const goToProductsWithFilter = (type, id) => {
+  if (type === 'category') {
+    productStore.selectedCategory = id
+    productStore.selectedBrand = null
+  } else {
+    productStore.selectedBrand = id
+    productStore.selectedCategory = null
+  }
+  productStore.page = 1
+  router.push('/products')
 }
 </script>

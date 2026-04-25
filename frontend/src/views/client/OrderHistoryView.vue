@@ -43,13 +43,13 @@
 
     <div v-if="!loading" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="w-full text-center border-collapse table-fixed">
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
-              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Mã đơn</th>
-              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Ngày đặt</th>
-              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng tiền</th>
-              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
+              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider w-1/4">Mã đơn</th>
+              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider w-1/4">Ngày đặt</th>
+              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider w-1/4">Tổng tiền</th>
+              <th class="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider w-1/4">Trạng thái</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -193,9 +193,6 @@
                     <div>
                       <div class="font-bold text-sm text-slate-800 line-clamp-1">
                         {{ item.productName }}
-                      </div>
-                      <div class="text-[10px] text-slate-400 uppercase">
-                        Mã: {{ item.productCode }}
                       </div>
                     </div>
                   </td>

@@ -105,7 +105,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-blue-100">
-            <tr v-for="product in adminProductStore.products" :key="product.productId" @click="goToEdit(product.productId)" class="hover:bg-slate-50 transition-colors group">
+            <tr v-for="product in adminProductStore.products" :key="product.productId" @click="goToEdit(product.productId)" class="hover:bg-slate-50 transition-colors group cursor-pointer">
               <td class="py-4 px-6">
                 <div class="flex items-center gap-5">
                   <div class="w-20 h-20 rounded-xl bg-blue-100 overflow-hidden flex-shrink-0 border border-blue-200 shadow-sm">

@@ -25,10 +25,8 @@
       <!-- 🟩 CHECKOUT -->
       <div v-else class="flex flex-col lg:flex-row gap-8">
 
-        <!-- Form -->
         <div class="lg:w-2/3 space-y-6">
 
-          <!-- Shipping -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8">
             <h2 class="text-xl font-bold text-slate-800 mb-6">
               1. Thông tin giao hàng
@@ -38,7 +36,7 @@
               <input 
                 type="text" 
                 v-model="checkoutStore.shippingAddress"
-                placeholder="Nhập địa chỉ nhận hàng..."
+                placeholder="Nhập đầy đủ địa chỉ để đơn hàng được giao đúng thời gian..."
                 class="w-full px-4 py-3 border rounded-xl"
               >
 
@@ -51,7 +49,6 @@
             </div>
           </div>
 
-          <!-- Payment -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8">
             <h2 class="text-xl font-bold text-slate-800 mb-6">
               2. Thanh toán
@@ -79,7 +76,6 @@
 
         </div>
 
-        <!-- Summary -->
         <div class="lg:w-1/3">
           <div class="bg-slate-900 text-white p-6 rounded-2xl sticky top-24">
 
@@ -87,8 +83,6 @@
 
             <div class="space-y-4 mb-4 max-h-60 overflow-y-auto custom-scrollbar">
               <div v-for="item in cartStore.cartItems " :key="item.id" @click="goToProduct(item.productId)" class="flex gap-3 items-center p-2 bg-slate-800/50 rounded-lg cursor-pointer">
-
-                <!-- Hình sản phẩm -->
                 <div class="w-14 h-14 bg-white rounded border flex-shrink-0 overflow-hidden">
                   <img 
                     :src="item.imageUrl ? `https://localhost:7010${item.imageUrl}` : 'https://via.placeholder.com/100'" 
@@ -97,7 +91,6 @@
                   >
                 </div>
 
-                <!-- Tên & số lượng -->
                 <div class="flex-1">
                   <router-link 
                     class="font-semibold hover:underline inline-block"
@@ -107,7 +100,6 @@
                   <p class="text-xs text-gray-300">x{{ item.quantity }}</p>
                 </div>
 
-                <!-- Tổng tiền -->
                 <div class="text-sm">
                   {{ formatCurrency(item.price * item.quantity) }}
                 </div>
@@ -115,7 +107,6 @@
               </div>
             </div>
 
-            <!-- Tổng -->
             <div class="border-t border-slate-700 pt-4 space-y-2 text-sm">
               <div class="flex justify-between">
                 <span>Tạm tính</span>
@@ -167,17 +158,14 @@ const router = useRouter()
 const cartStore = useCartStore()
 const checkoutStore = useCheckoutStore()
 
-// Load cart
 onMounted(async () => {
   await cartStore.fetchCart()
 })
 
-// Subtotal
 const subtotal = computed(() =>
   cartStore.cartItems .reduce((sum, item) => sum + item.price * item.quantity, 0)
 )
 
-// Shipping
 const shippingFee = computed(() => {
   if (subtotal.value === 0) return 0
   return subtotal.value > 1000000 ? 0 : 50000
@@ -187,21 +175,17 @@ const tax = computed(() =>{
   return subtotal.value * 0.08
 })
 
-// Total
 const total = computed(() => subtotal.value + shippingFee.value + tax.value)
 
-// Chỉ cho COD
 const canCheckout = computed(() =>
   cartStore.cartItems .length > 0 &&
   checkoutStore.shippingAddress &&
   checkoutStore.paymentMethod === 'COD'
 )
 
-// Format tiền
 const formatCurrency = (value) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)
 
-// Đặt hàng
 const placeOrder = async () => {
   try {
     if (!canCheckout.value) {
