@@ -1,14 +1,11 @@
-<!-- src/views/user/Profile.vue -->
 <template>
   <div class="max-w-3xl mx-auto p-6 space-y-6">
 
-    <!-- Title -->
     <div>
       <h2 class="text-2xl font-bold text-slate-800">Thông tin cá nhân</h2>
       <p class="text-sm text-slate-500">Quản lý thông tin tài khoản của bạn</p>
     </div>
 
-    <!-- Toast -->
     <transition name="fade">
       <div 
         v-if="message"
@@ -21,7 +18,6 @@
       </div>
     </transition>
 
-    <!-- Card -->
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-5">
 
       <div v-if="profileStore.loading" class="text-center text-gray-500">
@@ -30,7 +26,6 @@
 
       <template v-else>
 
-        <!-- Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           <div>
@@ -60,7 +55,6 @@
           <input v-model="form.address" class="input" />
         </div>
 
-        <!-- Button -->
         <button @click="updateProfile" class="btn-primary w-full">
           {{ profileStore.loading ? 'Đang lưu...' : 'Cập nhật thông tin' }}
         </button>
@@ -68,18 +62,16 @@
       </template>
     </div>
 
-    <!-- Actions -->
     <div class="flex gap-4">
       <button @click="openModal" class="btn-warning flex-1">
-        🔒 Đổi mật khẩu
+        Đổi mật khẩu
       </button>
 
       <button @click="handleLogout" class="btn-danger flex-1">
-        🚪 Đăng xuất
+        Đăng xuất
       </button>
     </div>
 
-    <!-- Modal -->
     <transition name="fade">
       <div v-if="showModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-40">
 

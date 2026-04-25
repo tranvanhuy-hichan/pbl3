@@ -69,7 +69,6 @@
 
     <div class="p-6 space-y-6">
 
-      <!-- Product Grid -->
       <div
         v-if="clientProductStore.products.length > 0"
         ref="productGridRef"
@@ -82,7 +81,6 @@
         />
       </div>
 
-      <!-- Empty -->
       <div v-else class="text-center py-16">
         <p class="text-xl font-semibold text-gray-500">
           Không có sản phẩm nào
@@ -92,7 +90,6 @@
         </p>
       </div>
 
-      <!-- Pagination -->
       <div class="flex justify-center items-center gap-4 mt-6">
 
         <button
@@ -129,12 +126,10 @@ import ProductCard from '@/components/ProductCard.vue'
 const clientProductStore = useClientProductStore()
 const productGridRef = ref(null)
 
-// pagination
 const totalPages = computed(() =>
   Math.ceil(clientProductStore.totalCount / clientProductStore.pageSize) || 1
 )
 
-// debounce
 let timeout = null
 const debounceFetch = () => {
   clearTimeout(timeout)
@@ -143,7 +138,6 @@ const debounceFetch = () => {
   }, 400)
 }
 
-// handlers
 const onSearchInput = (e) => {
   clientProductStore.searchQuery = e.target.value
   debounceFetch()
@@ -188,7 +182,6 @@ const hasFilters = computed(() => {
   )
 })
 
-// map API -> UI
 const mapProduct = (p) => ({
   id: p.productId,
   name: p.productName,
@@ -201,14 +194,12 @@ const mapProduct = (p) => ({
   stock: p.stockQuantity
 })
 
-// init
 onMounted(() => {
   clientProductStore.fetchProducts()
   clientProductStore.fetchCategories()
   clientProductStore.fetchBrands()
 })
 
-// pagination
 const goPrevPage = () => {
   if (clientProductStore.page > 1) {
     clientProductStore.changePage(clientProductStore.page - 1)

@@ -35,10 +35,7 @@
 
         </div>
 
-        <!-- RIGHT: BUTTON -->
         <div class="flex items-center gap-3">
-
-          <!-- EXPORT -->
           <button 
             @click="exportExcel"
             :disabled="isExporting"
@@ -63,10 +60,8 @@
       </div>
     </div>
 
-    <!-- STATS -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      
-      <!-- DOANH THU -->
+
       <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
         <div class="flex justify-between items-start mb-4">
           <div>
@@ -84,7 +79,6 @@
         </div>
       </div>
 
-      <!-- ĐƠN HÀNG -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
         <div class="flex justify-between items-start mb-4">
           <div>
@@ -107,7 +101,6 @@
         </p>
       </div>
 
-      <!-- SẢN PHẨM -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
         <div class="flex justify-between items-start mb-4">
           <div>
@@ -130,7 +123,6 @@
         </p>
       </div>
 
-      <!-- USER -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
         <div class="flex justify-between items-start mb-4">
           <div>
@@ -150,7 +142,6 @@
 
     </div>
 
-    <!-- CHART -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
@@ -179,7 +170,6 @@
 
     </div>
 
-    <!-- TABLE -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
       <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
         <h3 class="font-bold text-slate-800">Top Sản Phẩm Bán Chạy Nhất</h3>
