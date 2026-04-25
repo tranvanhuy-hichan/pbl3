@@ -41,6 +41,8 @@ builder.Services.AddScoped<IStatisticsRepo, StatisticsRepo>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IReviewRepo, ReviewRepo>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 
 
 builder.Services.AddScoped<IUserRepo, UserRepo>();

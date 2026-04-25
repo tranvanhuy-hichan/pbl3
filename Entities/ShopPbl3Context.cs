@@ -29,6 +29,7 @@ public partial class ShopPbl3Context : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public DbSet<Review> Reviews { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     => optionsBuilder.UseSqlServer("Data Source=localhost\\SQLEXPRESS;Initial Catalog=shop_pbl3;Integrated Security=True;Trust Server Certificate=True");
@@ -233,6 +234,35 @@ public partial class ShopPbl3Context : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.Username).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Review>(entity =>
+        {
+            entity.HasKey(r => r.ReviewId);
+
+            entity.Property(r => r.Rating)
+                  .IsRequired();
+
+            entity.HasCheckConstraint("CK_Reviews_Rating", "[Rating] BETWEEN 1 AND 5");
+
+            entity.Property(r => r.Comment)
+                  .HasMaxLength(1000);
+
+            entity.Property(r => r.CreatedAt)
+                  .HasDefaultValueSql("GETDATE()");
+
+            entity.HasOne(r => r.User)
+                  .WithMany(u => u.Reviews)
+                  .HasForeignKey(r => r.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(r => r.Product)
+                  .WithMany(p => p.Reviews)
+                  .HasForeignKey(r => r.ProductId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(r => new { r.UserId, r.ProductId })
+                  .IsUnique(); // mỗi user chỉ review 1 lần / sản phẩm
         });
 
         OnModelCreatingPartial(modelBuilder);
