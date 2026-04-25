@@ -31,20 +31,14 @@ namespace pbl3_web_api.Service
 
             return (items, totalCount);
         }
-
-        public class ReviewException : Exception
-        {
-            public ReviewException(string message) : base(message) { }
-        }
-
         public async Task AddReviewAsync(int userId, ReviewRequest request)
         {
             if (request.Rating < 1 || request.Rating > 5)
-                throw new ReviewException("Rating phải từ 1 đến 5.");
+                throw new ArgumentException("Rating phải từ 1 đến 5.");
 
             var existing = await _reviewRepo.GetByUserAndProductAsync(userId, request.ProductId);
             if (existing != null)
-                throw new ReviewException("Bạn đã đánh giá sản phẩm này rồi.");
+                throw new InvalidOperationException("Bạn đã đánh giá sản phẩm này rồi.");
 
             var review = new Review
             {
