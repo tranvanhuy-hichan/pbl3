@@ -411,8 +411,6 @@
   </div>
 </div>
 
-
-    <!-- Confirm Status Modal -->
     <div v-if="showStatusDialog && pendingStatusChange" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
         <h3 class="text-xl font-bold text-slate-800 mb-2 text-center">Xác nhận chuyển trạng thái</h3>
@@ -428,7 +426,6 @@
       </div>
     </div>
 
-    <!-- Confirm Payment Status Modal -->
     <div v-if="showPaymentStatusDialog && pendingPaymentStatusChange" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
         <h3 class="text-xl font-bold text-slate-800 mb-2 text-center">Xác nhận thanh toán</h3>
@@ -457,10 +454,9 @@ const orderStore = useOrderStore()
 const {
   orders, totalCount, page, pageSize, paymentStatusFilter,
   searchQuery, statusFilter, fromDateFilter, toDateFilter,
-  pendingCount, processingCount, sortOrder // <-- Bổ sung sortOrder
+  pendingCount, processingCount, sortOrder
 } = storeToRefs(orderStore)
 
-// --- Pagination ---
 const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value) || 1)
 const startEntry = computed(() => totalCount.value === 0 ? 0 : (page.value - 1) * pageSize.value + 1)
 const endEntry   = computed(() => Math.min(page.value * pageSize.value, totalCount.value))
@@ -471,7 +467,6 @@ const updatingId = ref(null)
 const selectedOrder = ref(null) 
 const canExportPDF = computed(() => selectedOrder.value && selectedOrder.value.status === 'Processing')
 
-// --- Dialogs (Xác nhận) ---
 const showStatusDialog = ref(false)
 const pendingStatusChange = ref(null)
 const showPaymentStatusDialog = ref(false)
@@ -485,8 +480,6 @@ const statusOrder = {
   Cancelled: 5
 }
 
-// ================= LOAD DATA =================
-
 const loadData = async () => {
   loading.value = true
   error.value = null
@@ -499,14 +492,10 @@ const loadData = async () => {
   }
 }
 
-// ================= SORT LOGIC (BỔ SUNG) =================
-
 const onSortChange = () => {
-  orderStore.page = 1 // Reset về trang 1 khi đổi kiểu sắp xếp
+  orderStore.page = 1 
   loadData()
 }
-
-// ================= VIEW DETAILS =================
 
 const viewOrderDetails = async (orderId) => {
   try {
@@ -519,11 +508,17 @@ const viewOrderDetails = async (orderId) => {
   }
 }
 
-// ================= ORDER STATUS CHANGE =================
-
 const handleStatusChange = (orderInModal) => {
   const oldStatus = orderInModal._originalStatus
   const newStatus = orderInModal.status
+
+  const paymentStatus = orderInModal.paymentStatus
+  const paymentMethod = orderInModal.paymentMethod
+  if (paymentStatus === 'Unpaid' && paymentMethod === 'Credit Card') {
+    alert("Chỉ có thể thay đổi trạng thái khi đơn hàng đã được thanh toán.")
+    orderInModal.status = oldStatus 
+    return
+  }
 
   if (statusOrder[newStatus] < statusOrder[oldStatus]) {
     alert("Không thể quay lại trạng thái trước đó!")

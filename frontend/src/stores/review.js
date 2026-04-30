@@ -1,4 +1,3 @@
-// stores/review.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import apiClient from '@/services/apiClient'
@@ -11,7 +10,7 @@ export const useReviewStore = defineStore('review', () => {
     const totalCount = ref(0)
     const currentPage = ref(1)
     const pageSize = ref(5)
-    const averageRating = ref(0)  // THÊM DÒNG NÀY
+    const averageRating = ref(0)
 
     const fetchReviews = async (productId, page = 1, size = 5) => {
         loading.value = true
@@ -26,7 +25,6 @@ export const useReviewStore = defineStore('review', () => {
             currentPage.value = res.page || page
             pageSize.value = res.pageSize || size
 
-            // Tính average rating từ danh sách reviews hiện tại
             if (reviews.value.length > 0) {
                 const sum = reviews.value.reduce((s, r) => s + (r.rating || 0), 0)
                 averageRating.value = sum / reviews.value.length
@@ -70,7 +68,7 @@ export const useReviewStore = defineStore('review', () => {
         error.value = null
         totalCount.value = 0
         currentPage.value = 1
-        averageRating.value = 0  
+        averageRating.value = 0
     }
 
     return {
@@ -81,7 +79,7 @@ export const useReviewStore = defineStore('review', () => {
         totalCount,
         currentPage,
         pageSize,
-        averageRating,  
+        averageRating,
         fetchReviews,
         fetchMyReview,
         addReview,
