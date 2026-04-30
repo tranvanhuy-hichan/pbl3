@@ -92,6 +92,8 @@ namespace pbl3_web_api.Service
 
             var baseQuery = _orderRepo.GetOrdersQuery();
 
+            baseQuery = baseQuery.OrderByDescending(s => s.OrderId);
+
             var filteredQuery = ApplyUserFilters(baseQuery, userId, status);
 
             var totalCount = await filteredQuery.CountAsync();
