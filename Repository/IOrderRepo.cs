@@ -13,6 +13,7 @@ namespace pbl3_web_api.Repository
         Task AddOrderDetailAsync(OrderDetail orderDetail);
         Task AddRangeOrderDetailsAsync(IEnumerable<OrderDetail> orderDetails);
         Task<IDbContextTransaction> BeginTransactionAsync();
+        Task<bool> HasUserPurchasedProductAsync(int userId, int productId);
         Task SaveAsync();
     }
 }

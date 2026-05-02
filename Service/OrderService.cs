@@ -5,11 +5,24 @@ using pbl3_web_api.DTO.Order;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
 using QuestPDF.Fluent;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace pbl3_web_api.Service
 {
+    public enum OrderStatus
+    {
+        Pending,
+        Processing,
+        Shipped,
+        Delivered,
+        Cancelled
+    }
+
+    public enum PaymentStatus
+    {
+        Unpaid,
+        Paid,
+    }
+
     public class OrderService : IOrderService
     {
         private readonly IOrderRepo _orderRepo;
@@ -56,27 +69,29 @@ namespace pbl3_web_api.Service
         public async Task UpdateOrderStatusAsync(int orderId, string newStatus)
         {
             ValidateId(orderId, "OrderId");
+            var orderStatus = ValidateOrderStatus(newStatus);
 
             var order = await _orderRepo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found.");
 
-            order.Status = newStatus;
-
-            if (newStatus == "Delivered")
-                order.PaymentStatus = "Paid";
-
+            order.Status = orderStatus.ToString();
             order.UpdatedAt = DateTime.UtcNow;
+
+            if (orderStatus == OrderStatus.Delivered && order.PaymentStatus == PaymentStatus.Unpaid.ToString())
+                order.PaymentStatus = PaymentStatus.Paid.ToString();
+
             await _orderRepo.SaveAsync();
         }
 
         public async Task UpdatePaymentStatusAsync(int orderId, string newStatus)
         {
             ValidateId(orderId, "OrderId");
+            var paymentStatus = ValidatePaymentStatus(newStatus);
 
             var order = await _orderRepo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found.");
 
-            order.PaymentStatus = newStatus;
+            order.PaymentStatus = paymentStatus.ToString();
             order.UpdatedAt = DateTime.UtcNow;
             await _orderRepo.SaveAsync();
         }
@@ -122,10 +137,10 @@ namespace pbl3_web_api.Service
             var order = await _orderRepo.GetOrderByIdAndUserIdAsync(userId, orderId)
                 ?? throw new KeyNotFoundException("Order not found."); 
 
-            if (!order.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+            if (!order.Status.Equals(OrderStatus.Pending.ToString(), StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Only pending orders can be canceled.");
 
-            order.Status = "Cancelled";
+            order.Status = OrderStatus.Cancelled.ToString();
             order.UpdatedAt = DateTime.UtcNow;
             await _orderRepo.SaveAsync();
         }
@@ -178,7 +193,7 @@ namespace pbl3_web_api.Service
             var order = await _orderRepo.GetOrderByIdAsync(orderId)
                 ?? throw new KeyNotFoundException("Order not found");
 
-            if (order.Status != "Processing") throw new InvalidOperationException("Đơn hàng không thể xuất pdf");
+            if (order.Status != OrderStatus.Processing.ToString()) throw new InvalidOperationException("Đơn hàng không thể xuất pdf");
 
             var userName = order.User?.FullName ?? "Không có";
             var shippingAddress = order.ShippingAddress ?? "Không có";
@@ -386,6 +401,20 @@ namespace pbl3_web_api.Service
                 throw new ArgumentException($"{name} must be a non-negative integer.");
         }
 
+        private OrderStatus ValidateOrderStatus(string status)
+        {
+            if (!Enum.TryParse<OrderStatus>(status, true, out var orderStatus))
+                throw new ArgumentException("Invalid order status.");
+            return orderStatus;
+        }
+
+        private PaymentStatus ValidatePaymentStatus(string status)
+        {
+            if (!Enum.TryParse<PaymentStatus>(status, true, out var paymentStatus))
+                throw new ArgumentException("Invalid payment status.");
+            return paymentStatus;
+        }
+
         private AdminOrderDetailResponse MapToAdminOrderDetailResponse(Order order)
         {
             var items = order.OrderDetails.Select(i => new OrderDetailItem
@@ -456,8 +485,8 @@ namespace pbl3_web_api.Service
                 PaymentMethod = request.paymentMethod,
                 Notes = request.notes,
                 OrderDate = DateTime.UtcNow,
-                Status = "Pending",
-                PaymentStatus = "Unpaid",
+                Status = OrderStatus.Pending.ToString(),
+                PaymentStatus = PaymentStatus.Unpaid.ToString(),
                 TotalAmount = 0,
                 UpdatedAt = DateTime.UtcNow,
             };
@@ -475,6 +504,7 @@ namespace pbl3_web_api.Service
             }).ToList();
 
             order.TotalAmount += orderDetails.Sum(x => x.Subtotal);
+            order.TotalAmount += order.TotalAmount * 0.08m;
 
             foreach (var item in items)
             {
