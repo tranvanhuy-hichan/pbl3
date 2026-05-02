@@ -241,16 +241,12 @@ const placeOrder = async () => {
 
     const orderData = {
       shippingAddress: checkoutStore.shippingAddress,
-      note: checkoutStore.note,
+      notes: checkoutStore.note,
       paymentMethod: checkoutStore.paymentMethod,
       shippingFee: shippingFee.value,
-      total: total.value,
-      items: cartStore.cartItems.map(item => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        price: item.price
-      }))
     }
+
+    console.log("Dữ liệu đặt hàng:", orderData)
 
     const orderResponse = await checkoutStore.checkout(orderData) 
 

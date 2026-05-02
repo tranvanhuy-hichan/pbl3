@@ -616,6 +616,7 @@ const resetAndFetch = () => {
 const formatDate = (dateString, includeTime = false) => {
   if (!dateString) return 'N/A'
   const date = new Date(dateString)
+  date.setHours(date.getHours() + 7)
   return date.toLocaleDateString('vi-VN', {
     day: '2-digit', month: '2-digit', year: 'numeric',
     ...(includeTime && { hour: '2-digit', minute: '2-digit' })

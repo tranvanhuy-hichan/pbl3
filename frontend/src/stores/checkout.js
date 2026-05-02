@@ -14,15 +14,9 @@ export const useCheckoutStore = defineStore('checkout', () => {
         paymentMethod.value = 'COD'
     }
 
-    const checkout = async () => {
+    const checkout = async (checkoutData) => {
         try {
-            const pramas = {
-                shippingAddress: shippingAddress.value,
-                note: note.value,
-                paymentMethod: paymentMethod.value,
-                shippingFee: shippingFee.value
-            }
-            const res = await apiClient.post('/orders', pramas)
+            const res = await apiClient.post('/orders', checkoutData)
             return res
         } catch (error) {
             console.error('Checkout failed:', error)

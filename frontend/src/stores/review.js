@@ -9,7 +9,7 @@ export const useReviewStore = defineStore('review', () => {
     const error = ref(null)
     const totalCount = ref(0)
     const currentPage = ref(1)
-    const pageSize = ref(5)
+    const pageSize = ref(2)
     const averageRating = ref(0)
 
     const fetchReviews = async (productId, page = 1, size = 5) => {
@@ -45,7 +45,7 @@ export const useReviewStore = defineStore('review', () => {
         try {
             const res = await apiClient.get(`/reviews/${productId}/my-review`)
             myReview.value = res
-        } catch {
+        } catch(err) {
             myReview.value = null
         }
     }
@@ -55,10 +55,20 @@ export const useReviewStore = defineStore('review', () => {
             await apiClient.post('/reviews', { productId, rating, comment })
             await fetchReviews(productId, 1, pageSize.value)
             await fetchMyReview(productId)
+
             return { success: true, message: 'Đánh giá thành công!' }
         } catch (err) {
-            const message = err?.response?.data?.message || 'Đánh giá thất bại.'
-            return { success: false, message }
+            const status = err?.response?.status
+console.log(status)
+            let message = err?.response?.data?.message
+
+            if (!message) {
+                if (status === 409) message = 'Bạn đã đánh giá rồi'
+                else if (status === 400) message = 'Dữ liệu không hợp lệ'
+                else message = 'Không thể gửi đánh giá'
+                }
+
+            return { success: false, status, message }
         }
     }
 

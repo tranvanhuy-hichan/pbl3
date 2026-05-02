@@ -40,8 +40,7 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // Gửi lỗi về để composable / view bắt được
-    return Promise.reject(error.response?.data || error);
+    return Promise.reject(error);
   }
 );
 
