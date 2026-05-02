@@ -7,10 +7,12 @@ namespace pbl3_web_api.Service
     public class ReviewService : IReviewService
     {
         private readonly IReviewRepo _reviewRepo;
+        private readonly IOrderRepo _orderRepo;
 
-        public ReviewService(IReviewRepo reviewRepo)
+        public ReviewService(IReviewRepo reviewRepo, IOrderRepo orderRepo)
         {
             _reviewRepo = reviewRepo;
+            _orderRepo = orderRepo;
         }
 
         public async Task<(IEnumerable<ReviewResponse> Items, int TotalCount)> GetByProductIdAsync(int productId, int page, int pageSize)
@@ -39,6 +41,11 @@ namespace pbl3_web_api.Service
             var existing = await _reviewRepo.GetByUserAndProductAsync(userId, request.ProductId);
             if (existing != null)
                 throw new InvalidOperationException("Bạn đã đánh giá sản phẩm này rồi.");
+
+            var hasPurchased = await _orderRepo.HasUserPurchasedProductAsync(userId, request.ProductId);
+
+            if (!hasPurchased)
+                throw new InvalidOperationException("Bạn chỉ có thể đánh giá sản phẩm đã mua.");    
 
             var review = new Review
             {

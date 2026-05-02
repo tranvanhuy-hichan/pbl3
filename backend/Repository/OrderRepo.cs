@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using pbl3_web_api.Entities;
+using pbl3_web_api.Service;
 
 namespace pbl3_web_api.Repository
 {
@@ -66,6 +67,14 @@ namespace pbl3_web_api.Repository
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
             return await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task<bool> HasUserPurchasedProductAsync(int userId, int productId)
+        {
+            return await _context.OrderDetails
+                .AnyAsync(od => od.ProductId == productId
+                             && od.Order.UserId == userId
+                             && od.Order.Status == OrderStatus.Delivered.ToString());
         }
 
         public async Task SaveAsync()
