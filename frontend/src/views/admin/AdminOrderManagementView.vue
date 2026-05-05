@@ -611,7 +611,6 @@ const resetAndFetch = () => {
   loadData()
 }
 
-// ================= HELPERS =================
 
 const formatDate = (dateString, includeTime = false) => {
   if (!dateString) return 'N/A'
