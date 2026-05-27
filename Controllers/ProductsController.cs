@@ -77,6 +77,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("admin")]
         public async Task<IActionResult> AdminGetProducts(
             int page = 1,

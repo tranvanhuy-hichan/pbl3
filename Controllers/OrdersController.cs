@@ -125,33 +125,31 @@ namespace pbl3_web_api.Controllers
             }
         }
 
+        [Authorize(Roles = "Customer")]
         [HttpGet("my")]
         public async Task<ActionResult> GetMyOrders(
             int page = 1,
             int pageSize = 10,
-            string? status = null
-        )
-                {
-                    try
-                    {
-                        int userId = GetUserIdFromToken();
+            string? status = null)
+        {
+              try {
+                  int userId = GetUserIdFromToken();
 
-                        var (data, totalCount) = await _service
-                            .GetHistoryOrdersAsync(userId, page, pageSize, status);
+                  var (data, totalCount) = await _service.GetHistoryOrdersAsync(userId, page, pageSize, status);
 
-                        return Ok(new
-                        {
-                            data = data,
-                            totalCount = totalCount
-                        });
-                    }
-                    catch (UnauthorizedAccessException ex)
-                    {
-                        return Unauthorized(new { message = ex.Message });
-                    }
-                }
+                  return Ok(new
+                  {
+                      data = data,
+                      totalCount = totalCount
+                  });
+              } 
+              catch (UnauthorizedAccessException ex)
+              {
+                   return Unauthorized(new { message = ex.Message });
+              }
+        }
 
-
+        [Authorize(Roles = "Customer")]
         [HttpGet("my/{orderId}")]
         public async Task<ActionResult> GetMyOrderDetail(int orderId)
         {
@@ -175,6 +173,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
+        [Authorize(Roles = "Customer")]
         [HttpPatch("my/{orderId}/cancel")]
         public async Task<ActionResult> CancelMyOrder(int orderId)
         {
@@ -202,6 +201,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
+        [Authorize(Roles = "Customer")]
         [HttpPost]
         public async Task<ActionResult> CreateOrder([FromBody] CreateOrderRequest request)
         {
@@ -209,6 +209,7 @@ namespace pbl3_web_api.Controllers
             {
                 int userId = GetUserIdFromToken();
                 var data = await _service.CreateOrderAsync(userId, request);
+              
                 return Created("", data);
             }
             catch (ArgumentException ex)

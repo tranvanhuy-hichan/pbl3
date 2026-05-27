@@ -1,14 +1,16 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using pbl3_web_api.DTO;
+using pbl3_web_api.Service;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using pbl3_web_api.DTO;
-using pbl3_web_api.Service;
 
 namespace pbl3_web_api.Controllers
 {
+    [Authorize]
     [Route("api/carts")]
     [ApiController]
     public class CartsController : ControllerBase
@@ -59,7 +61,7 @@ namespace pbl3_web_api.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart([FromBody] AddCartRequest request)
         {
-            var userId = GetUserIdFromClaim() ?? request.UserId;
+            var userId = GetUserIdFromClaim();
             if (!userId.HasValue)
             {
                 return BadRequest(new { message = "UserId không xác định. Thêm userId query hoặc xác thực Bearer" });
