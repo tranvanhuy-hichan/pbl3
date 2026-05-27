@@ -1,21 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using pbl3_web_api.DTO;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
 
-namespace pbl3_web_api.Service
+namespace pbl3_web_api.Service.impl
 {
-    public interface IBrandService
-    {
-        Task<IEnumerable<BrandResponse>> GetAllBrandsAsync();
-        Task<BrandResponse?> GetBrandByIdAsync(int id);
-        Task<int> AddBrandAsync(AddBrandRequest request);
-        Task<bool> UpdateBrandAsync(int id, UpdateBrandRequest request);
-        Task<bool> DeleteBrandAsync(int id);
-    }
-
     public class BrandService : IBrandService
     {
         private readonly IBrandRepository _repository;

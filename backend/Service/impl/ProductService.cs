@@ -6,7 +6,7 @@ using pbl3_web_api.DTO.Product;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
 
-namespace pbl3_web_api.Service
+namespace pbl3_web_api.Service.impl
 {
     public class ProductService : IProductService
     {
@@ -305,19 +305,6 @@ namespace pbl3_web_api.Service
                 throw new ArgumentException("StockQuantity cannot be negative");
         }
 
-        private void ApplyChange(Product product, EditProductRequest request)
-        {
-            product.ProductName = request.ProductName ?? product.ProductName;
-            product.CategoryId = request.CategoryId ?? product.CategoryId;
-            product.BrandId = request.BrandId ?? product.BrandId;
-            product.Description = request.Description ?? product.Description;
-            product.Price = request.Price ?? product.Price;
-            product.StockQuantity = request.StockQuantity ?? product.StockQuantity;
-            product.Specifications = request.Specifications ?? product.Specifications;
-            product.IsActive = request.IsActive ?? product.IsActive;
-            product.UpdatedAt = DateTime.UtcNow;
-        }
-
         private async Task ValidateAddProductRequestAsync(AddProductRequest request)
         {
             if (request == null)
@@ -332,6 +319,19 @@ namespace pbl3_web_api.Service
             if (request.StockQuantity < 0)
                 throw new ArgumentException("StockQuantity cannot be negative");
 
+        }
+
+        private void ApplyChange(Product product, EditProductRequest request)
+        {
+            product.ProductName = request.ProductName ?? product.ProductName;
+            product.CategoryId = request.CategoryId ?? product.CategoryId;
+            product.BrandId = request.BrandId ?? product.BrandId;
+            product.Description = request.Description ?? product.Description;
+            product.Price = request.Price ?? product.Price;
+            product.StockQuantity = request.StockQuantity ?? product.StockQuantity;
+            product.Specifications = request.Specifications ?? product.Specifications;
+            product.IsActive = request.IsActive ?? product.IsActive;
+            product.UpdatedAt = DateTime.UtcNow;
         }
 
         private Product MapToProduct(AddProductRequest request)

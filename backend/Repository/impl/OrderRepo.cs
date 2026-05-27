@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using pbl3_web_api.Entities;
-using pbl3_web_api.Service;
+using pbl3_web_api.Service.impl;
 
-namespace pbl3_web_api.Repository
+namespace pbl3_web_api.Repository.impl
 {
     public class OrderRepo : IOrderRepo
     {

@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using PBL3.Services;
 using pbl3_web_api.Data;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
+using pbl3_web_api.Repository.impl;
 using pbl3_web_api.Service;
+using pbl3_web_api.Service.impl;
 using pbl3_web_api.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
@@ -29,18 +30,25 @@ builder.Services.AddDbContext<ShopPbl3Context>(options =>
 // DI
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductRepo, ProductRepo>();
+
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderRepo, OrderRepo>();
+
 builder.Services.AddScoped<ICategoryRepository, CategoryRepo>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+
 builder.Services.AddScoped<IBrandRepository, BrandRepo>();
 builder.Services.AddScoped<IBrandService, BrandService>();
+
 builder.Services.AddScoped<ICartRepository, CartRepo>();
 builder.Services.AddScoped<ICartService, CartService>();
+
 builder.Services.AddScoped<IStatisticsRepo, StatisticsRepo>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Services.AddScoped<IReviewRepo, ReviewRepo>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 

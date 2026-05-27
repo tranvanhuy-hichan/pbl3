@@ -2,7 +2,7 @@ using pbl3_web_api.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
-namespace pbl3_web_api.Repository;
+namespace pbl3_web_api.Repository.impl;
 
 public class UserRepo : IUserRepo
 {

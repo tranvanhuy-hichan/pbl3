@@ -4,9 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.DTO.Order;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
+using pbl3_web_api.Repository.impl;
 using QuestPDF.Fluent;
 
-namespace pbl3_web_api.Service
+namespace pbl3_web_api.Service.impl
 {
     public enum OrderStatus
     {
@@ -69,6 +70,7 @@ namespace pbl3_web_api.Service
         public async Task UpdateOrderStatusAsync(int orderId, string newStatus)
         {
             ValidateId(orderId, "OrderId");
+
             var orderStatus = ValidateOrderStatus(newStatus);
 
             var order = await _orderRepo.GetOrderByIdAsync(orderId)
@@ -86,6 +88,7 @@ namespace pbl3_web_api.Service
         public async Task UpdatePaymentStatusAsync(int orderId, string newStatus)
         {
             ValidateId(orderId, "OrderId");
+
             var paymentStatus = ValidatePaymentStatus(newStatus);
 
             var order = await _orderRepo.GetOrderByIdAsync(orderId)
@@ -93,6 +96,7 @@ namespace pbl3_web_api.Service
 
             order.PaymentStatus = paymentStatus.ToString();
             order.UpdatedAt = DateTime.UtcNow;
+
             await _orderRepo.SaveAsync();
         }
 
@@ -142,6 +146,7 @@ namespace pbl3_web_api.Service
 
             order.Status = OrderStatus.Cancelled.ToString();
             order.UpdatedAt = DateTime.UtcNow;
+
             await _orderRepo.SaveAsync();
         }
 
@@ -153,12 +158,12 @@ namespace pbl3_web_api.Service
                 throw new ArgumentNullException(nameof(request), "Request cannot be null.");
 
             var items = await _orderRepo.GetCartItemsByUserIdAsync(userId);
-            Console.WriteLine(items);
 
             if (items == null || !items.Any())
                 throw new InvalidOperationException("Cart is empty.");
 
             var order = MapToOrder(userId, request);
+
             order.TotalAmount = request.shippingFee ?? 0;
 
             using var transaction = await _orderRepo.BeginTransactionAsync();

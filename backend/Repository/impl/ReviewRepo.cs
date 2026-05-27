@@ -2,7 +2,7 @@
 using pbl3_web_api.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace pbl3_web_api.Repository
+namespace pbl3_web_api.Repository.impl
 {
     public class ReviewRepo : IReviewRepo
     {

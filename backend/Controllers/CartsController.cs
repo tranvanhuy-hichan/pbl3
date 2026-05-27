@@ -1,12 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using pbl3_web_api.DTO;
-using pbl3_web_api.Service;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using pbl3_web_api.Service;
 
 namespace pbl3_web_api.Controllers
 {
