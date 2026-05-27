@@ -108,6 +108,7 @@ namespace pbl3_web_api.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("deleted")]
         public async Task<ActionResult> GetDeletedProducts()
         {

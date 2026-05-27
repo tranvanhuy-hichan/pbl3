@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.Entities;
 
-namespace pbl3_web_api.Repository
+namespace pbl3_web_api.Repository.impl
 {
     public class StatisticsRepo : IStatisticsRepo
     {

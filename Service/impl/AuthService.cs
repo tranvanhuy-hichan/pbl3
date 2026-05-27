@@ -10,7 +10,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace pbl3_web_api.Service;
+namespace pbl3_web_api.Service.impl;
 
 public class AuthService : IAuthService
 {

@@ -1,19 +1,10 @@
 using pbl3_web_api.DTO;
 using pbl3_web_api.Entities;
-using pbl3_web_api.Repository;
 using pbl3_web_api.Data;
+using pbl3_web_api.Repository;
 
-namespace pbl3_web_api.Service
+namespace pbl3_web_api.Service.impl
 {
-    public interface ICartService
-    {
-        Task<IEnumerable<CartResponse>> GetCartItemsAsync(int userId);
-        Task<(bool IsSuccess, string Message, CartResponse? Item)> AddItemAsync(int userId, AddCartRequest request);
-        Task<(bool IsSuccess, string Message)> UpdateItemAsync(int userId, int cartId, UpdateCartRequest request);
-        Task<(bool IsSuccess, string Message)> RemoveItemAsync(int userId, int cartId);
-        Task ClearCartAsync(int userId);
-    }
-
     public class CartService : ICartService
     {
         private readonly ICartRepository _repository;

@@ -243,7 +243,12 @@ public partial class ShopPbl3Context : DbContext
             entity.Property(r => r.Rating)
                   .IsRequired();
 
-            entity.HasCheckConstraint("CK_Reviews_Rating", "[Rating] BETWEEN 1 AND 5");
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint(
+                    "CK_Reviews_Rating",
+                    "[Rating] BETWEEN 1 AND 5");
+            });
 
             entity.Property(r => r.Comment)
                   .HasMaxLength(1000);

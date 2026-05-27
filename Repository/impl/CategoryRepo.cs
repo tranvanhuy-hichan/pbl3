@@ -1,16 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Data;
-namespace pbl3_web_api.Repository
+namespace pbl3_web_api.Repository.impl
 {
-    public interface ICategoryRepository
-    {
-        Task<IEnumerable<Category>> GetAllAsync();
-        Task<Category?> GetByIdAsync(int id);
-        Task<Category> AddAsync(Category category);
-        Task UpdateAsync(Category category);
-        Task DeleteAsync(Category category);
-    }
     public class CategoryRepo : ICategoryRepository
     {
         private readonly AppDbContext _context;

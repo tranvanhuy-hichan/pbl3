@@ -4,7 +4,7 @@ using ClosedXML.Excel;
 using System.IO;
 using pbl3_web_api.Repository;
 
-namespace PBL3.Services
+namespace pbl3_web_api.Service.impl
 {
     public class StatisticsService : IStatisticsService
     {

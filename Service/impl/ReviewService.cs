@@ -2,7 +2,7 @@
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
 
-namespace pbl3_web_api.Service
+namespace pbl3_web_api.Service.impl
 {
     public class ReviewService : IReviewService
     {
@@ -60,7 +60,7 @@ namespace pbl3_web_api.Service
             await _reviewRepo.SaveChangesAsync();
         }
 
-        public async Task<ReviewResponse> GetMyReviewAsync(int userId, int productId)
+        public async Task<ReviewResponse?> GetMyReviewAsync(int userId, int productId)
         {
             var review = await _reviewRepo.GetByUserAndProductAsync(userId, productId);
             if (review == null)
