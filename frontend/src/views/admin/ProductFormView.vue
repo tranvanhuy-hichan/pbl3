@@ -46,7 +46,7 @@
         
         <div class="lg:col-span-4 space-y-6">
           <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Hình ảnh đại diện</label>
+            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Hình ảnh minh họa</label>
             <div class="aspect-square bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden relative group">
               <img v-if="previewImage" :src="previewImage" alt="Preview" class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500">
               <div v-else class="text-center">
@@ -93,7 +93,7 @@
             <div class="grid grid-cols-2 gap-6">
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Mã sản phẩm (SKU)</label>
-                <input v-model="formData.productCode" type="text" required placeholder="SKU-123..."
+                <input v-model="formData.productCode" type="text" readonly required placeholder="SKU-123..."
                   class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-mono font-bold uppercase">
               </div>
               <div>

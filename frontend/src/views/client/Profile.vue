@@ -122,12 +122,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useProfileStore } from '@/stores/profileStore'
 import { useAuth } from '@/composables/useAuth'
 
 const profileStore = useProfileStore()
 const { logout } = useAuth()
+const route = useRoute()
 
 const form = ref({})
 const showModal = ref(false)
@@ -145,6 +147,15 @@ const password = ref({
 onMounted(async () => {
   await profileStore.fetchProfile()
   form.value = { ...profileStore.user }
+  if (route.query.changePassword === 'true') {
+    openModal()
+  }
+})
+
+watch(() => route.query.changePassword, (newVal) => {
+  if (newVal === 'true') {
+    openModal()
+  }
 })
 
 const showToast = (msg, type = 'success') => {

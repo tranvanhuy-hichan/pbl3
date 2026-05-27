@@ -391,12 +391,12 @@
 
     <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
       
-      <button
+      <button   
         v-if="selectedOrder.status === 'Processing'"
         @click="exportPDF(selectedOrder.orderId)"
         class="px-5 py-2 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700"
       >
-        Xuất PDF
+        Xuất phiếu vận chuyển
       </button>
 
       <button
@@ -595,7 +595,6 @@ const cancelPaymentStatusChange = () => {
   pendingPaymentStatusChange.value = null
 }
 
-// ================= SEARCH & FILTERS =================
 
 let timeout = null
 const debouncedFetch = () => {
