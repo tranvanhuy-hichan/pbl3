@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 p-6 bg-slate-50 min-h-screen">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Quản lý danh mục</h2>
