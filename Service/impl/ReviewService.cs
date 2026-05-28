@@ -39,6 +39,7 @@ namespace pbl3_web_api.Service.impl
                 throw new ArgumentException("Rating phải từ 1 đến 5.");
 
             var existing = await _reviewRepo.GetByUserAndProductAsync(userId, request.ProductId);
+
             if (existing != null)
                 throw new InvalidOperationException("Bạn đã đánh giá sản phẩm này rồi.");
 

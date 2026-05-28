@@ -1,4 +1,5 @@
 ﻿using pbl3_web_api.Entities;
+using pbl3_web_api.Service;
 using pbl3_web_api.Repository;
 
 public class ServiceResult<T>
@@ -6,17 +7,6 @@ public class ServiceResult<T>
     public bool Success { get; set; }
     public string? Message { get; set; }
     public T? Data { get; set; }
-}
-
-public interface IUserService
-{
-    Task<ServiceResult<object>> GetAllAsync(int page, int pageSize);
-    Task<ServiceResult<object>> GetDeletedAsync(int page, int pageSize);
-    Task<ServiceResult<User>> GetByIdAsync(int id);
-    Task<ServiceResult<object>> CreateAsync(CreateUserDto request);
-    Task<ServiceResult<User>> UpdateAsync(int id, UpdateUserDto request);
-    Task<ServiceResult<object>> ToggleActiveAsync(int id);
-    Task<ServiceResult<object>> DeleteAsync(int id);
 }
 
 public class UserService : IUserService

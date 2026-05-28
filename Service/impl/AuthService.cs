@@ -1,14 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using pbl3_web_api.DTO.Auth;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace pbl3_web_api.Service.impl;
 

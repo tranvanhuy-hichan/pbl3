@@ -1,10 +1,7 @@
-﻿using Azure.Core;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.DTO.Order;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
-using pbl3_web_api.Repository.impl;
 using QuestPDF.Fluent;
 
 namespace pbl3_web_api.Service.impl
