@@ -13,9 +13,9 @@ namespace YourProjectName.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        // Khai báo Database Context (Giả sử tên là AppDbContext)
-        // private readonly AppDbContext _context;
-        // public UsersController(AppDbContext context) { _context = context; }
+        // Khai báo Database Context (ShopPbl3Context)
+        // private readonly ShopPbl3Context _context;
+        // public UsersController(ShopPbl3Context context) { _context = context; }
 
         // 1. Lấy danh sách người dùng (GET /api/users)
 

@@ -1,16 +1,15 @@
 using pbl3_web_api.DTO;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
-using pbl3_web_api.Data;
 
 namespace pbl3_web_api.Service
 { 
     public class CartService : ICartService
     {
         private readonly ICartRepository _repository;
-        private readonly AppDbContext _context;
+        private readonly ShopPbl3Context _context;
 
-        public CartService(ICartRepository repository, AppDbContext context)
+        public CartService(ICartRepository repository, ShopPbl3Context context)
         {
             _repository = repository;
             _context = context;

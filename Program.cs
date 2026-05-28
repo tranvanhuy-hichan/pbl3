@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
-using pbl3_web_api.Data;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
 using pbl3_web_api.Service;
@@ -17,9 +16,6 @@ QuestPDF.Settings.License = LicenseType.Community;
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddDbContext<ShopPbl3Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

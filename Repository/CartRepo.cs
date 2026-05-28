@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using pbl3_web_api.Data;
 using pbl3_web_api.Entities;
 
 namespace pbl3_web_api.Repository
@@ -18,9 +17,9 @@ namespace pbl3_web_api.Repository
 
     public class CartRepo : ICartRepository
     {
-        private readonly AppDbContext _context;
+        private readonly ShopPbl3Context _context;
 
-        public CartRepo(AppDbContext context)
+        public CartRepo(ShopPbl3Context context)
         {
             _context = context;
         }

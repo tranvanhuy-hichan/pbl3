@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.Entities;
-using pbl3_web_api.Data;
 
 namespace pbl3_web_api.Repository
 {
@@ -15,9 +14,9 @@ namespace pbl3_web_api.Repository
 
     public class BrandRepo : IBrandRepository
     {
-        private readonly AppDbContext _context;
+        private readonly ShopPbl3Context _context;
 
-        public BrandRepo(AppDbContext context)
+        public BrandRepo(ShopPbl3Context context)
         {
             _context = context;
         }
