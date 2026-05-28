@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using pbl3_web_api.DTO.Review;
-using pbl3_web_api.Entities;
 using pbl3_web_api.Service;
 using System.Security.Claims;
 

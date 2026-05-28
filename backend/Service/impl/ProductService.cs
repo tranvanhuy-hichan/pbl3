@@ -1,7 +1,4 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Core.Types;
+﻿using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.DTO.Product;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
