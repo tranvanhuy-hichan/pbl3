@@ -1,5 +1,4 @@
-﻿using pbl3_web_api.Data;
-using pbl3_web_api.Entities;
+﻿using pbl3_web_api.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace pbl3_web_api.Repository.impl
