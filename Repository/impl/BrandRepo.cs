@@ -1,23 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.Entities;
-using pbl3_web_api.Data;
 
-namespace pbl3_web_api.Repository
+namespace pbl3_web_api.Repository.impl
 {
-    public interface IBrandRepository
-    {
-        Task<IEnumerable<Brand>> GetAllAsync();
-        Task<Brand?> GetByIdAsync(int id);
-        Task<Brand> AddAsync(Brand brand);
-        Task UpdateAsync(Brand brand);
-        Task DeleteAsync(Brand brand);
-    }
-
     public class BrandRepo : IBrandRepository
     {
-        private readonly AppDbContext _context;
+        private readonly ShopPbl3Context _context;
 
-        public BrandRepo(AppDbContext context)
+        public BrandRepo(ShopPbl3Context context)
         {
             _context = context;
         }

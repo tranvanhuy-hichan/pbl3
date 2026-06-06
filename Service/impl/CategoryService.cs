@@ -1,17 +1,9 @@
 ﻿using pbl3_web_api.DTO;
-using pbl3_web_api.Repository;
 using pbl3_web_api.Entities;
+using pbl3_web_api.Repository;
 
-namespace pbl3_web_api.Service
+namespace pbl3_web_api.Service.impl
 {
-    public interface ICategoryService
-    {
-        Task<IEnumerable<CategoryResponse>> GetAllCategoriesAsync();
-        Task<CategoryResponse?> GetCategoryByIdAsync(int id);
-        Task<int> AddCategoryAsync(AddCategoryRequest request);
-        Task<bool> UpdateCategoryAsync(int id, UpdateCategoryRequest request);
-        Task<bool> DeleteCategoryAsync(int id);
-    }
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _repository;

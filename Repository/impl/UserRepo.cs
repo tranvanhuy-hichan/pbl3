@@ -2,7 +2,7 @@ using pbl3_web_api.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
-namespace pbl3_web_api.Repository;
+namespace pbl3_web_api.Repository.impl;
 
 public class UserRepo : IUserRepo
 {
@@ -42,6 +42,41 @@ public class UserRepo : IUserRepo
     public async Task UpdateUserAsync(User user)
     {
         _db.Users.Update(user);
+        await _db.SaveChangesAsync();
+    }
+    public async Task<List<User>> GetAllActiveAsync(int page, int pageSize)
+    {
+        return await _db.Users
+            .Where(p => p.IsActive == true)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+    public async Task<List<User>> GetAllNoActiveAsync(int page, int pageSize)
+    {
+        return await _db.Users
+            .Where(p => p.IsActive == false)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+    public async Task<int> CountAsync()
+    {
+        return await _db.Users.CountAsync();
+    }
+
+    public async Task<User?> GetByIdAsync(int id)
+    {
+        return await _db.Users.FindAsync(id);
+    }
+
+    public async Task AddAsync(User user)
+    {
+        await _db.Users.AddAsync(user);
+    }
+
+    public async Task SaveAsync()
+    {
         await _db.SaveChangesAsync();
     }
 }
