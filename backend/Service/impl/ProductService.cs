@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.DTO.Product;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
@@ -306,6 +306,9 @@ namespace pbl3_web_api.Service.impl
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
+
+            if (await _productRepo.GetProductsQuery().AnyAsync(p => p.ProductCode == request.ProductCode))
+                throw new ArgumentException("Mã sản phẩm (SKU) đã tồn tại trên hệ thống");
 
             if (!await _productRepo.CheckCategoryAndBrandExistAsync(request.CategoryId, request.BrandId))
                 throw new ArgumentException("Category or Brand does not exist");
