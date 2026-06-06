@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using pbl3_web_api.Service;
 
@@ -42,6 +42,10 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Create(CreateUserDto request)
     {
         var result = await _service.CreateAsync(request);
+        if (!result.Success)
+        {
+            return BadRequest(new { message = result.Message });
+        }
         return StatusCode(201, result);
     }
 
