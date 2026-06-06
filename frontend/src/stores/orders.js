@@ -17,12 +17,12 @@ export const useOrderStore = defineStore('orders', () => {
 
   const pendingCount = computed(() => {
     if (!Array.isArray(orders.value)) return 0
-    return orders.value.filter(o => (o.status || o.Status) === 'Pending').length
+    return orders.value.filter((o) => (o.status || o.Status) === 'Pending').length
   })
 
   const processingCount = computed(() => {
     if (!Array.isArray(orders.value)) return 0
-    return orders.value.filter(o => (o.status || o.Status) === 'Processing').length
+    return orders.value.filter((o) => (o.status || o.Status) === 'Processing').length
   })
 
   const fetchOrders = async () => {
@@ -35,7 +35,7 @@ export const useOrderStore = defineStore('orders', () => {
         paymentStatus: paymentStatusFilter.value || undefined,
         fromDate: fromDateFilter.value || undefined,
         toDate: toDateFilter.value || undefined,
-        sortOrder: sortOrder.value || undefined
+        sortOrder: sortOrder.value || undefined,
       }
 
       const res = await apiClient.get('/orders', { params })
@@ -80,7 +80,7 @@ export const useOrderStore = defineStore('orders', () => {
       const params = {
         page: page.value,
         pageSize: pageSize.value,
-        status: statusFilter.value || undefined
+        status: statusFilter.value || undefined,
       }
 
       const res = await apiClient.get('/orders/my', { params })
@@ -92,7 +92,6 @@ export const useOrderStore = defineStore('orders', () => {
         myOrders.value = []
         totalCount.value = 0
       }
-
     } catch (err) {
       console.error('Fetch my orders failed:', err)
       myOrders.value = []
@@ -112,7 +111,7 @@ export const useOrderStore = defineStore('orders', () => {
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       await apiClient.patch(`/orders/${orderId}/status`, JSON.stringify(newStatus), {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
       await fetchOrders()
     } catch (error) {
@@ -124,7 +123,7 @@ export const useOrderStore = defineStore('orders', () => {
   const updatePaymentStatus = async (orderId, newPaymentStatus) => {
     try {
       await apiClient.patch(`/orders/${orderId}/payment-status`, JSON.stringify(newPaymentStatus), {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
       await fetchOrders()
     } catch (error) {
@@ -156,7 +155,7 @@ export const useOrderStore = defineStore('orders', () => {
   const exportPDF = async (orderId) => {
     try {
       const response = await apiClient.get(`/orders/${orderId}/export`, {
-        responseType: 'blob'
+        responseType: 'blob',
       })
 
       // tạo file download
@@ -170,38 +169,36 @@ export const useOrderStore = defineStore('orders', () => {
       // cleanup
       link.remove()
       window.URL.revokeObjectURL(url)
-
     } catch (error) {
       console.error('Export PDF error:', error)
       throw error
     }
   }
 
-
   return {
     orders,
-    myOrders, 
-    totalCount, 
-    page, 
+    myOrders,
+    totalCount,
+    page,
     pageSize,
-    searchQuery, 
-    statusFilter, 
+    searchQuery,
+    statusFilter,
     paymentStatusFilter,
-    fromDateFilter, 
-    toDateFilter, 
+    fromDateFilter,
+    toDateFilter,
     sortOrder,
-    pendingCount, 
+    pendingCount,
     processingCount,
-    fetchOrders, 
+    fetchOrders,
     fetchOrderById,
     fetchMyOrders,
     fetchMyOrderDetails,
-    updateOrderStatus, 
-    resetFilters, 
-    changePage, 
-    updatePaymentStatus, 
+    updateOrderStatus,
+    resetFilters,
+    changePage,
+    updatePaymentStatus,
     onSortChange,
     cancelOrder,
-    exportPDF
+    exportPDF,
   }
 })

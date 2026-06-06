@@ -1,0 +1,108 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "logo TechStore" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "logo" [ref=e8]
+          - generic [ref=e9]: TechStore
+        - navigation [ref=e10]:
+          - link "Trang chủ" [ref=e11] [cursor=pointer]:
+            - /url: /
+          - link "Sản phẩm" [ref=e12] [cursor=pointer]:
+            - /url: /products
+        - link "Đăng nhập" [ref=e14] [cursor=pointer]:
+          - /url: /login
+    - main [ref=e15]:
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - heading "Chào mừng trở lại" [level=1] [ref=e22]
+          - paragraph [ref=e23]: Đăng nhập để tiếp tục
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - text: Tên đăng nhập
+            - textbox "Nhập username" [ref=e26]
+          - generic [ref=e27]:
+            - text: Mật khẩu
+            - textbox "••••••••" [ref=e28]
+          - generic [ref=e29]:
+            - generic [ref=e30]:
+              - checkbox "Ghi nhớ đăng nhập" [ref=e31]
+              - text: Ghi nhớ đăng nhập
+            - link "Quên mật khẩu?" [ref=e32] [cursor=pointer]:
+              - /url: "#"
+          - button "Đăng nhập" [ref=e33]
+          - paragraph [ref=e34]:
+            - text: Chưa có tài khoản?
+            - link "Đăng ký ngay" [ref=e35] [cursor=pointer]:
+              - /url: /register
+    - contentinfo [ref=e36]:
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - heading "Cửa hàng thiết bị điện tử" [level=3] [ref=e40]
+            - paragraph [ref=e41]: Điểm đến cao cấp của bạn cho các thiết bị điện tử, laptop, điện thoại thông minh và phụ kiện mới nhất. Trải nghiệm công nghệ ở mức tốt nhất.
+            - generic [ref=e42]:
+              - link "Facebook" [ref=e43] [cursor=pointer]:
+                - /url: "#"
+                - text: FB
+              - link "Twitter" [ref=e44] [cursor=pointer]:
+                - /url: "#"
+                - text: TW
+              - link "Instagram" [ref=e45] [cursor=pointer]:
+                - /url: "#"
+                - text: IG
+          - generic [ref=e46]:
+            - heading "Danh mục" [level=4] [ref=e47]
+            - list [ref=e48]:
+              - listitem [ref=e49]:
+                - link "Laptop" [ref=e50] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e51]:
+                - link "Điện thoại thông minh" [ref=e52] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e53]:
+                - link "Tablet" [ref=e54] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e55]:
+                - link "Loa & Tai nghe" [ref=e56] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e57]:
+                - link "Tivi" [ref=e58] [cursor=pointer]:
+                  - /url: "#"
+          - generic [ref=e59]:
+            - heading "Dịch vụ khách hàng" [level=4] [ref=e60]
+            - list [ref=e61]:
+              - listitem [ref=e62]:
+                - link "Liên hệ chúng tôi" [ref=e63] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e64]:
+                - link "Vận chuyển & Giao hàng" [ref=e65] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e66]:
+                - link "Hoàn trả & Đổi trả" [ref=e67] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e68]:
+                - link "Câu hỏi thường gặp" [ref=e69] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e70]:
+                - link "Theo dõi đơn hàng" [ref=e71] [cursor=pointer]:
+                  - /url: "#"
+          - generic [ref=e72]:
+            - heading "Bản tin" [level=4] [ref=e73]
+            - paragraph [ref=e74]: Đăng ký để nhận các ưu đãi đặc biệt, quà tặng miễn phí và các chương trình khuyến mãi.
+            - generic [ref=e75]:
+              - textbox "Enter your email" [ref=e76]
+              - button "Đăng ký" [ref=e77]
+        - generic [ref=e78]:
+          - paragraph [ref=e79]: © 2026 PBL3
+          - generic [ref=e80]:
+            - link "Chính sách bảo mật" [ref=e81] [cursor=pointer]:
+              - /url: "#"
+            - link "Điều khoản dịch vụ" [ref=e82] [cursor=pointer]:
+              - /url: "#"
+  - generic [ref=e83]:
+    - generic "Toggle devtools panel" [ref=e84] [cursor=pointer]:
+      - img [ref=e85]
+    - generic "Toggle Component Inspector" [ref=e90] [cursor=pointer]:
+      - img [ref=e91]

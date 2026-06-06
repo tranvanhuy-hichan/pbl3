@@ -2,57 +2,44 @@
   <div class="space-y-6 p-6 bg-slate-50 min-h-screen">
     <!-- FILTER -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-  
+
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        
+
         <!-- LEFT: DATE -->
         <div class="flex flex-wrap items-center gap-4">
-          
+
           <div class="flex items-center gap-2">
             <span class="text-sm text-slate-500">Từ</span>
-            <input 
-              type="date" 
-              v-model="fromDate"
-              class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <input type="date" v-model="fromDate"
+              class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
 
           <div class="flex items-center gap-2">
             <span class="text-sm text-slate-500">Đến</span>
-            <input 
-              type="date" 
-              v-model="toDate"
-              class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <input type="date" v-model="toDate"
+              class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
 
-          <button 
-            @click="resetFilter"
-            class="bg-slate-200 hover:bg-red-300 text-slate-700 px-4 py-2 rounded-lg text-sm transition"
-          >
+          <button @click="resetFilter"
+            class="bg-slate-200 hover:bg-red-300 text-slate-700 px-4 py-2 rounded-lg text-sm transition">
             Reset
           </button>
 
         </div>
 
         <div class="flex items-center gap-3">
-          <button 
-            @click="exportExcel"
-            :disabled="isExporting"
-            class="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm transition shadow-sm flex items-center gap-2"
-          >
+          <button @click="exportExcel" :disabled="isExporting"
+            class="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm transition shadow-sm flex items-center gap-2">
             <svg v-if="isExporting" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
             </svg>
 
             {{ isExporting ? 'Đang xuất...' : 'Xuất Excel' }}
           </button>
 
-          <button 
-            @click="applyFilter"
-            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition shadow-sm"
-          >
+          <button @click="applyFilter"
+            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition shadow-sm">
             Xem
           </button>
         </div>
@@ -143,28 +130,22 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
+
       <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
         <h3 class="font-bold text-slate-800 mb-6">Tổng quan doanh thu (Theo ngày)</h3>
         <div class="h-[300px] w-full">
-          <Line 
-            v-if="statisticsStore.revenueChartData.labels.length"
-            :key="statisticsStore.revenueChartData.labels.join('-')"
-            :data="statisticsStore.revenueChartData"
-            :options="chartOptions"
-          />
+          <Line v-if="statisticsStore.revenueChartData.labels.length"
+            :key="statisticsStore.revenueChartData.labels.join('-')" :data="statisticsStore.revenueChartData"
+            :options="chartOptions" />
         </div>
       </div>
 
       <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
         <h3 class="font-bold text-slate-800 mb-6">Đơn hàng theo trạng thái</h3>
         <div class="h-[300px] w-full">
-          <Bar 
-            v-if="statisticsStore.orderStatusChartData.labels.length"
+          <Bar v-if="statisticsStore.orderStatusChartData.labels.length"
             :key="statisticsStore.orderStatusChartData.datasets[0].data.join('-')"
-            :data="statisticsStore.orderStatusChartData"
-            :options="barOptions"
-          />
+            :data="statisticsStore.orderStatusChartData" :options="barOptions" />
         </div>
       </div>
 
@@ -187,13 +168,8 @@
           </thead>
 
           <tbody>
-            <tr 
-              v-for="p in statisticsStore.topProducts"
-              :key="p.ProductId || p.productId"
-              class="hover:bg-slate-50 cursor-pointer transition duration-150"
-
-              @click="goToProduct(p)"
-            >
+            <tr v-for="p in statisticsStore.topProducts" :key="p.ProductId || p.productId"
+              class="hover:bg-slate-50 cursor-pointer transition duration-150" @click="goToProduct(p)">
               <td class="py-4 px-6 font-medium">
                 #{{ p.ProductId || p.productId }}
               </td>
@@ -235,7 +211,7 @@ import {
 } from 'chart.js'
 import { useRouter } from 'vue-router'
 import { Line, Bar } from 'vue-chartjs'
-import { useStatisticsStore } from '@/stores/statistics' 
+import { useStatisticsStore } from '@/stores/statistics'
 import { ref } from 'vue'
 
 const fromDate = ref('')
