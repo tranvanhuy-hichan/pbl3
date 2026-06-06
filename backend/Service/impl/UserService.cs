@@ -1,4 +1,4 @@
-﻿using pbl3_web_api.Entities;
+using pbl3_web_api.Entities;
 using pbl3_web_api.Service;
 using pbl3_web_api.Repository;
 
@@ -64,6 +64,24 @@ public class UserService : IUserService
 
     public async Task<ServiceResult<object>> CreateAsync(CreateUserDto request)
     {
+        if (await _repo.CheckUsernameExistsAsync(request.username))
+        {
+            return new ServiceResult<object>
+            {
+                Success = false,
+                Message = "Tên đăng nhập đã tồn tại trên hệ thống!"
+            };
+        }
+
+        if (await _repo.CheckEmailExistsAsync(request.email))
+        {
+            return new ServiceResult<object>
+            {
+                Success = false,
+                Message = "Email đã tồn tại trên hệ thống!"
+            };
+        }
+
         var user = new User
         {
             Username = request.username,
