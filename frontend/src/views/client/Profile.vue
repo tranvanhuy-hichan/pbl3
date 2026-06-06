@@ -1,14 +1,11 @@
-<!-- src/views/user/Profile.vue -->
 <template>
   <div class="max-w-3xl mx-auto p-6 space-y-6">
 
-    <!-- Title -->
     <div>
       <h2 class="text-2xl font-bold text-slate-800">Thông tin cá nhân</h2>
       <p class="text-sm text-slate-500">Quản lý thông tin tài khoản của bạn</p>
     </div>
 
-    <!-- Toast -->
     <transition name="fade">
       <div 
         v-if="message"
@@ -21,7 +18,6 @@
       </div>
     </transition>
 
-    <!-- Card -->
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-5">
 
       <div v-if="profileStore.loading" class="text-center text-gray-500">
@@ -30,7 +26,6 @@
 
       <template v-else>
 
-        <!-- Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           <div>
@@ -60,7 +55,6 @@
           <input v-model="form.address" class="input" />
         </div>
 
-        <!-- Button -->
         <button @click="updateProfile" class="btn-primary w-full">
           {{ profileStore.loading ? 'Đang lưu...' : 'Cập nhật thông tin' }}
         </button>
@@ -68,18 +62,16 @@
       </template>
     </div>
 
-    <!-- Actions -->
     <div class="flex gap-4">
       <button @click="openModal" class="btn-warning flex-1">
-        🔒 Đổi mật khẩu
+        Đổi mật khẩu
       </button>
 
       <button @click="handleLogout" class="btn-danger flex-1">
-        🚪 Đăng xuất
+        Đăng xuất
       </button>
     </div>
 
-    <!-- Modal -->
     <transition name="fade">
       <div v-if="showModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-40">
 
@@ -130,12 +122,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useProfileStore } from '@/stores/profileStore'
 import { useAuth } from '@/composables/useAuth'
 
 const profileStore = useProfileStore()
 const { logout } = useAuth()
+const route = useRoute()
 
 const form = ref({})
 const showModal = ref(false)
@@ -153,6 +147,15 @@ const password = ref({
 onMounted(async () => {
   await profileStore.fetchProfile()
   form.value = { ...profileStore.user }
+  if (route.query.changePassword === 'true') {
+    openModal()
+  }
+})
+
+watch(() => route.query.changePassword, (newVal) => {
+  if (newVal === 'true') {
+    openModal()
+  }
 })
 
 const showToast = (msg, type = 'success') => {

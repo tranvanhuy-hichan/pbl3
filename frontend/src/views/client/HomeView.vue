@@ -2,7 +2,6 @@
   <div class="flex flex-col">
     <HeroBanner />
 
-    <!-- Featured -->
     <section class="py-20 lg:py-28 bg-blue-50">
       <div class="container mx-auto px-4">
         <div class="flex justify-between mb-12 border-b border-blue-200 pb-6">
@@ -27,7 +26,6 @@
       </div>
     </section>
 
-    <!-- New Arrivals -->
     <section class="py-20 lg:py-28 bg-red-50">
       <div class="container mx-auto px-4">
         <div class="flex justify-between mb-12 border-b border-blue-200 pb-6">
@@ -66,7 +64,6 @@ onMounted(async () => {
   await productStore.fetchProducts()
 })
 
-// map API → UI
 const mapProduct = (p) => ({
   id: p.productId,
   name: p.productName,
@@ -83,7 +80,6 @@ const mapProduct = (p) => ({
   reviews: 0
 })
 
-// Featured (lấy 8 sản phẩm đầu)
 const featuredProducts = computed(() => {
   return productStore.products
     .sort(() => Math.random() - 0.5) 
@@ -91,7 +87,6 @@ const featuredProducts = computed(() => {
     .map(mapProduct)
 })
 
-// New Arrivals (mới nhất theo ngày)
 const newArrivals = computed(() => {
   return [...productStore.products]
     .sort((a, b) => {

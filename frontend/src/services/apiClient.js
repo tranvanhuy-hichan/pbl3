@@ -24,9 +24,10 @@ apiClient.interceptors.request.use(
 // Response interceptor: chuẩn hóa payload trả về và bắt lỗi 401
 apiClient.interceptors.response.use(
   (response) => {
-    // Thường API axios trả response trong property .data
-    // Mình trả thẳng response.data để caller khỏi phải gọi res.data.data
-    return response.data;
+    if (response.config.responseType === 'blob') {
+      return response // giữ nguyên cho PDF
+    }
+    return response.data
   },
   (error) => {
     if (error.response?.status === 401) {
@@ -40,8 +41,7 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // Gửi lỗi về để composable / view bắt được
-    return Promise.reject(error.response?.data || error);
+    return Promise.reject(error);
   }
 );
 

@@ -12,7 +12,6 @@ import CartView from '@/views/client/CartView.vue'
 import CheckoutView from '@/views/client/CheckoutView.vue'
 import ProductView from '@/views/client/ProductView.vue'
 import OrderHistoryView from '@/views/client/OrderHistoryView.vue'
-import OrderView from '@/views/client/OrderHistoryView.vue'
 import Profile from '@/views/client/Profile.vue'
 
 import DashboardView from '@/views/admin/DashboardView.vue'
@@ -22,6 +21,7 @@ import UserManagementView from '@/views/admin/UserManagementView.vue'
 import BrandManagementView from '@/views/admin/BrandManagementView.vue'
 import CategoryManagementView from '@/views/admin/CategoryManagementView.vue'
 import AdminOrderManagementView from '@/views/admin/AdminOrderManagementView.vue'
+import UserTrashView from '@/views/admin/UserTrashView.vue'
 
 // Router
 const router = createRouter({
@@ -81,6 +81,9 @@ const router = createRouter({
 
         { path: 'orders', name: 'admin-orders', component: AdminOrderManagementView },
 
+        { path: 'users/trash', name: 'trash', component: UserTrashView },
+
+        { path: 'products/trash/:id', name: 'admin-product-trash', component: ProductFormView },
         {
           path: 'products/trash',
           name: 'product-trash',

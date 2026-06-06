@@ -42,7 +42,7 @@
             Còn: {{ product.stock }}
           </span>
           <span v-else class="text-red-500">
-            Hết hàng
+            Hết
           </span>
         </div>
       </div>

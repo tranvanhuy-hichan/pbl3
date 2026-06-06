@@ -1,53 +1,105 @@
 <template>
-  <div class="p-6 bg-rose-50 min-h-screen space-y-6">
+  <div class="p-6 bg-slate-50 min-h-screen space-y-6">
 
     <div class="flex justify-between items-center">
-      <h2 class="text-2xl font-bold text-rose-600">Thùng rác</h2>
-      <router-link to="/admin/products" class="text-blue-600 font-bold px-3 py-2 hover:bg-blue-50 rounded-xl">Quay lại danh sách</router-link>
+      <div>
+        <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Thùng rác</h2>
+      </div>
+
+      <router-link 
+        to="/admin/products"
+        class="flex items-center gap-2 text-indigo-600 font-bold px-4 py-2 hover:bg-indigo-50 rounded-xl transition-all"
+      >
+        ← Quay lại
+      </router-link>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-rose-200 overflow-x-auto">
-      <table class="w-full text-left border-collapse">
-        <thead>
-          <tr class="bg-rose-50/50 border-b border-rose-200">
-            <th class="py-3 px-4 text-xs font-bold text-rose-700 uppercase">Tên sản phẩm</th>
-            <th class="py-3 px-4 text-xs font-bold text-rose-700 uppercase">Mã</th>
-            <th class="py-3 px-4 text-xs font-bold text-rose-700 uppercase">Giá bán</th>
-            <th class="py-3 px-4 text-xs font-bold text-rose-700 uppercase text-right">Khôi phục</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-rose-100">
-          <tr v-for="product in deletedProducts" :key="product.id" class="hover:bg-rose-50 transition-colors">
-            <td class="py-2 px-4 font-bold text-rose-900">
-            <router-link 
-                :to="`/admin/products/${product.productId}/edit`" 
-                class="hover:underline hover:text-blue-600 transition-colors">
-                {{ product.productName }}
-            </router-link>
-            </td>
-            <td class="py-2 px-4 text-rose-500">{{ product.productCode }}</td>
-            <td class="py-2 px-4 font-bold text-rose-900">{{ formatCurrency(product.price) }}</td>
-            <td class="py-2 px-4 text-right">
-              <button @click="restoreProduct(product)" class="px-3 py-1 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 transition-colors">
-                Khôi phục
-              </button>
-            </td>
-          </tr>
-          <tr v-if="deletedProducts.length === 0">
-            <td colspan="4" class="py-4 text-center text-rose-400">Chưa có sản phẩm nào bị xóa</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+
+      <div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+          Danh sách sản phẩm đã xóa
+        </span>
+        <span class="text-xs font-bold text-slate-400">
+          {{ deletedProducts.length }} sản phẩm
+        </span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="py-3 px-5 text-[11px] font-black text-slate-500 uppercase tracking-widest">
+                Sản phẩm
+              </th>
+              <th class="py-3 px-5 text-[11px] font-black text-slate-500 uppercase tracking-widest text-center">
+                Mã
+              </th>
+              <th class="py-3 px-5 text-[11px] font-black text-slate-500 uppercase tracking-widest text-right">
+                Giá bán
+              </th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-slate-100">
+            <tr
+              v-for="product in deletedProducts"
+              :key="product.productId || product.id"
+              class="group cursor-pointer hover:bg-slate-50 transition-all"
+              @click="goToProduct(product.productId)"
+            >
+              <td class="py-3 px-5 font-bold text-slate-800">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-black">
+                    {{ product.productName?.charAt(0) }}
+                  </div>
+
+                  <div class="flex flex-col">
+                    <span class="group-hover:text-indigo-600 transition-colors">
+                      {{ product.productName }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+
+              <td class="py-3 px-5 text-slate-500 font-mono text-xs text-center">
+                {{ product.productCode }}
+              </td>
+
+              <td class="py-3 px-5 font-bold text-indigo-600 text-right">
+                {{ formatCurrency(product.price) }}
+              </td>
+            </tr>
+
+            <tr v-if="deletedProducts.length === 0">
+              <td colspan="3" class="py-16 text-center">
+                <div class="flex flex-col items-center justify-center gap-3 text-slate-300">
+                  <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-2xl">
+                    🗑️
+                  </div>
+                  <p class="font-bold text-slate-400">Thùng rác trống</p>
+                  <span class="text-xs text-slate-300">Không có sản phẩm nào bị xóa</span>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </div>
 </template>
 
+
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAdminProductStore } from '../../stores/admin_products'
 
+const router = useRouter()
 const productStore = useAdminProductStore()
+
 const deletedProducts = ref([])
 
 const fetchDeletedProducts = async () => {
@@ -56,16 +108,29 @@ const fetchDeletedProducts = async () => {
 
 const restoreProduct = async (product) => {
   try {
-    await productStore.restoreProduct(product.productId || product.id)
-    deletedProducts.value = deletedProducts.value.filter(p => p.id !== product.id)
-    await fetchDeletedProducts()
-    productStore.fetchProducts() 
+    const id = product.productId || product.id
+
+    await productStore.restoreProduct(id)
+
+    deletedProducts.value = deletedProducts.value.filter(
+      p => (p.productId || p.id) !== id
+    )
+
+    await productStore.fetchProducts()
+
+    router.push('/admin/products')
+
   } catch (err) {
     alert("Khôi phục thất bại!")
   }
 }
 
-const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val)
+const goToProduct = (id) => {
+  router.push(`/admin/products/trash/${id}`)
+}
+
+const formatCurrency = (val) =>
+  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val)
 
 onMounted(() => {
   fetchDeletedProducts()

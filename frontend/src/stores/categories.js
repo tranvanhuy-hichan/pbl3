@@ -6,17 +6,17 @@ const api = axios.create({
   baseURL: 'https://localhost:7010/api',
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
+    Accept: 'application/json',
+  },
 })
 
 // Interceptor để log lỗi
 api.interceptors.response.use(
-  res => res,
-  err => {
+  (res) => res,
+  (err) => {
     console.error('[Categories API Error]', err.response?.status, err.response?.data)
     return Promise.reject(err)
-  }
+  },
 )
 
 // Helper function để lấy token từ localStorage
@@ -34,7 +34,7 @@ export const useCategoryStore = defineStore('categories', () => {
 
   // Computed
   const totalCategories = computed(() => categories.value.length)
-  const activeCategories = computed(() => categories.value.filter(c => c.isActive !== false))
+  const activeCategories = computed(() => categories.value.filter((c) => c.isActive !== false))
 
   // Actions
 
@@ -90,7 +90,7 @@ export const useCategoryStore = defineStore('categories', () => {
     error.value = null
     try {
       const res = await api.post('/categories', categoryData, {
-        headers: getAuthHeader()
+        headers: getAuthHeader(),
       })
       // Refresh danh sách sau khi thêm
       await fetchCategories()
@@ -122,7 +122,7 @@ export const useCategoryStore = defineStore('categories', () => {
     error.value = null
     try {
       const res = await api.put(`/categories/${id}`, categoryData, {
-        headers: getAuthHeader()
+        headers: getAuthHeader(),
       })
       // Refresh danh sách sau khi cập nhật
       await fetchCategories()
@@ -153,10 +153,10 @@ export const useCategoryStore = defineStore('categories', () => {
     error.value = null
     try {
       await api.delete(`/categories/${id}`, {
-        headers: getAuthHeader()
+        headers: getAuthHeader(),
       })
       // Cập nhật state local thay vì fetch lại
-      categories.value = categories.value.filter(c => (c.categoryId || c.id) !== id)
+      categories.value = categories.value.filter((c) => (c.categoryId || c.id) !== id)
       return { message: 'Xóa danh mục thành công' }
     } catch (err) {
       if (err.response?.status === 401) {
@@ -197,6 +197,6 @@ export const useCategoryStore = defineStore('categories', () => {
     addCategory,
     updateCategory,
     deleteCategory,
-    clearError
+    clearError,
   }
 })
