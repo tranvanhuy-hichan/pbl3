@@ -6,7 +6,7 @@ using pbl3_web_api.Service;
 
 namespace pbl3_web_api.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Customer")]
     [Route("api/carts")]
     [ApiController]
     public class CartsController : ControllerBase

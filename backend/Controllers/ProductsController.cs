@@ -17,7 +17,7 @@ namespace pbl3_web_api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<object>> GetProduct(int id)
+        public async Task<ActionResult> GetProduct([FromRoute] int id)
         {
             try
             {
@@ -184,7 +184,7 @@ namespace pbl3_web_api.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> EditProduct(int id, [FromBody] EditProductRequest request)
-        {
+        {                                           
             try
             {
                 await _service.EditProductAsync(id, request);

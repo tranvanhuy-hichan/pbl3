@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using pbl3_web_api.DTO;
 using pbl3_web_api.Service;
 
@@ -42,6 +43,7 @@ namespace pbl3_web_api.Controllers
         // PUT: api/Categories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryRequest request)
         {
             // Gọi Service thực hiện cập nhật
@@ -60,6 +62,7 @@ namespace pbl3_web_api.Controllers
         // POST: api/Categories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddCategory([FromBody] AddCategoryRequest request)
         {
             // Kiểm tra xem dữ liệu gửi lên có hợp lệ không (ví dụ: thiếu CategoryName)
@@ -79,6 +82,7 @@ namespace pbl3_web_api.Controllers
         }
 
         // DELETE: api/Categories/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

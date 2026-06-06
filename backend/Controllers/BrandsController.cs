@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using pbl3_web_api.DTO;
 using pbl3_web_api.Service;
 
@@ -33,6 +34,7 @@ namespace pbl3_web_api.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddBrand([FromBody] AddBrandRequest request)
         {
@@ -45,6 +47,7 @@ namespace pbl3_web_api.Controllers
             return StatusCode(201, new { message = "Thêm thương hiệu mới thành công", brandId = brandId });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateBrandRequest request)
         {
@@ -56,6 +59,7 @@ namespace pbl3_web_api.Controllers
             return Ok(new { message = "Cập nhật thương hiệu thành công" });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
