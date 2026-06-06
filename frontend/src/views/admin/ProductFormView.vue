@@ -93,8 +93,11 @@
             <div class="grid grid-cols-2 gap-6">
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Mã sản phẩm (SKU)</label>
-                <input v-model="formData.productCode" type="text" readonly required placeholder="SKU-123..."
-                  class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-mono font-bold uppercase">
+                <input v-model="formData.productCode" type="text" :readonly="isEditing" required placeholder="SKU-123..."
+                  class="w-full px-5 py-3 border rounded-xl outline-none font-mono font-bold uppercase transition-all"
+                  :class="isEditing 
+                    ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed' 
+                    : 'bg-slate-50 border-slate-200 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-slate-800'">
               </div>
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Số lượng tồn kho</label>
@@ -478,7 +481,7 @@ const saveProduct = async () => {
       router.push('/admin/products')
     }
   } catch (error) {
-    alert('Lưu thất bại!')
+    alert(error.message || 'Lưu thất bại!')
   }
 }
 
