@@ -327,7 +327,7 @@ const saveUser = async () => {
     closeModal()
     userStore.fetchUsers()
   } catch (err) {
-    notify('Có lỗi xảy ra!')
+    notify(err.response?.data?.message || err.message || 'Có lỗi xảy ra!')
   }
 }
 
