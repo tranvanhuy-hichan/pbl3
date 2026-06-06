@@ -27,5 +27,7 @@ namespace pbl3_web_api.Service
         Task<List<ProductsResponse>> GetDeletedProductsAsync();
         Task RestoreProductAsync(int id);
         Task EditProductAsync(int id, EditProductRequest request);
+        Task<string> UploadProductImageAsync(int id, IFormFile file);
+
     }
 }

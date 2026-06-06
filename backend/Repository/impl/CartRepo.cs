@@ -1,26 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using pbl3_web_api.Data;
 using pbl3_web_api.Entities;
 
-namespace pbl3_web_api.Repository
+namespace pbl3_web_api.Repository.impl
 {
-    public interface ICartRepository
-    {
-        Task<IEnumerable<Cart>> GetByUserIdAsync(int userId);
-        Task<Cart?> GetByIdAsync(int cartId);
-        Task<Cart?> GetByUserAndProductAsync(int userId, int productId);
-        Task<Cart> AddAsync(Cart cart);
-        Task UpdateAsync(Cart cart);
-        Task DeleteAsync(Cart cart);
-        Task DeleteRangeAsync(IEnumerable<Cart> carts);
-        Task DeleteRange2Async(IEnumerable<Cart> carts);
-    }
-
     public class CartRepo : ICartRepository
     {
-        private readonly AppDbContext _context;
+        private readonly ShopPbl3Context _context;
 
-        public CartRepo(AppDbContext context)
+        public CartRepo(ShopPbl3Context context)
         {
             _context = context;
         }
@@ -75,6 +62,11 @@ namespace pbl3_web_api.Repository
         public async Task DeleteRange2Async(IEnumerable<Cart> carts)
         {
             _context.Carts.RemoveRange(carts);
+        }
+
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

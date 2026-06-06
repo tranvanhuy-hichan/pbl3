@@ -1,12 +1,9 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Core.Types;
+﻿using Microsoft.EntityFrameworkCore;
 using pbl3_web_api.DTO.Product;
 using pbl3_web_api.Entities;
 using pbl3_web_api.Repository;
 
-namespace pbl3_web_api.Service
+namespace pbl3_web_api.Service.impl
 {
     public class ProductService : IProductService
     {
@@ -73,11 +70,6 @@ namespace pbl3_web_api.Service
 
             var newProduct = MapToProduct(request);
 
-            if (request.ImageFile != null)
-            {
-                newProduct.ImageUrl = await SaveImageAsync(request.ImageFile);
-            }
-
             await _productRepo.AddProductAsync(newProduct);
 
             await _productRepo.SaveAsync();
@@ -104,16 +96,26 @@ namespace pbl3_web_api.Service
             var product = await _productRepo.GetProductByIdAsync(id)
                 ?? throw new KeyNotFoundException("Product Not Found");
 
-            if (request.ImageFile != null)
-            {
-                product.ImageUrl = await SaveImageAsync(request.ImageFile, product.ImageUrl);
-            }
-
             ApplyChange(product, request);
 
             await _productRepo.SaveAsync();
         }
-         
+
+        public async Task<string> UploadProductImageAsync(int id, IFormFile file)
+        {
+            var product = await _productRepo.GetProductByIdAsync(id)
+                ?? throw new KeyNotFoundException("Product Not Found");
+
+            var newUrl = await SaveImageAsync(file, product.ImageUrl);
+
+            product.ImageUrl = newUrl;
+            product.UpdatedAt = DateTime.UtcNow;
+
+            await _productRepo.SaveAsync();
+
+            return newUrl;
+        }
+
         public async Task<List<ProductsResponse>> GetDeletedProductsAsync()
         {
             IQueryable<Product> products = _productRepo.GetProductsQuery();
@@ -293,24 +295,11 @@ namespace pbl3_web_api.Service
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            if (request.price.HasValue && request.price < 0)
+            if (request.Price.HasValue && request.Price < 0)
                 throw new ArgumentException("Price cannot be negative");
 
-            if (request.stockQuantity.HasValue && request.stockQuantity < 0)
+            if (request.StockQuantity.HasValue && request.StockQuantity < 0)
                 throw new ArgumentException("StockQuantity cannot be negative");
-        }
-
-        private void ApplyChange(Product product, EditProductRequest request)
-        {
-            product.ProductName = request.productName ?? product.ProductName;
-            product.CategoryId = request.categoryId ?? product.CategoryId;
-            product.BrandId = request.brandId ?? product.BrandId;
-            product.Description = request.description ?? product.Description;
-            product.Price = request.price ?? product.Price;
-            product.StockQuantity = request.stockQuantity ?? product.StockQuantity;
-            product.Specifications = request.specifications ?? product.Specifications;
-            product.IsActive = request.isActive ?? product.IsActive;
-            product.UpdatedAt = DateTime.UtcNow;
         }
 
         private async Task ValidateAddProductRequestAsync(AddProductRequest request)
@@ -318,29 +307,42 @@ namespace pbl3_web_api.Service
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            if (!await _productRepo.CheckCategoryAndBrandExistAsync(request.categoryId, request.brandId))
+            if (!await _productRepo.CheckCategoryAndBrandExistAsync(request.CategoryId, request.BrandId))
                 throw new ArgumentException("Category or Brand does not exist");
 
-            if (request.price < 0)
+            if (request.Price < 0)
                 throw new ArgumentException("Price cannot be negative");
 
-            if (request.stockQuantity < 0)
+            if (request.StockQuantity < 0)
                 throw new ArgumentException("StockQuantity cannot be negative");
 
+        }
+
+        private void ApplyChange(Product product, EditProductRequest request)
+        {
+            product.ProductName = request.ProductName ?? product.ProductName;
+            product.CategoryId = request.CategoryId ?? product.CategoryId;
+            product.BrandId = request.BrandId ?? product.BrandId;
+            product.Description = request.Description ?? product.Description;
+            product.Price = request.Price ?? product.Price;
+            product.StockQuantity = request.StockQuantity ?? product.StockQuantity;
+            product.Specifications = request.Specifications ?? product.Specifications;
+            product.IsActive = request.IsActive ?? product.IsActive;
+            product.UpdatedAt = DateTime.UtcNow;
         }
 
         private Product MapToProduct(AddProductRequest request)
         {
             return new Product
             {
-                ProductName = request.productName,
-                ProductCode = request.productCode,
-                CategoryId = request.categoryId,
-                BrandId = request.brandId,
-                Description = request.description,
-                Price = request.price,
-                StockQuantity = request.stockQuantity,
-                Specifications = request.specifications,
+                ProductName = request.ProductName,
+                ProductCode = request.ProductCode,
+                CategoryId = request.CategoryId,
+                BrandId = request.BrandId,
+                Description = request.Description,
+                Price = request.Price,
+                StockQuantity = request.StockQuantity,
+                Specifications = request.Specifications,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow

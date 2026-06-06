@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using pbl3_web_api.Entities;
+using pbl3_web_api.Service.impl;
 
-namespace pbl3_web_api.Repository
+namespace pbl3_web_api.Repository.impl
 {
     public class OrderRepo : IOrderRepo
     {
@@ -47,7 +48,6 @@ namespace pbl3_web_api.Repository
 
         public async Task<IEnumerable<Cart>> GetCartItemsByUserIdAsync(int userId)
         {
-            Console.WriteLine(userId);
             return await _context.Carts
                 .Where(ci => ci.UserId == userId)
                 .Include(ci => ci.Product)
@@ -57,7 +57,6 @@ namespace pbl3_web_api.Repository
         public async Task AddOrderDetailAsync(OrderDetail orderDetail)
         {
             await _context.OrderDetails.AddAsync(orderDetail);
-            await SaveAsync();
         }
 
         public async Task AddRangeOrderDetailsAsync(IEnumerable<OrderDetail> orderDetails)
@@ -68,6 +67,14 @@ namespace pbl3_web_api.Repository
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
             return await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task<bool> HasUserPurchasedProductAsync(int userId, int productId)
+        {
+            return await _context.OrderDetails
+                .AnyAsync(od => od.ProductId == productId
+                             && od.Order.UserId == userId
+                             && od.Order.Status == OrderStatus.Delivered.ToString());
         }
 
         public async Task SaveAsync()
